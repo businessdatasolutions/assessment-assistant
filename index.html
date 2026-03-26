@@ -2930,7 +2930,20 @@ async function sendChatMessage() {
 }
 
 async function confirmAndExtract() {
-  chatMessages.push({ role: 'user', content: 'Bevestigd. Extraheer nu de configuratie als JSON. BELANGRIJK: verwerk ALLE correcties, aanvullingen en verduidelijkingen uit ons gesprek hierboven. De JSON moet de definitieve, gecorrigeerde versie bevatten — niet de oorspronkelijke interpretatie.' });
+  // Build a summary of the conversation for the extraction prompt
+  const conversationSummary = chatMessages
+    .filter(m => m.role === 'user' && m.content !== chatMessages[0]?.content)
+    .map(m => '- Gebruiker: ' + m.content)
+    .join('\n');
+
+  const extractionUserMsg = `De gebruiker heeft de interpretatie bevestigd. Maak nu de JSON-configuratie.
+
+CRUCIAAL: De volgende correcties/aanvullingen zijn gemaakt door de gebruiker tijdens het gesprek en MOETEN worden verwerkt in de JSON:
+${conversationSummary || '(geen aanvullende correcties)'}
+
+Lever UITSLUITEND geldige JSON op. Geen tekst ervoor of erna.`;
+
+  chatMessages.push({ role: 'user', content: extractionUserMsg });
   chatBusy = true;
   renderChatUI();
 
@@ -2950,6 +2963,35 @@ async function confirmAndExtract() {
 
     console.group('\ud83e\udd16 AI Chat \u2014 confirmAndExtract');
     console.log('Extraction request with', apiMessages.length, 'messages in history');
+    console.log('User corrections summary:', conversationSummary);
+
+    const extractionSystemPrompt = `Je extraheert een beoordelingsformulier naar JSON. Je hebt het formulier eerder besproken met de gebruiker in dit gesprek.
+
+PRIORITEITSREGEL: Als de gebruiker in het gesprek correcties of aanvullingen heeft gegeven (bijv. extra scoreniveaus, andere labels, aangepaste cesuur), dan hebben die ALTIJD VOORRANG boven wat er letterlijk in het PDF-document staat. De gebruiker is de autoriteit.
+
+Lever de JSON op in dit formaat:
+{
+  "title": "...",
+  "criteria": [
+    { "id": 1, "name": "...", "desc": "...", "tags": [{ "text": "...", "level": 1 }, ...] }
+  ],
+  "levels": {
+    "count": <aantal>,
+    "labels": { "1": "...", "2": "...", ... },
+    "shortLabels": { "1": "...", "2": "...", ... }
+  },
+  "grading": {
+    "scale": [{ "minPoints": <n>, "grade": <cijfer> }, ...],
+    "defaultGrade": 4,
+    "passRule": "...",
+    "passThreshold": <minimaal niveau>
+  }
+}
+
+Regels:
+- Genereer PRECIES 4 observatie-tags per criterium per scoreniveau (kort, max 4 woorden)
+- Niveaus nummeren vanaf 1 (laagste) oplopend
+- Antwoord UITSLUITEND met JSON, geen andere tekst`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -2962,7 +3004,7 @@ async function confirmAndExtract() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 8192,
-        system: AI_SYSTEM_PROMPT + '\n\nBELANGRIJK: Je hebt eerder in dit gesprek het formulier besproken met de gebruiker. De gebruiker heeft correcties en aanvullingen gegeven. Gebruik de DEFINITIEVE, GECORRIGEERDE interpretatie uit het gesprek — niet je oorspronkelijke analyse. Als de gebruiker heeft aangegeven dat er extra niveaus, andere labels, of aanvullende informatie is, neem dat dan op in de JSON.',
+        system: extractionSystemPrompt,
         messages: apiMessages
       })
     });
