@@ -2537,7 +2537,7 @@ Analyseer het bijgevoegde PDF-document en extraheer de volgende informatie als g
 3. **levels**: Scoreniveaus met:
    - count: aantal niveaus (integer)
    - labels: per niveau het volledige label (0-based keys: "0", "1", "2", etc.)
-   - shortLabels: per niveau een kort label (max 10 karakters, 0-based keys)
+   - shortLabels: per niveau een kort label (max 10 karakters, 0-based keys). Gebruik de eerste letters van het volledige label, bijv. "Onder" voor "Onder niveau", "Vold" voor "Voldoende", "Ondersch" voor "Onderscheidend". NIET afkortingen als "OV" of "O+".
 4. **passThreshold**: minimaal vereist niveau per criterium (integer, 0-based)
 
 Antwoord UITSLUITEND met geldige JSON. Geen tekst voor of na de JSON. Gebruik dit formaat:
