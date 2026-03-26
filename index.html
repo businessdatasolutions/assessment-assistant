@@ -1,0 +1,3205 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assessment Tool</title>
+<style>
+/* ==================== BASE ==================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f1f5f9; --surface: #ffffff; --text: #1e293b; --text-muted: #64748b;
+  --border: #e2e8f0; --primary: #2563eb; --primary-light: #dbeafe;
+  --score1: #ef4444; --score1-bg: #fef2f2; --score1-text: #991b1b;
+  --score2: #f59e0b; --score2-bg: #fffbeb; --score2-text: #92400e;
+  --score3: #22c55e; --score3-bg: #f0fdf4; --score3-text: #166534;
+  --score4: #8b5cf6; --score4-bg: #f5f3ff; --score4-text: #5b21b6;
+  --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --touch-min: 44px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+button { cursor: pointer; font-family: inherit; font-size: inherit; border: none; background: none; }
+input, textarea { font-family: inherit; font-size: inherit; }
+
+/* ==================== NAV ==================== */
+nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 0.5rem; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+nav .logo { font-weight: 700; font-size: 1.1rem; color: var(--primary); margin-right: 1.5rem; }
+nav .tab { padding: 0.5rem 1rem; border-radius: var(--radius); color: var(--text-muted); font-weight: 500; transition: all 0.15s; }
+nav .tab:hover { background: var(--bg); color: var(--text); }
+nav .tab.active { background: var(--primary-light); color: var(--primary); }
+nav .spacer { flex: 1; }
+nav .nav-actions { display: flex; gap: 0.5rem; }
+.nav-tabs-row { display: contents; }
+.hamburger { display: none; width: var(--touch-min); height: var(--touch-min); align-items: center; justify-content: center; font-size: 1.4rem; color: var(--text); border-radius: var(--radius); }
+.hamburger:hover { background: var(--bg); }
+
+/* ==================== LAYOUT ==================== */
+main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.view { display: none; }
+.view.active { display: block; }
+h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+h2 { font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text); }
+h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+
+/* ==================== CARDS ==================== */
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+
+/* ==================== CALENDAR DASHBOARD ==================== */
+.calendar { display: grid; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.cal-header { padding: 0.6rem 0.75rem; background: var(--bg); border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); }
+.cal-header:first-child { border-left: none; }
+.cal-day-title { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+.cal-day-meta { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+.cal-day-progress { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+.cal-time-label { display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); border-top: 1px solid var(--border); }
+.cal-slot { border-top: 1px solid var(--border); border-left: 1px solid var(--border); padding: 3px; background: var(--bg); transition: background 0.15s; }
+.cal-slot.drag-over { background: var(--primary-light); }
+.cal-slot-empty { cursor: pointer; }
+.cal-slot-empty:hover { background: var(--score2-bg); }
+.cal-slot-empty:hover::after { content: '+ pauze'; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.75rem; color: var(--score2-text); font-weight: 500; }
+.cal-slot-disabled { border-top: 1px solid var(--border); border-left: 1px solid var(--border); background: repeating-linear-gradient(135deg, var(--bg), var(--bg) 4px, transparent 4px, transparent 8px); }
+.cal-slot-pause { border-top: 1px solid var(--border); border-left: 1px solid var(--border); background: var(--score2-bg); display: flex; align-items: center; justify-content: center; gap: 0.5rem; position: relative; }
+.cal-pause-label { font-size: 0.8rem; font-weight: 600; color: var(--score2-text); }
+.cal-pause-remove { position: absolute; top: 4px; right: 4px; font-size: 0.7rem; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+.cal-pause-remove:hover { background: var(--score1); color: white; }
+.cal-team { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; height: 100%; cursor: grab; transition: all 0.15s; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.cal-team:hover { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+.cal-team.dragging { opacity: 0.4; }
+.cal-team-num { font-weight: 700; font-size: 0.8rem; color: var(--primary); }
+.cal-team-names { font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-team-status { font-size: 0.7rem; color: var(--text-muted); }
+.cal-team-none { border-left: 3px solid var(--border); }
+.cal-team-partial { border-left: 3px solid var(--score2); }
+.cal-team-partial .cal-team-status { color: var(--score2); font-weight: 500; }
+.cal-team-complete { border-left: 3px solid var(--score3); }
+.cal-team-complete .cal-team-status { color: var(--score3); font-weight: 500; }
+
+/* ==================== ASSESSMENT VIEW ==================== */
+.assess-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.assess-header .back-btn { padding: 0.5rem 1rem; background: var(--bg); border-radius: var(--radius); color: var(--text-muted); font-weight: 500; border: 1px solid var(--border); }
+.assess-header .back-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.assess-header .team-title { font-size: 1.3rem; font-weight: 700; flex: 1; }
+.assess-nav { display: flex; gap: 0.5rem; }
+.assess-nav button { padding: 0.5rem 1rem; background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border); color: var(--text-muted); font-weight: 500; }
+.assess-nav button:hover:not(:disabled) { color: var(--text); border-color: var(--text-muted); }
+.assess-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.criterion-block { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-bottom: 0.75rem; box-shadow: var(--shadow); }
+.criterion-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+.criterion-title .crit-num { color: var(--primary); }
+.criterion-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+.scores-row { display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 0.5rem; }
+.student-score { flex: 1; }
+.student-score .student-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted); }
+.score-btns { display: flex; gap: 0.35rem; }
+.score-btn { min-width: 70px; padding: 0.45rem 0.5rem; border-radius: var(--radius); font-weight: 600; font-size: 0.8rem; text-align: center; border: 2px solid transparent; transition: all 0.1s; }
+.score-btn.s1 { background: var(--score1-bg); color: var(--score1-text); border-color: var(--score1-bg); }
+.score-btn.s2 { background: var(--score2-bg); color: var(--score2-text); border-color: var(--score2-bg); }
+.score-btn.s3 { background: var(--score3-bg); color: var(--score3-text); border-color: var(--score3-bg); }
+.score-btn.s4 { background: var(--score4-bg); color: var(--score4-text); border-color: var(--score4-bg); }
+.score-btn.s1.active { background: var(--score1); color: white; border-color: var(--score1); }
+.score-btn.s2.active { background: var(--score2); color: white; border-color: var(--score2); }
+.score-btn.s3.active { background: var(--score3); color: white; border-color: var(--score3); }
+.score-btn.s4.active { background: var(--score4); color: white; border-color: var(--score4); }
+.score-btn:hover { opacity: 0.85; transform: scale(1.03); }
+
+.duo-score-row { display: flex; justify-content: center; }
+.duo-score-row .score-btns { justify-content: center; }
+.duo-score-row .score-btn { min-width: 90px; padding: 0.55rem 0.75rem; font-size: 0.85rem; }
+
+
+.duo-toggle { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted); margin-left: auto; }
+.duo-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); }
+
+.tags-section { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.tags-level-group { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+.tags-level-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); min-width: 60px; flex-shrink: 0; }
+.tag-chip { padding: 0.25rem 0.6rem; border-radius: 99px; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.1s; user-select: none; }
+.tag-chip.level1 { background: var(--score1-bg); color: var(--score1-text); border: 1px solid #fecaca; }
+.tag-chip.level2 { background: var(--score2-bg); color: var(--score2-text); border: 1px solid #fde68a; }
+.tag-chip.level3 { background: var(--score3-bg); color: var(--score3-text); border: 1px solid #bbf7d0; }
+.tag-chip.level4 { background: var(--score4-bg); color: var(--score4-text); border: 1px solid #ddd6fe; }
+.tag-badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.15); color: inherit; font-size: 0.6rem; font-weight: 700; width: 15px; height: 15px; border-radius: 50%; margin-left: 0.2rem; line-height: 1; }
+.tag-chip:hover { opacity: 0.8; transform: scale(1.03); }
+.tag-chip[draggable="true"] { cursor: grab; }
+.tag-chip[draggable="true"]:active { cursor: grabbing; }
+.tag-picker { position: fixed; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 0.25rem; z-index: 150; }
+.tag-picker button { display: block; width: 100%; padding: 0.4rem 0.75rem; text-align: left; border-radius: 4px; font-size: 0.85rem; white-space: nowrap; }
+.tag-picker button:hover { background: var(--primary-light); }
+.tag-picker .assigned { color: var(--score3-text); font-weight: 600; }
+.note-field textarea.drag-over { border-color: var(--primary) !important; background: var(--primary-light); }
+
+.notes-row { display: flex; gap: 1rem; margin-top: 0.5rem; }
+.note-field { flex: 1; }
+.note-field label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 0.2rem; }
+.note-field textarea { width: 100%; min-height: 50px; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.85rem; resize: vertical; overflow: hidden; field-sizing: content; }
+
+.assess-footer { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1rem 1.25rem; margin-top: 1rem; box-shadow: var(--shadow); display: flex; gap: 2rem; flex-wrap: wrap; }
+.student-total { flex: 1; min-width: 200px; }
+.student-total .total-name { font-weight: 600; font-size: 0.95rem; }
+.student-total .total-score { font-size: 1.3rem; font-weight: 700; }
+.student-total .total-grade { font-size: 1.1rem; color: var(--text-muted); margin-left: 0.5rem; }
+.student-total .total-warn { color: var(--score1); font-size: 0.85rem; font-weight: 500; margin-top: 0.15rem; }
+.student-total .total-pass { color: var(--score3); font-size: 0.85rem; font-weight: 500; margin-top: 0.15rem; }
+.btn-reset-student { margin-top: 0.5rem; padding: 0.25rem 0.6rem; font-size: 0.75rem; background: transparent; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+.btn-reset-student:hover { background: var(--score1); color: white; border-color: var(--score1); }
+
+/* ==================== RESULTS VIEW ==================== */
+.results-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.results-table th, .results-table td { padding: 0.6rem 0.75rem; text-align: center; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.results-table th { background: var(--bg); font-weight: 600; color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; position: sticky; top: 0; z-index: 10; }
+.results-table td:first-child, .results-table th:first-child { text-align: left; }
+.results-table tr:hover td { background: #f8fafc; }
+.results-table .warn { color: var(--score1); font-weight: 700; }
+.results-table .grade-cell { font-weight: 700; font-size: 1rem; }
+.results-table .group-row td { background: var(--primary-light); font-weight: 700; color: var(--primary); border: none; padding: 0.5rem 0.75rem; }
+
+/* ==================== EXPORT VIEW ==================== */
+.export-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.export-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.5rem; text-align: center; box-shadow: var(--shadow); }
+.export-card h3 { margin-bottom: 0.5rem; color: var(--text); }
+.export-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+.export-card .btn { display: inline-block; }
+.btn { padding: 0.6rem 1.2rem; border-radius: var(--radius); font-weight: 600; font-size: 0.9rem; transition: all 0.15s; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-outline { border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--text-muted); background: var(--bg); }
+.btn-danger { background: var(--score1); color: white; }
+.btn-danger:hover { background: #dc2626; }
+
+/* ==================== FEEDBACK VIEW ==================== */
+.feedback-select { margin-bottom: 1rem; }
+.feedback-select select { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 1rem; background: var(--surface); }
+.feedback-report { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem; box-shadow: var(--shadow); }
+.feedback-report h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+.feedback-report .meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.feedback-criterion { margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.feedback-criterion:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.feedback-criterion .fc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.feedback-criterion .fc-name { font-weight: 600; }
+.feedback-criterion .fc-score { font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 99px; font-size: 0.85rem; }
+.feedback-criterion .fc-score.s1 { background: var(--score1-bg); color: var(--score1-text); }
+.feedback-criterion .fc-score.s2 { background: var(--score2-bg); color: var(--score2-text); }
+.feedback-criterion .fc-score.s3 { background: var(--score3-bg); color: var(--score3-text); }
+.feedback-criterion .fc-score.s4 { background: var(--score4-bg); color: var(--score4-text); }
+.feedback-criterion .fc-tags { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+.feedback-criterion .fc-notes { font-size: 0.9rem; margin-top: 0.35rem; font-style: italic; color: var(--text); }
+.feedback-summary { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--border); display: flex; gap: 2rem; }
+.feedback-summary .fs-box { flex: 1; }
+.feedback-summary .fs-box h3 { margin-bottom: 0.5rem; }
+.feedback-summary .fs-grade { font-size: 2rem; font-weight: 800; }
+
+/* ==================== CSV IMPORT MODAL ==================== */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius); padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal h2 { margin-bottom: 1rem; }
+.modal .form-group { margin-bottom: 1rem; }
+.modal .form-group label { display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 0.9rem; }
+.modal .form-group input[type="file"] { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); }
+.modal .form-group input[type="text"],
+.modal .form-group input[type="number"],
+.modal .form-group input[type="date"],
+.modal .form-group input[type="time"],
+.modal .form-group select { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; background: var(--surface); }
+.modal .form-row { display: flex; gap: 1rem; }
+.modal .form-row .form-group { flex: 1; }
+.modal .form-help { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+.modal .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+/* ==================== STUDENT MANAGEMENT ==================== */
+.btn-action { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; color: var(--text-muted); border: 1px solid var(--border); margin: 0 0.1rem; }
+.btn-action:hover { background: var(--bg); color: var(--text); border-color: var(--text-muted); }
+.btn-action-danger:hover { background: var(--score1); color: white; border-color: var(--score1); }
+
+/* ==================== GUIDE ==================== */
+.guide { max-width: 800px; }
+.guide h2 { font-size: 1.2rem; color: var(--primary); margin: 2rem 0 0.75rem; padding-bottom: 0.35rem; border-bottom: 2px solid var(--primary-light); }
+.guide h2:first-child { margin-top: 0; }
+.guide h3 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+.guide p, .guide li { font-size: 0.92rem; line-height: 1.7; color: var(--text); }
+.guide ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.guide ol li { margin-bottom: 0.5rem; }
+.guide .guide-tip { background: var(--primary-light); border-left: 3px solid var(--primary); padding: 0.75rem 1rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 0.75rem 0; font-size: 0.88rem; }
+.guide .guide-warn { background: var(--score2-bg); border-left: 3px solid var(--score2); padding: 0.75rem 1rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 0.75rem 0; font-size: 0.88rem; }
+.guide .guide-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.88rem; }
+.guide .guide-table th, .guide .guide-table td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
+.guide .guide-table th { background: var(--bg); font-weight: 600; }
+.guide .guide-table td:first-child { font-weight: 500; }
+.guide code { background: var(--bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.85em; }
+
+/* ==================== CONFIG EDITOR ==================== */
+.config-editor { max-width: 900px; }
+.config-section { margin-bottom: 1.5rem; }
+.config-section h2 { font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.35rem; border-bottom: 2px solid var(--primary-light); color: var(--primary); }
+.config-criterion-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem; }
+.config-criterion-card .cc-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.config-criterion-card .cc-header input { flex: 1; font-weight: 600; font-size: 0.95rem; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
+.config-criterion-card .cc-num { color: var(--primary); font-weight: 700; min-width: 24px; }
+.config-criterion-card textarea { width: 100%; min-height: 40px; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; resize: vertical; field-sizing: content; }
+.config-tag-editor { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin-top: 0.35rem; }
+.config-tag-editor .tag-chip { font-size: 0.75rem; }
+.config-tag-editor .tag-remove { cursor: pointer; margin-left: 0.2rem; opacity: 0.6; }
+.config-tag-editor .tag-remove:hover { opacity: 1; }
+.config-level-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+.config-level-row input { flex: 1; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; }
+.config-level-row .level-num { min-width: 20px; font-weight: 700; color: var(--text-muted); text-align: center; }
+.config-grading-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.config-grading-row input { width: 70px; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; text-align: center; }
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 3rem; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 1rem; }
+.upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+.upload-zone.drag-over { border-color: var(--primary); background: var(--primary-light); }
+.upload-zone input[type="file"] { display: none; }
+.parsing-progress { text-align: center; padding: 2rem; color: var(--text-muted); }
+.onboarding-card { max-width: 600px; margin: 3rem auto; text-align: center; padding: 3rem; }
+.onboarding-options { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0 1rem; }
+.settings-section { margin-bottom: 2rem; }
+.settings-section h2 { font-size: 1.1rem; margin-bottom: 0.75rem; }
+.config-list-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; background: var(--surface); }
+.config-list-item .cli-info { flex: 1; }
+.config-list-item .cli-title { font-weight: 600; }
+.config-list-item .cli-meta { font-size: 0.8rem; color: var(--text-muted); }
+.config-list-item .cli-actions { display: flex; gap: 0.25rem; }
+
+/* ==================== PRINT TABLE (hidden on screen) ==================== */
+#calendarPrintArea { display: none; }
+
+.cal-print-table { border-collapse: collapse; width: 100%; }
+.cal-print-table th, .cal-print-table td { border: 1px solid #ccc; padding: 0.5rem 0.6rem; vertical-align: top; }
+.cal-print-table thead th { background: #e8edf3; text-align: left; }
+.cal-print-table thead th:first-child { width: 60px; }
+.cal-print-time { font-weight: 700; text-align: center; color: #555; font-size: 0.85rem; vertical-align: middle; }
+.cal-print-team { padding: 0.2rem 0; }
+.cal-print-team-num { font-weight: 700; color: #2563eb; font-size: 0.85rem; }
+.cal-print-team-names { font-size: 0.85rem; }
+.cal-print-team-status { font-size: 0.75rem; color: #888; }
+.cal-print-team-partial { border-left: 3px solid #f59e0b; padding-left: 0.4rem; }
+.cal-print-team-partial .cal-print-team-status { color: #92400e; }
+.cal-print-team-complete { border-left: 3px solid #22c55e; padding-left: 0.4rem; }
+.cal-print-team-complete .cal-print-team-status { color: #166534; }
+.cal-print-team-none { border-left: 3px solid #e2e8f0; padding-left: 0.4rem; }
+.cal-print-empty { background: #f9fafb; }
+.cal-print-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+
+/* ==================== RESPONSIVE: TABLET (≤768px) ==================== */
+@media (max-width: 768px) {
+  /* -- Nav: hamburger menu -- */
+  nav { flex-wrap: nowrap; height: 56px; padding: 0 0.75rem; position: relative; }
+  nav .logo { margin-right: auto; }
+  nav .spacer { display: none; }
+  .hamburger { display: flex; }
+  .nav-tabs-row {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-direction: column;
+    padding: 0.5rem; z-index: 99;
+  }
+  .nav-tabs-row.open { display: flex; }
+  .nav-tabs-row .tab {
+    padding: 0.75rem 1rem; min-height: var(--touch-min); display: flex;
+    align-items: center; border-radius: var(--radius); font-size: 0.95rem; width: 100%;
+  }
+  .nav-tabs-row .tab.active { background: var(--primary-light); color: var(--primary); }
+
+  /* -- Layout -- */
+  main { padding: 1rem 0.75rem; }
+  h1 { font-size: 1.25rem; }
+
+  /* -- Dashboard calendar: stacked per group -- */
+  .calendar-mobile-group { margin-bottom: 1rem; }
+
+  /* -- Assessment: touch-friendly -- */
+  .assess-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .assess-header .team-title { font-size: 1.1rem; }
+  .assess-nav { width: 100%; justify-content: space-between; }
+  .assess-nav button { min-height: var(--touch-min); flex: 1; }
+  .scores-row { flex-direction: column; gap: 0.75rem; }
+  .score-btn { min-width: unset; flex: 1; min-height: var(--touch-min); padding: 0.5rem; font-size: 0.85rem; }
+  .score-btns { display: flex; gap: 0.35rem; }
+  .duo-score-row .score-btn { min-width: unset; flex: 1; min-height: var(--touch-min); }
+  .tag-chip { padding: 0.4rem 0.75rem; font-size: 0.82rem; min-height: var(--touch-min); display: inline-flex; align-items: center; }
+  .notes-row { flex-direction: column; gap: 0.5rem; }
+  .note-field textarea { min-height: 60px; font-size: 0.9rem; }
+  .criterion-block { padding: 0.75rem; }
+  .criterion-title { flex-wrap: wrap; }
+  .duo-toggle { margin-left: 0; margin-top: 0.25rem; }
+  .tags-level-label { min-width: 50px; font-size: 0.7rem; }
+  .assess-footer { flex-direction: column; gap: 1rem; }
+  .student-total { min-width: unset; }
+
+  /* -- Results table -- */
+  .results-table th, .results-table td { padding: 0.4rem 0.5rem; font-size: 0.78rem; white-space: nowrap; }
+  .results-table th { font-size: 0.7rem; }
+
+  /* -- Modals: bottom sheet style -- */
+  .modal-overlay.open { align-items: flex-end; }
+  .modal { max-width: none; width: 100%; border-radius: var(--radius) var(--radius) 0 0; max-height: 90vh; overflow-y: auto; }
+  .modal .form-row { flex-direction: column; gap: 0.5rem; }
+  .modal .form-group input[type="text"],
+  .modal .form-group input[type="number"],
+  .modal .form-group input[type="date"],
+  .modal .form-group input[type="time"],
+  .modal .form-group select { min-height: var(--touch-min); font-size: 1rem; }
+  .modal .btn { min-height: var(--touch-min); font-size: 1rem; }
+
+  /* -- Guide -- */
+  .guide { max-width: 100%; }
+  .guide-table { font-size: 0.8rem; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .guide-table th, .guide-table td { padding: 0.3rem 0.5rem; }
+  .guide p, .guide li { font-size: 0.88rem; }
+
+  /* -- Export -- */
+  .export-grid { grid-template-columns: 1fr; }
+
+  /* -- Feedback -- */
+  .feedback-summary { flex-direction: column; gap: 1rem; }
+  .feedback-report { padding: 1.25rem; }
+  .feedback-select select { width: 100%; min-height: var(--touch-min); }
+
+  /* -- Tag picker: constrain to viewport -- */
+  .tag-picker { left: 0.5rem !important; right: 0.5rem; width: auto; max-width: calc(100vw - 1rem); }
+}
+
+/* ==================== RESPONSIVE: PHONE (≤480px) ==================== */
+@media (max-width: 480px) {
+  nav { padding: 0 0.5rem; }
+  nav .logo { font-size: 0.95rem; }
+  main { padding: 0.75rem 0.5rem; }
+  h1 { font-size: 1.1rem; }
+  .card { padding: 0.75rem; }
+  .criterion-block { padding: 0.5rem; margin-bottom: 0.5rem; }
+  .score-btn { font-size: 0.75rem; padding: 0.35rem; }
+  .tag-chip { font-size: 0.75rem; padding: 0.35rem 0.6rem; }
+  .tags-level-group { gap: 0.2rem; }
+  .tags-level-label { min-width: 40px; font-size: 0.65rem; }
+  .modal { padding: 1.25rem; }
+  .feedback-report { padding: 1rem; }
+  .feedback-report h2 { font-size: 1.1rem; }
+  .btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+  .btn-action { min-width: var(--touch-min); min-height: var(--touch-min); display: inline-flex; align-items: center; justify-content: center; }
+}
+
+/* ==================== PRINT ==================== */
+@media print {
+  @page { margin: 1.5cm; }
+  nav, .assess-header, .assess-nav, .no-print { display: none !important; }
+  body { background: white; color: black; }
+  main { max-width: none; padding: 0; }
+  .feedback-report { border: none; box-shadow: none; padding: 0; }
+  .view { display: none !important; }
+  .view.print-active { display: block !important; }
+  #calendarPrintArea.print-active { display: block !important; }
+  .cal-print-table thead { display: table-header-group; }
+  .cal-print-table tr { page-break-inside: avoid; }
+  .cal-print-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Assessment Tool</span>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
+  <div class="nav-tabs-row" id="navMenu">
+    <button class="tab" data-view="config">Configuratie</button>
+    <button class="tab active" data-view="dashboard">Overzicht</button>
+    <button class="tab" data-view="results">Resultaten</button>
+    <button class="tab" data-view="feedback">Feedback</button>
+    <button class="tab" data-view="students">Studenten</button>
+    <button class="tab" data-view="export">Databeheer</button>
+    <button class="tab" data-view="settings">Instellingen</button>
+    <button class="tab" data-view="guide">Handleiding</button>
+  </div>
+  <span class="spacer"></span>
+  <div class="nav-actions">
+    <button class="btn btn-outline" onclick="openImportModal()" title="CSV importeren">Importeer CSV</button>
+  </div>
+</nav>
+
+<main>
+  <section id="view-config" class="view"></section>
+  <section id="view-dashboard" class="view active"></section>
+  <section id="view-assessment" class="view"></section>
+  <section id="view-results" class="view"></section>
+  <section id="view-feedback" class="view"></section>
+  <section id="view-students" class="view"></section>
+  <section id="view-export" class="view"></section>
+  <section id="view-settings" class="view"></section>
+  <section id="view-guide" class="view"></section>
+</main>
+
+<div id="calendarPrintArea"></div>
+
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>CSV importeren</h2>
+    <div class="form-group">
+      <label>Selecteer CSV-bestand</label>
+      <input type="file" id="csvFileInput" accept=".csv">
+      <div class="form-help">Verwacht kolommen: Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</div>
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="csvReplace" checked> Bestaande data vervangen</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeImportModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="doImport()">Importeren</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="groupModal">
+  <div class="modal">
+    <h2 id="groupModalTitle">Groep toevoegen</h2>
+    <div class="form-group">
+      <label>Naam</label>
+      <input type="text" id="groupName" placeholder="bijv. BKN-F01">
+    </div>
+    <div class="form-group">
+      <label>Beoordelingsformulier</label>
+      <select id="groupConfigSelect"></select>
+    </div>
+    <div class="form-group">
+      <label>Assessoren</label>
+      <div id="assessorFields"></div>
+      <button type="button" class="btn btn-outline" onclick="addAssessorField()" style="margin-top:0.25rem;font-size:0.85rem;padding:0.3rem 0.8rem">+ Assessor</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Datum</label>
+        <input type="date" id="groupDate">
+      </div>
+      <div class="form-group" style="flex:0 0 auto">
+        <label>Van</label>
+        <input type="time" id="groupStartTime" value="09:00">
+      </div>
+      <div class="form-group" style="flex:0 0 auto">
+        <label>Tot</label>
+        <input type="time" id="groupEndTime" value="14:30">
+      </div>
+      <div class="form-group" style="flex:0 0 auto">
+        <label>Slotduur</label>
+        <input type="number" id="groupSlotDuration" min="15" step="15" value="30" style="width:70px">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeGroupModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveGroup()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="teamModal">
+  <div class="modal">
+    <h2 id="teamModalTitle">Team toevoegen</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>Groep</label>
+        <select id="teamGroupSelect" onchange="updateTeamNumSuggestion()"></select>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Vanaf nr</label>
+        <input type="number" id="teamNum" min="1" placeholder="Nr">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Aantal</label>
+        <input type="number" id="teamCount" min="1" value="1">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeTeamModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveTeam()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <h2 id="studentModalTitle">Student toevoegen</h2>
+    <div class="form-group">
+      <label>Naam</label>
+      <input type="text" id="studentName" placeholder="Volledige naam">
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>Groep</label>
+        <select id="studentGroupSelect" onchange="updateStudentTeamOptions()"></select>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Team</label>
+        <select id="studentTeamSelect"></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeStudentModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="apiKeyModal">
+  <div class="modal">
+    <h2>API-key instellen</h2>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">De API-key wordt alleen lokaal in je browser opgeslagen en is nodig om PDF-formulieren te laten analyseren door AI. Je kunt een key aanmaken via <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
+    <div class="form-group">
+      <label>Anthropic API-key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.9rem;font-family:monospace">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeApiKeyModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveApiKey()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== PROMEF LEGACY CRITERIA (used to bootstrap config) ====================
+const PROMEF_LEGACY_CRITERIA = [
+  { id: 1, name: 'Veranderen en evalueren', desc: 'Demonstreert overtuigend de uitleg van een theoretisch concept uit de fasen veranderen en/of evalueren van de bedrijfskundige handelingscyclus',
+    tags: [
+      { text: 'geen theorie', level: 1 }, { text: 'concept onjuist', level: 1 }, { text: 'niet uitgelegd', level: 1 },
+      { text: 'concept benoemd', level: 2 }, { text: 'basisuitleg', level: 2 }, { text: 'beperkt voorbeeld', level: 2 }, { text: 'weinig diepgang', level: 2 },
+      { text: 'helder uitgelegd', level: 3 }, { text: 'theorie correct', level: 3 }, { text: 'goed voorbeeld', level: 3 }, { text: 'verband met praktijk', level: 3 },
+      { text: 'diepgaande analyse', level: 4 }, { text: 'concepten verbonden', level: 4 }, { text: 'kritische reflectie', level: 4 }, { text: 'eigenstandige toepassing', level: 4 },
+    ]},
+  { id: 2, name: 'Sociaal communicatieve vaardigheden', desc: 'Toont communicatieve gespreksvaardigheden passend bij startende beroepsprofessional',
+    tags: [
+      { text: 'onderbreekt', level: 1 }, { text: 'niet luisterend', level: 1 }, { text: 'onprofessioneel', level: 1 }, { text: 'afwachtend', level: 1 },
+      { text: 'luistert, weinig doorvragen', level: 2 }, { text: 'correct maar vlak', level: 2 }, { text: 'basale communicatie', level: 2 },
+      { text: 'actief luisteren', level: 3 }, { text: 'helder verwoord', level: 3 }, { text: 'professionele toon', level: 3 }, { text: 'goede vragen', level: 3 },
+      { text: 'stuurt gesprek', level: 4 }, { text: 'overtuigend', level: 4 }, { text: 'schakelt gespreksstijl', level: 4 }, { text: 'verbindend', level: 4 },
+    ]},
+  { id: 3, name: 'Schakelen en verbinden', desc: 'Demonstreert hoe weerstand kan worden omgezet in veranderbereidheid',
+    tags: [
+      { text: 'weerstand niet herkend', level: 1 }, { text: 'geen strategie', level: 1 }, { text: 'te confronterend', level: 1 },
+      { text: 'weerstand herkend', level: 2 }, { text: 'basisaanpak', level: 2 }, { text: 'beperkt resultaat', level: 2 },
+      { text: 'creatieve oplossing', level: 3 }, { text: 'draagvlak gecre\u00eberd', level: 3 }, { text: 'empathisch', level: 3 }, { text: 'stakeholders betrokken', level: 3 },
+      { text: 'meerdere strategie\u00ebn', level: 4 }, { text: 'duurzaam draagvlak', level: 4 }, { text: 'stakeholders actief betrokken', level: 4 },
+    ]},
+  { id: 4, name: 'Professionaliseren (bijdrage)', desc: 'Heeft aantoonbaar een professionele bijdrage geleverd aan het resultaat en heeft aangetoond hoe te zijn gegroeid als professional',
+    tags: [
+      { text: 'passief', level: 1 }, { text: 'geen bijdrage zichtbaar', level: 1 }, { text: 'geen groei benoemd', level: 1 },
+      { text: 'bijdrage aanwezig', level: 2 }, { text: 'beperkte reflectie', level: 2 }, { text: 'groei deels zichtbaar', level: 2 },
+      { text: 'duidelijke bijdrage', level: 3 }, { text: 'initiatief getoond', level: 3 }, { text: 'groei zichtbaar', level: 3 }, { text: 'reflectief', level: 3 },
+      { text: 'leidende rol', level: 4 }, { text: 'anderen meegenomen', level: 4 }, { text: 'scherpe zelfreflectie', level: 4 }, { text: 'samenwerking sterk', level: 4 },
+    ]},
+  { id: 5, name: 'Professionaliseren (intercultureel)', desc: 'Bespreekt een intercultureel issue en hoe hiermee is omgegaan, wat het effect ervan was en hoe dit een volgende keer aangepakt zou kunnen worden',
+    tags: [
+      { text: 'geen voorbeeld', level: 1 }, { text: 'issue niet herkend', level: 1 }, { text: 'oppervlakkig', level: 1 },
+      { text: 'issue benoemd', level: 2 }, { text: 'beperkte analyse', level: 2 }, { text: 'algemene aanpak', level: 2 },
+      { text: 'goed omgegaan', level: 3 }, { text: 'geleerd van', level: 3 }, { text: 'bewust van impact', level: 3 },
+      { text: 'diepgaande reflectie', level: 4 }, { text: 'meerdere perspectieven', level: 4 }, { text: 'concrete gedragsverandering', level: 4 },
+    ]},
+  { id: 6, name: 'Handelen vanuit waarden', desc: 'Laat beargumenteerd zien hoe een morele kwestie kan worden geanalyseerd en opgelost (met verwijzing naar onder meer de OOA gedragsregels)',
+    tags: [
+      { text: 'geen dilemma', level: 1 }, { text: 'te zwart-wit', level: 1 }, { text: 'geen OOA verwijzing', level: 1 },
+      { text: 'dilemma benoemd', level: 2 }, { text: 'basisanalyse', level: 2 }, { text: 'beperkte onderbouwing', level: 2 },
+      { text: 'dilemma helder', level: 3 }, { text: 'OOA verwezen', level: 3 }, { text: 'genuanceerd', level: 3 }, { text: 'eigen positie', level: 3 },
+      { text: 'meerdere ethische kaders', level: 4 }, { text: 'afweging stakeholders', level: 4 }, { text: 'ethisch leiderschap', level: 4 },
+    ]}
+];
+
+const DEFAULT_GROUPS = [];
+const DEFAULT_TEAMS = [];
+const DEFAULT_STUDENTS = [];
+
+const DEMO_GROUPS = [
+  { id: 'DEMO-01', name: 'DEMO-01', configId: 'config_promef_legacy', assessors: ['Docent A', 'Docent B'], date: '2025-04-14', startTime: '09:00', endTime: '14:30', slotDuration: 30, breaks: ['12:00'] }
+];
+const DEMO_TEAMS = [
+  { id: 'DEMO-01-1', groupId: 'DEMO-01', num: 1 },
+  { id: 'DEMO-01-2', groupId: 'DEMO-01', num: 2 },
+  { id: 'DEMO-01-3', groupId: 'DEMO-01', num: 3 }
+];
+const DEMO_STUDENTS = [
+  { id: 1, name: 'Anna', groupId: 'DEMO-01', teamId: 'DEMO-01-1' },
+  { id: 2, name: 'Bas', groupId: 'DEMO-01', teamId: 'DEMO-01-1' },
+  { id: 3, name: 'Carmen', groupId: 'DEMO-01', teamId: 'DEMO-01-2' },
+  { id: 4, name: 'Daan', groupId: 'DEMO-01', teamId: 'DEMO-01-2' },
+  { id: 5, name: 'Eva', groupId: 'DEMO-01', teamId: 'DEMO-01-3' },
+  { id: 6, name: 'Finn', groupId: 'DEMO-01', teamId: 'DEMO-01-3' },
+];
+
+// ==================== CONFIG ENGINE ====================
+function getActiveConfig(groupId) {
+  if (groupId) {
+    const group = getGroup(groupId);
+    if (group && group.configId) {
+      const c = state.configs.find(c => c.id === group.configId);
+      if (c) return c;
+    }
+  }
+  const activeId = state.settings.activeConfigId;
+  return state.configs.find(c => c.id === activeId) || state.configs[0] || null;
+}
+
+function getLevelLabel(config, level, short) {
+  if (!config) return String(level);
+  if (short) return config.levels.shortLabels[level] || String(level);
+  return config.levels.labels[level] || String(level);
+}
+
+function calculateGrade(config, total) {
+  if (!config || !config.grading || !config.grading.scale) return null;
+  const sorted = [...config.grading.scale].sort((a, b) => b.minPoints - a.minPoints);
+  for (const entry of sorted) {
+    if (total >= entry.minPoints) return entry.grade;
+  }
+  return config.grading.defaultGrade || null;
+}
+
+function studentTotal(studentId, config) {
+  if (!config) return { total: 0, count: 0, complete: false, hasUnder: false, grade: null, maxPoints: 0 };
+  const criteriaCount = config.criteria.length;
+  const threshold = config.grading.passThreshold || 2;
+  const maxPoints = criteriaCount * config.levels.count;
+  let total = 0, count = 0, hasUnder = false;
+  for (const c of config.criteria) {
+    const s = getScore(studentId, c.id);
+    if (s !== null) { total += s; count++; if (s < threshold) hasUnder = true; }
+  }
+  const complete = count === criteriaCount;
+  return { total, count, complete, hasUnder, grade: complete ? calculateGrade(config, total) : null, maxPoints };
+}
+
+// ==================== DYNAMIC COLORS ====================
+function interpolateHue(stops, t) {
+  const idx = t * (stops.length - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.min(lo + 1, stops.length - 1);
+  const frac = idx - lo;
+  return stops[lo] + (stops[hi] - stops[lo]) * frac;
+}
+
+function applyConfigColors(config) {
+  if (!config) return;
+  const count = config.levels.count;
+  const root = document.documentElement;
+
+  // For 4 levels, use the defaults from CSS
+  if (count === 4) {
+    root.style.removeProperty('--score1'); root.style.removeProperty('--score1-bg'); root.style.removeProperty('--score1-text');
+    root.style.removeProperty('--score2'); root.style.removeProperty('--score2-bg'); root.style.removeProperty('--score2-text');
+    root.style.removeProperty('--score3'); root.style.removeProperty('--score3-bg'); root.style.removeProperty('--score3-text');
+    root.style.removeProperty('--score4'); root.style.removeProperty('--score4-bg'); root.style.removeProperty('--score4-text');
+    // Remove any dynamic style block
+    const dynStyle = document.getElementById('dynamic-score-styles');
+    if (dynStyle) dynStyle.remove();
+    return;
+  }
+
+  // For other counts, interpolate colors
+  const hueStops = [0, 35, 140, 270]; // red, orange, green, purple
+  let cssRules = '';
+  for (let i = 1; i <= count; i++) {
+    const t = count === 1 ? 0 : (i - 1) / (count - 1);
+    const hue = interpolateHue(hueStops, t);
+    root.style.setProperty(`--score${i}`, `hsl(${hue}, 75%, 55%)`);
+    root.style.setProperty(`--score${i}-bg`, `hsl(${hue}, 80%, 96%)`);
+    root.style.setProperty(`--score${i}-text`, `hsl(${hue}, 70%, 25%)`);
+
+    // Generate CSS classes for levels > 4
+    if (i > 4) {
+      cssRules += `.score-btn.s${i} { background: hsl(${hue},80%,96%); color: hsl(${hue},70%,25%); border-color: hsl(${hue},80%,96%); }
+.score-btn.s${i}.active { background: hsl(${hue},75%,55%); color: white; border-color: hsl(${hue},75%,55%); }
+.tag-chip.level${i} { background: hsl(${hue},80%,96%); color: hsl(${hue},70%,25%); border: 1px solid hsl(${hue},75%,80%); }
+.feedback-criterion .fc-score.s${i} { background: hsl(${hue},80%,96%); color: hsl(${hue},70%,25%); }
+`;
+    }
+  }
+
+  // Inject/update dynamic style block
+  let dynStyle = document.getElementById('dynamic-score-styles');
+  if (!dynStyle) {
+    dynStyle = document.createElement('style');
+    dynStyle.id = 'dynamic-score-styles';
+    document.head.appendChild(dynStyle);
+  }
+  dynStyle.textContent = cssRules;
+}
+
+// ==================== STATE ====================
+let state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: {} };
+
+function teamKey(group, team) { return `${group}-${team}`; }
+
+function getGroup(groupId) { return state.groups.find(g => g.id === groupId); }
+function getTeamById(teamId) { return state.teams.find(t => t.id === teamId); }
+function getGroupTeams(groupId) { return state.teams.filter(t => t.groupId === groupId).sort((a, b) => a.num - b.num); }
+
+function parseDatetimeString(str) {
+  let date = '', startTime = '', endTime = '';
+  if (!str) return { date, startTime, endTime };
+  const tm = str.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+  if (tm) { startTime = `${tm[1].padStart(2,'0')}:${tm[2]}`; endTime = `${tm[3].padStart(2,'0')}:${tm[4]}`; }
+  const months = {jan:'01',feb:'02',mrt:'03',apr:'04',mei:'05',jun:'06',jul:'07',aug:'08',sep:'09',okt:'10',nov:'11',dec:'12'};
+  const dm = str.match(/(\d{1,2})\s+(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)/i);
+  if (dm) {
+    const year = new Date().getFullYear();
+    date = `${year}-${months[dm[2].toLowerCase()]}-${dm[1].padStart(2,'0')}`;
+  }
+  return { date, startTime, endTime };
+}
+
+function formatGroupDatetime(group) {
+  if (!group || !group.date) return '';
+  const d = new Date(group.date + 'T00:00:00');
+  if (isNaN(d)) return group.date;
+  const days = ['zo','ma','di','wo','do','vr','za'];
+  const months = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  let str = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+  if (group.startTime) str += ` ${group.startTime}`;
+  if (group.endTime) str += `-${group.endTime}`;
+  return str;
+}
+
+function getGroupAssessors(group) {
+  if (!group) return '';
+  if (group.assessors) return group.assessors.join(' & ');
+  // Legacy fallback
+  return [group.senior1, group.senior2].filter(Boolean).join(' & ');
+}
+
+function buildGroupsLookup() {
+  const groups = {};
+  for (const g of state.groups) {
+    groups[g.id] = { datetime: formatGroupDatetime(g), assessors: getGroupAssessors(g), teams: {} };
+  }
+  for (const t of state.teams) {
+    if (groups[t.groupId]) groups[t.groupId].teams[t.num] = [];
+  }
+  for (const s of state.students) {
+    const t = getTeamById(s.teamId);
+    if (t && groups[t.groupId]) groups[t.groupId].teams[t.num].push(s);
+  }
+  return groups;
+}
+
+function studentTeamNum(student) {
+  const t = getTeamById(student.teamId);
+  return t ? t.num : '';
+}
+
+function getScore(studentId, critId) {
+  return state.scores[studentId]?.[critId] ?? null;
+}
+function setScore(studentId, critId, level) {
+  if (!state.scores[studentId]) state.scores[studentId] = {};
+  const current = state.scores[studentId][critId];
+  state.scores[studentId][critId] = current === level ? null : level;
+
+  // Team mode: sync to all teammates
+  const student = state.students.find(s => s.id === studentId);
+  const tm = student ? getTeamById(student.teamId) : null;
+  if (tm && isDuoMode(tm.groupId, tm.num, critId)) {
+    const teammates = getTeammates(student);
+    for (const mate of teammates) {
+      if (!state.scores[mate.id]) state.scores[mate.id] = {};
+      state.scores[mate.id][critId] = state.scores[studentId][critId];
+    }
+  }
+  saveState();
+}
+
+// Tag functions — tags are stored as checkmark-prefixed lines in notes
+function isTagInNote(studentId, critId, tagText) {
+  const note = getNote(studentId, critId);
+  if (!note) return false;
+  return note.includes('\u2713 ' + tagText);
+}
+
+function getTagAssignees(critId, tagText) {
+  const students = getTeamStudents(currentTeamGroup, currentTeamNum);
+  return students.filter(s => isTagInNote(s.id, critId, tagText));
+}
+
+function insertTagInNote(studentId, critId, tagText) {
+  if (isTagInNote(studentId, critId, tagText)) {
+    const note = getNote(studentId, critId);
+    const cleaned = note.replace('\u2713 ' + tagText, '').replace(/\n{2,}/g, '\n').replace(/^\n+|\n+$/g, '');
+    setNote(studentId, critId, cleaned);
+  } else {
+    const current = getNote(studentId, critId);
+    const tagLine = '\u2713 ' + tagText;
+    setNote(studentId, critId, current ? current + '\n' + tagLine : tagLine);
+  }
+}
+
+let activeTagPicker = null;
+
+function showTagPicker(event, critId, tagText) {
+  event.stopPropagation();
+  closeTagPicker();
+  const students = getTeamStudents(currentTeamGroup, currentTeamNum);
+  const picker = document.createElement('div');
+  picker.className = 'tag-picker';
+  const safeText = tagText.replace(/'/g, "\\'");
+  let btns = '';
+  for (const s of students) {
+    const assigned = isTagInNote(s.id, critId, tagText);
+    btns += `<button class="${assigned ? 'assigned' : ''}"
+      onclick="event.stopPropagation(); insertTagInNote(${s.id}, ${critId}, '${safeText}'); closeTagPicker(); renderAssessment();">
+      ${assigned ? '\u2713 ' : ''}${s.name}</button>`;
+  }
+  picker.innerHTML = btns;
+  const rect = event.target.getBoundingClientRect();
+  picker.style.left = Math.min(rect.left, window.innerWidth - 160) + 'px';
+  picker.style.top = (rect.bottom + 4) + 'px';
+  document.body.appendChild(picker);
+  activeTagPicker = picker;
+  setTimeout(() => { document.addEventListener('click', closePickerOutside); }, 0);
+}
+
+function closeTagPicker() {
+  if (activeTagPicker) { activeTagPicker.remove(); activeTagPicker = null; document.removeEventListener('click', closePickerOutside); }
+}
+
+function closePickerOutside(e) {
+  if (activeTagPicker && !activeTagPicker.contains(e.target)) closeTagPicker();
+}
+
+let tagDragData = null;
+
+function startTagDrag(e, critId, tagText) {
+  tagDragData = { critId, tagText };
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/plain', '\u2713 ' + tagText);
+}
+
+function endTagDrag(e) { tagDragData = null; }
+
+function updateTagBadges(critId) {
+  const section = document.querySelector(`[data-crit-tags="${critId}"]`);
+  if (!section) return;
+  section.querySelectorAll('.tag-chip').forEach(chip => {
+    const tagText = chip.dataset.tag;
+    if (!tagText) return;
+    const assignees = getTagAssignees(critId, tagText);
+    chip.querySelectorAll('.tag-badge').forEach(b => b.remove());
+    assignees.forEach(s => {
+      const badge = document.createElement('span');
+      badge.className = 'tag-badge';
+      badge.textContent = s.name[0];
+      chip.appendChild(badge);
+    });
+  });
+}
+
+function handleNoteDrop(e, studentId, critId) {
+  e.preventDefault();
+  if (!tagDragData) return;
+  insertTagInNote(studentId, critId, tagDragData.tagText);
+  tagDragData = null;
+  renderAssessment();
+}
+
+// Custom tag during assessment
+function showAddTagForm(critId) {
+  const text = prompt('Observatie-tag tekst:');
+  if (!text || !text.trim()) return;
+  const config = getActiveConfig(currentTeamGroup);
+  if (!config) return;
+  const levelStr = prompt(`Niveau (1-${config.levels.count}):`, '1');
+  const level = parseInt(levelStr);
+  if (!level || level < 1 || level > config.levels.count) return;
+  addCustomTag(config.id, critId, text.trim(), level);
+}
+
+function addCustomTag(configId, critId, tagText, level) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const crit = config.criteria.find(c => c.id === critId);
+  if (!crit) return;
+  if (!crit.tags) crit.tags = [];
+  crit.tags.push({ text: tagText, level, custom: true });
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderAssessment();
+}
+
+function getNote(studentId, critId) {
+  return state.notes[studentId]?.[critId] ?? '';
+}
+function setNote(studentId, critId, text) {
+  if (!state.notes[studentId]) state.notes[studentId] = {};
+  state.notes[studentId][critId] = text;
+  saveState();
+}
+
+function isDuoMode(group, team, critId) {
+  const tk = teamKey(group, team);
+  return state.duoMode[tk]?.[critId] ?? false;
+}
+function toggleDuoMode(group, team, critId) {
+  const tk = teamKey(group, team);
+  if (!state.duoMode[tk]) state.duoMode[tk] = {};
+  state.duoMode[tk][critId] = !state.duoMode[tk][critId];
+
+  if (state.duoMode[tk][critId]) {
+    const teammates = getTeamStudents(group, team);
+    if (teammates.length >= 2) {
+      let score = null;
+      for (const s of teammates) { score = getScore(s.id, critId); if (score !== null) break; }
+      if (score !== null) {
+        for (const s of teammates) {
+          if (!state.scores[s.id]) state.scores[s.id] = {};
+          state.scores[s.id][critId] = score;
+        }
+      }
+    }
+  }
+  saveState();
+}
+
+function getTeammates(student) {
+  return state.students.filter(s => s.teamId === student.teamId && s.id !== student.id);
+}
+function getTeamStudents(group, teamNum) {
+  const tk = teamKey(group, teamNum);
+  return state.students.filter(s => s.teamId === tk);
+}
+
+// ==================== PERSISTENCE ====================
+function saveState() {
+  try {
+    localStorage.setItem('assessment_tool_state', JSON.stringify(state));
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      alert('Opslagruimte vol! Exporteer je data via Databeheer \u2192 JSON Backup en wis oude data.');
+    } else {
+      console.error('Save error:', e);
+    }
+  }
+}
+
+function migrateState() {
+  // 1. Detect old format: students have 'group' instead of 'groupId'
+  if (state.students && state.students.length > 0 && state.students[0].groupId === undefined && state.students[0].group !== undefined) {
+    const groupMap = {}, teamMap = {};
+    for (const s of state.students) {
+      if (!groupMap[s.group]) {
+        const { date, startTime, endTime } = parseDatetimeString(s.datetime);
+        groupMap[s.group] = { id: s.group, name: s.group, assessors: [s.senior1 || '', s.senior2 || ''].filter(Boolean), date, startTime, endTime, slotDuration: 30, breaks: ['12:00'] };
+      }
+      const tk = teamKey(s.group, s.team);
+      if (!teamMap[tk]) teamMap[tk] = { id: tk, groupId: s.group, num: s.team };
+      s.groupId = s.group; s.teamId = tk;
+      delete s.group; delete s.team; delete s.senior1; delete s.senior2; delete s.datetime;
+    }
+    state.groups = Object.values(groupMap);
+    state.teams = Object.values(teamMap);
+    saveState();
+  }
+
+  // 2. Migrate senior1/senior2 to assessors[]
+  for (const g of state.groups) {
+    if (g.senior1 !== undefined && !g.assessors) {
+      g.assessors = [g.senior1, g.senior2].filter(Boolean);
+      delete g.senior1;
+      delete g.senior2;
+    }
+    if (!g.assessors) g.assessors = [];
+  }
+
+  // 3. Bootstrap PROMEF legacy config if no configs exist
+  if (!state.configs || state.configs.length === 0) {
+    state.configs = [{
+      id: 'config_promef_legacy',
+      title: 'PROMEF eindassessment F-cluster',
+      criteria: JSON.parse(JSON.stringify(PROMEF_LEGACY_CRITERIA)),
+      levels: {
+        count: 4,
+        labels: { '1': 'Onder niveau', '2': 'Op niveau', '3': 'Boven niveau', '4': 'Excellent' },
+        shortLabels: { '1': 'Onder', '2': 'Op', '3': 'Boven', '4': 'Excellent' }
+      },
+      grading: {
+        scale: [{minPoints:24,grade:10},{minPoints:20,grade:9},{minPoints:16,grade:8},{minPoints:14,grade:7},{minPoints:12,grade:6},{minPoints:10,grade:5},{minPoints:5,grade:4}],
+        defaultGrade: 4,
+        passRule: 'Alle criteria minimaal op niveau (2)',
+        passThreshold: 2
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }];
+    state.settings.activeConfigId = 'config_promef_legacy';
+  }
+
+  // 4. Ensure all groups have configId
+  for (const g of state.groups) {
+    if (!g.configId && state.configs.length > 0) {
+      g.configId = state.configs[0].id;
+    }
+  }
+}
+
+function loadState() {
+  // Try loading from new key
+  let saved = localStorage.getItem('assessment_tool_state');
+  // Fallback: try old PROMEF key
+  if (!saved) {
+    saved = localStorage.getItem('promef_state');
+  }
+  if (saved) {
+    try { state = JSON.parse(saved); } catch(e) { console.error('Load error', e); }
+  }
+  if (!state.configs) state.configs = [];
+  if (!state.groups) state.groups = [];
+  if (!state.teams) state.teams = [];
+  if (!state.slots) state.slots = {};
+  if (!state.settings) state.settings = {};
+  migrateState();
+  for (const g of state.groups) {
+    if (!g.slotDuration) g.slotDuration = 30;
+    if (!g.breaks) g.breaks = [];
+  }
+  assignDefaultSlots();
+}
+
+// ==================== CSV PARSER ====================
+function parseCSV(text) {
+  const firstLine = text.split(/\r?\n/)[0] || '';
+  const sep = firstLine.includes(';') ? ';' : ',';
+  const rows = [];
+  let current = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQuotes = false; }
+      else { field += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === sep) { current.push(field.trim()); field = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i+1] === '\n') i++;
+        if (field.length > 0 || current.length > 0) { current.push(field.trim()); rows.push(current); current = []; field = ''; }
+      } else { field += ch; }
+    }
+  }
+  if (field.length > 0 || current.length > 0) { current.push(field.trim()); rows.push(current); }
+  return rows;
+}
+
+function importCSV(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) return false;
+  const header = rows[0].map(h => h.toLowerCase().trim());
+  const ni = header.indexOf('naam'), gi = header.indexOf('groep'), ti = header.indexOf('team');
+  const di = header.indexOf('datumtijd');
+  if (ni < 0 || gi < 0 || ti < 0) return false;
+
+  // Detect assessor columns dynamically
+  const assessorIndices = [];
+  header.forEach((h, idx) => {
+    if (h.match(/^(assessor|senior)\s*\d*$/i)) assessorIndices.push(idx);
+  });
+
+  const groupMap = {}, teamMap = {}, students = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[ni]) continue;
+    const groupName = r[gi] || '';
+    const teamNum = parseInt(r[ti]) || 0;
+    const tk = teamKey(groupName, teamNum);
+    if (!groupMap[groupName]) {
+      const { date, startTime, endTime } = parseDatetimeString(r[di] || '');
+      const assessors = assessorIndices.map(idx => r[idx] || '').filter(Boolean);
+      groupMap[groupName] = { id: groupName, name: groupName, assessors, date, startTime, endTime, slotDuration: 30, breaks: ['12:00'] };
+    }
+    if (!teamMap[tk]) teamMap[tk] = { id: tk, groupId: groupName, num: teamNum };
+    students.push({ id: i, name: r[ni], groupId: groupName, teamId: tk });
+  }
+  return { groups: Object.values(groupMap), teams: Object.values(teamMap), students };
+}
+
+// ==================== NAVIGATION ====================
+let currentView = 'dashboard';
+let currentTeamGroup = null, currentTeamNum = null;
+
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav .tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) el.classList.add('active');
+  const tab = document.querySelector(`nav .tab[data-view="${view}"]`);
+  if (tab) tab.classList.add('active');
+  const menu = document.getElementById('navMenu');
+  if (menu) menu.classList.remove('open');
+
+  if (view === 'config') renderConfig();
+  else if (view === 'dashboard') renderDashboard();
+  else if (view === 'assessment') renderAssessment();
+  else if (view === 'results') renderResults();
+  else if (view === 'feedback') renderFeedback();
+  else if (view === 'students') renderStudents();
+  else if (view === 'export') renderExport();
+  else if (view === 'settings') renderSettings();
+  else if (view === 'guide') renderGuide();
+}
+
+document.querySelectorAll('nav .tab').forEach(tab => {
+  tab.addEventListener('click', () => showView(tab.dataset.view));
+});
+
+function openAssessment(group, team) {
+  currentTeamGroup = group;
+  currentTeamNum = team;
+  showView('assessment');
+}
+
+// ==================== CALENDAR HELPERS ====================
+function getGroupTimeSlots(group) {
+  if (!group || !group.startTime || !group.endTime) return [];
+  const dur = group.slotDuration || 30;
+  const [sh, sm] = group.startTime.split(':').map(Number);
+  const [eh, em] = group.endTime.split(':').map(Number);
+  const startMin = sh * 60 + sm;
+  const endMin = eh * 60 + em;
+  const slots = [];
+  for (let m = startMin; m < endMin; m += dur) {
+    slots.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+  }
+  return slots;
+}
+
+function isBreakSlot(group, slot) {
+  return group && group.breaks && group.breaks.includes(slot);
+}
+
+function getAllTimeSlots() {
+  const allSlots = new Set();
+  for (const g of state.groups) { getGroupTimeSlots(g).forEach(s => allSlots.add(s)); }
+  return [...allSlots].sort();
+}
+
+function assignDefaultSlots() {
+  for (const g of state.groups) {
+    const slots = getGroupTimeSlots(g).filter(s => !isBreakSlot(g, s));
+    const teams = getGroupTeams(g.id);
+    let slotIdx = 0;
+    for (const t of teams) {
+      if (!state.slots[t.id]) { state.slots[t.id] = slots[slotIdx] || slots[slots.length - 1] || '09:00'; }
+      slotIdx++;
+    }
+  }
+  saveState();
+}
+
+function getTeamStatus(group, teamNum) {
+  const config = getActiveConfig(group);
+  if (!config) return 'none';
+  const students = getTeamStudents(group, teamNum);
+  const criteriaCount = config.criteria.length;
+  let scored = 0, total = students.length * criteriaCount;
+  students.forEach(s => { config.criteria.forEach(c => { if (getScore(s.id, c.id) !== null) scored++; }); });
+  if (scored === 0) return 'none';
+  if (scored === total) return 'complete';
+  return 'partial';
+}
+
+let dragData = null;
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const el = document.getElementById('view-dashboard');
+  const groups = buildGroupsLookup();
+  const sortedGroups = Object.keys(groups).sort();
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  const groupSlotSets = {};
+  for (const gName of sortedGroups) {
+    const g = getGroup(gName);
+    groupSlotSets[gName] = new Set(getGroupTimeSlots(g));
+  }
+
+  let html = `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+    <h1 style="margin:0">Overzicht Assessments</h1>
+    <button class="btn btn-outline no-print" onclick="printCalendar()">Print / PDF</button>
+  </div>`;
+
+  if (isMobile) {
+    for (const gName of sortedGroups) {
+      const g = groups[gName];
+      const grp = getGroup(gName);
+      const config = getActiveConfig(gName);
+      const groupSlots = getGroupTimeSlots(grp);
+      let totalScored = 0, totalCriteria = 0;
+      const criteria = config ? config.criteria : [];
+      for (const tNum of Object.keys(g.teams)) {
+        g.teams[tNum].forEach(s => { criteria.forEach(c => { totalCriteria++; if (getScore(s.id, c.id) !== null) totalScored++; }); });
+      }
+
+      html += `<div class="calendar calendar-mobile-group" style="grid-template-columns: 60px 1fr; grid-template-rows: auto repeat(${groupSlots.length}, 64px);">`;
+      html += `<div class="cal-header" style="grid-column: 1 / -1;">
+        <div class="cal-day-title">${gName}</div>
+        <div class="cal-day-meta">${g.datetime}</div>
+        <div class="cal-day-meta">${g.assessors}</div>
+        <div class="cal-day-progress">${totalScored}/${totalCriteria} scores</div>
+      </div>`;
+
+      for (const slot of groupSlots) {
+        html += `<div class="cal-time-label">${slot}</div>`;
+        html += renderCalSlot(gName, g, grp, slot, groupSlotSets[gName]);
+      }
+      html += '</div>';
+    }
+  } else {
+    const timeSlots = getAllTimeSlots();
+    html += `<div class="calendar" style="grid-template-columns: 60px repeat(${sortedGroups.length}, 1fr); grid-template-rows: auto repeat(${timeSlots.length}, 72px);">`;
+
+    html += '<div class="cal-header"></div>';
+    for (const gName of sortedGroups) {
+      const g = groups[gName];
+      const config = getActiveConfig(gName);
+      const criteria = config ? config.criteria : [];
+      let totalScored = 0, totalCriteria = 0;
+      for (const tNum of Object.keys(g.teams)) {
+        g.teams[tNum].forEach(s => { criteria.forEach(c => { totalCriteria++; if (getScore(s.id, c.id) !== null) totalScored++; }); });
+      }
+      html += `<div class="cal-header">
+        <div class="cal-day-title">${gName}</div>
+        <div class="cal-day-meta">${g.datetime}</div>
+        <div class="cal-day-meta">${g.assessors}</div>
+        <div class="cal-day-progress">${totalScored}/${totalCriteria} scores</div>
+      </div>`;
+    }
+
+    for (const slot of timeSlots) {
+      html += `<div class="cal-time-label">${slot}</div>`;
+      for (const gName of sortedGroups) {
+        const g = groups[gName];
+        const grp = getGroup(gName);
+        html += renderCalSlot(gName, g, grp, slot, groupSlotSets[gName]);
+      }
+    }
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function renderCalSlot(gName, g, grp, slot, slotSet) {
+  const inRange = slotSet.has(slot);
+  const isPause = inRange && isBreakSlot(grp, slot);
+
+  if (!inRange) return '<div class="cal-slot cal-slot-disabled"></div>';
+
+  if (isPause) {
+    return `<div class="cal-slot cal-slot-pause">
+      <span class="cal-pause-label">Pauze</span>
+      <button class="cal-pause-remove" onclick="removeBreak('${gName.replace(/'/g, "\\'")}', '${slot}')" title="Pauze verwijderen">\u2715</button>
+    </div>`;
+  }
+
+  const teamInSlot = Object.keys(g.teams).map(Number).find(tNum => {
+    const tk = teamKey(gName, tNum);
+    return state.slots[tk] === slot;
+  });
+
+  const safeG = gName.replace(/'/g, "\\'");
+  let html = `<div class="cal-slot ${teamInSlot === undefined ? 'cal-slot-empty' : ''}" data-group="${gName}" data-slot="${slot}"
+    ondragover="event.preventDefault(); this.classList.add('drag-over')"
+    ondragleave="this.classList.remove('drag-over')"
+    ondrop="dropTeam(event, this)"
+    ${teamInSlot === undefined ? `onclick="addBreak('${safeG}', '${slot}')" title="Klik om pauze toe te voegen"` : ''}>`;
+
+  if (teamInSlot !== undefined) {
+    const students = g.teams[teamInSlot];
+    const names = students.map(s => s.name).join(' & ');
+    const status = getTeamStatus(gName, teamInSlot);
+
+    html += `<div class="cal-team cal-team-${status}" draggable="true"
+      data-group="${gName}" data-team="${teamInSlot}"
+      ondragstart="startDrag(event, '${gName}', ${teamInSlot})"
+      ondragend="endDrag(event)"
+      onclick="openAssessment('${gName}', ${teamInSlot})">
+      <div class="cal-team-num">Team ${teamInSlot}</div>
+      <div class="cal-team-names">${names}</div>
+      <div class="cal-team-status">${status === 'none' ? '' : status === 'complete' ? 'Volledig' : 'Deels beoordeeld'}</div>
+    </div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function startDrag(e, group, team) { dragData = { group, team }; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('dragging'); }
+function endDrag(e) { e.target.classList.remove('dragging'); dragData = null; document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over')); }
+
+function addBreak(groupId, slot) {
+  const g = getGroup(groupId);
+  if (g) { if (!g.breaks) g.breaks = []; if (!g.breaks.includes(slot)) g.breaks.push(slot); saveState(); renderDashboard(); }
+}
+
+function removeBreak(groupId, slot) {
+  const g = getGroup(groupId);
+  if (g && g.breaks) { g.breaks = g.breaks.filter(b => b !== slot); saveState(); renderDashboard(); }
+}
+
+function dropTeam(e, slotEl) {
+  e.preventDefault();
+  slotEl.classList.remove('drag-over');
+  if (!dragData) return;
+  const targetGroup = slotEl.dataset.group;
+  const targetSlot = slotEl.dataset.slot;
+  if (dragData.group !== targetGroup) return;
+  const dragTk = teamKey(dragData.group, dragData.team);
+  const existingTeam = Object.keys(state.slots).find(tk =>
+    tk.startsWith(targetGroup + '-') && state.slots[tk] === targetSlot && tk !== dragTk
+  );
+  if (existingTeam) { state.slots[existingTeam] = state.slots[dragTk]; }
+  state.slots[dragTk] = targetSlot;
+  saveState();
+  renderDashboard();
+}
+
+// ==================== CALENDAR PRINT ====================
+function printCalendar() {
+  const groups = buildGroupsLookup();
+  const sortedGroups = Object.keys(groups).sort();
+
+  let html = '<div class="cal-print-title">Overzicht Assessments</div>';
+  html += '<table class="cal-print-table"><thead><tr><th></th>';
+  for (const gName of sortedGroups) {
+    const g = groups[gName];
+    html += `<th><strong>${gName}</strong><br>${g.datetime}<br>${g.assessors}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  const timeSlots = getAllTimeSlots();
+  const groupSlotSets = {};
+  for (const gName of sortedGroups) { groupSlotSets[gName] = new Set(getGroupTimeSlots(getGroup(gName))); }
+
+  for (const slot of timeSlots) {
+    html += '<tr>';
+    html += `<td class="cal-print-time">${slot}</td>`;
+    for (const gName of sortedGroups) {
+      const g = groups[gName];
+      const grp = getGroup(gName);
+      const inRange = groupSlotSets[gName].has(slot);
+
+      if (!inRange) { html += '<td class="cal-print-empty"></td>'; continue; }
+      if (isBreakSlot(grp, slot)) { html += '<td style="background:#fff8e1;text-align:center;color:#92400e;font-weight:600;font-size:0.85rem">Pauze</td>'; continue; }
+
+      const teamInSlot = Object.keys(g.teams).map(Number).find(tNum => {
+        return state.slots[teamKey(gName, tNum)] === slot;
+      });
+
+      if (teamInSlot !== undefined) {
+        const students = g.teams[teamInSlot];
+        const names = students.map(s => s.name).join(' & ');
+        const status = getTeamStatus(gName, teamInSlot);
+        const statusText = status === 'complete' ? 'Volledig beoordeeld' : status === 'partial' ? 'Deels beoordeeld' : '';
+        html += `<td><div class="cal-print-team cal-print-team-${status}">
+          <div class="cal-print-team-num">Team ${teamInSlot}</div>
+          <div class="cal-print-team-names">${names}</div>
+          ${statusText ? `<div class="cal-print-team-status">${statusText}</div>` : ''}
+        </div></td>`;
+      } else {
+        html += '<td class="cal-print-empty"></td>';
+      }
+    }
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  const printArea = document.getElementById('calendarPrintArea');
+  printArea.innerHTML = html;
+  printArea.classList.add('print-active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('print-active'));
+  window.print();
+  printArea.classList.remove('print-active');
+}
+
+// ==================== ASSESSMENT ====================
+function getAllTeams() {
+  return state.teams.map(t => {
+    const g = getGroup(t.groupId);
+    return { group: t.groupId, team: t.num, datetime: g ? formatGroupDatetime(g) : '' };
+  }).sort((a, b) => a.datetime.localeCompare(b.datetime) || a.group.localeCompare(b.group) || a.team - b.team);
+}
+
+function renderAssessment() {
+  const el = document.getElementById('view-assessment');
+  if (!currentTeamGroup || !currentTeamNum) { showView('dashboard'); return; }
+
+  const students = getTeamStudents(currentTeamGroup, currentTeamNum);
+  if (students.length === 0) { showView('dashboard'); return; }
+
+  const config = getActiveConfig(currentTeamGroup);
+  if (!config) { el.innerHTML = '<p>Geen configuratie gevonden voor deze groep.</p>'; return; }
+  applyConfigColors(config);
+
+  const allTeams = getAllTeams();
+  const currentIdx = allTeams.findIndex(t => t.group === currentTeamGroup && t.team === currentTeamNum);
+  const prevTeam = currentIdx > 0 ? allTeams[currentIdx - 1] : null;
+  const nextTeam = currentIdx < allTeams.length - 1 ? allTeams[currentIdx + 1] : null;
+  const tk = teamKey(currentTeamGroup, currentTeamNum);
+  const names = students.map(s => s.name).join(' & ');
+  const grp = getGroup(currentTeamGroup);
+
+  let html = `<div class="assess-header">
+    <button class="back-btn" onclick="showView('dashboard')">\u2190 Overzicht</button>
+    <span class="team-title">Team ${currentTeamNum}: ${names}</span>
+    <span style="color:var(--text-muted);font-size:0.9rem">${currentTeamGroup} &bull; ${formatGroupDatetime(grp)}</span>
+    <div class="assess-nav">
+      <button ${prevTeam ? `onclick="openAssessment('${prevTeam.group}', ${prevTeam.team})"` : 'disabled'}>\u2190 Vorig</button>
+      <button ${nextTeam ? `onclick="openAssessment('${nextTeam.group}', ${nextTeam.team})"` : 'disabled'}>Volgend \u2192</button>
+    </div>
+  </div>`;
+
+  for (const crit of config.criteria) {
+    const duo = isDuoMode(currentTeamGroup, currentTeamNum, crit.id);
+    html += `<div class="criterion-block">
+      <div class="criterion-title">
+        <span class="crit-num">${crit.id}.</span> ${crit.name}
+        <span class="duo-toggle">
+          <input type="checkbox" id="duo-${tk}-${crit.id}" ${duo ? 'checked' : ''}
+            onchange="toggleDuoMode('${currentTeamGroup}', ${currentTeamNum}, ${crit.id}); renderAssessment();">
+          <label for="duo-${tk}-${crit.id}">Teamscore</label>
+        </span>
+      </div>
+      <div class="criterion-desc">${crit.desc}</div>`;
+
+    if (duo) {
+      const score = getScore(students[0].id, crit.id);
+      html += `<div class="duo-score-row"><div class="score-btns">`;
+      for (let lvl = 1; lvl <= config.levels.count; lvl++) {
+        html += `<button class="score-btn s${lvl} ${score === lvl ? 'active' : ''}"
+          onclick="setScore(${students[0].id}, ${crit.id}, ${lvl}); renderAssessment();"
+          title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl, true)}</button>`;
+      }
+      html += `</div></div>`;
+    } else {
+      html += `<div class="scores-row">`;
+      for (const s of students) {
+        const score = getScore(s.id, crit.id);
+        html += `<div class="student-score">
+          <div class="student-label">${s.name}</div>
+          <div class="score-btns">`;
+        for (let lvl = 1; lvl <= config.levels.count; lvl++) {
+          html += `<button class="score-btn s${lvl} ${score === lvl ? 'active' : ''}"
+            onclick="setScore(${s.id}, ${crit.id}, ${lvl}); renderAssessment();"
+            title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl, true)}</button>`;
+        }
+        html += `</div></div>`;
+      }
+      html += `</div>`;
+    }
+
+    // Tags grouped by score level
+    html += `<div class="tags-section" data-crit-tags="${crit.id}">`;
+    for (let lvl = 1; lvl <= config.levels.count; lvl++) {
+      const lvlTags = (crit.tags || []).filter(t => t.level === lvl);
+      html += `<div class="tags-level-group"><span class="tags-level-label">${getLevelLabel(config, lvl, true)}</span>`;
+      for (const tag of lvlTags) {
+        const assignees = getTagAssignees(crit.id, tag.text);
+        const badges = assignees.map(s => `<span class="tag-badge">${s.name[0]}</span>`).join('');
+        const safeText = tag.text.replace(/'/g, "\\'");
+        html += `<span class="tag-chip level${lvl}" data-tag="${tag.text}" draggable="true"
+          ondragstart="startTagDrag(event, ${crit.id}, '${safeText}')"
+          ondragend="endTagDrag(event)"
+          onclick="showTagPicker(event, ${crit.id}, '${safeText}')">${tag.text}${badges}</span>`;
+      }
+      html += `</div>`;
+    }
+    // Add custom tag button
+    html += `<div class="tags-level-group">
+      <span class="tags-level-label"></span>
+      <span class="tag-chip" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:0.72rem;cursor:pointer"
+        onclick="showAddTagForm(${crit.id})">+ tag</span>
+    </div>`;
+    html += `</div>`;
+
+    // Notes per student
+    html += `<div class="notes-row">`;
+    for (const s of students) {
+      const note = getNote(s.id, crit.id);
+      html += `<div class="note-field">
+        <label>${s.name}</label>
+        <textarea placeholder="Sleep een tag of typ notitie\u2026"
+          oninput="setNote(${s.id}, ${crit.id}, this.value); updateTagBadges(${crit.id})"
+          ondragover="event.preventDefault(); this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleNoteDrop(event, ${s.id}, ${crit.id}); this.classList.remove('drag-over')">${note}</textarea>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // Footer with totals
+  html += `<div class="assess-footer">`;
+  for (const s of students) {
+    const t = studentTotal(s.id, config);
+    let statusHtml = '';
+    if (t.complete) {
+      if (t.hasUnder) statusHtml = `<div class="total-warn">Onvoldoende: criterium onder niveau</div>`;
+      else statusHtml = `<div class="total-pass">Voldoende</div>`;
+    } else {
+      statusHtml = `<div style="color:var(--text-muted);font-size:0.85rem">${t.count}/${config.criteria.length} criteria gescoord</div>`;
+    }
+    html += `<div class="student-total">
+      <div class="total-name">${s.name}</div>
+      <span class="total-score">${t.total}/${t.maxPoints}</span>
+      ${t.grade !== null ? `<span class="total-grade">Cijfer: ${t.grade}</span>` : ''}
+      ${statusHtml}
+      <button class="btn-reset-student" onclick="clearStudentScores(${s.id}, '${s.name.replace(/'/g, "\\'")}')">Scores wissen</button>
+    </div>`;
+  }
+  html += `</div>`;
+
+  el.innerHTML = html;
+}
+
+// ==================== RESULTS ====================
+function renderResults() {
+  const el = document.getElementById('view-results');
+  const groups = {};
+  state.students.forEach(s => {
+    if (!groups[s.groupId]) groups[s.groupId] = [];
+    groups[s.groupId].push(s);
+  });
+
+  let html = '<h1>Resultaten</h1>';
+  const sortedGroups = Object.keys(groups).sort();
+
+  for (const gName of sortedGroups) {
+    const config = getActiveConfig(gName);
+    if (!config) continue;
+    const criteria = config.criteria;
+
+    html += '<div style="overflow-x:auto;margin-bottom:1.5rem">';
+    html += `<table class="results-table">
+      <thead><tr>
+        <th>Student</th><th>Team</th>
+        ${criteria.map(c => `<th title="${c.name}">${c.id}. ${c.name.split(' ')[0]}</th>`).join('')}
+        <th>Totaal</th><th>Cijfer</th><th>Status</th>
+      </tr></thead><tbody>`;
+
+    html += `<tr class="group-row"><td colspan="${criteria.length + 5}">${gName}</td></tr>`;
+    const students = groups[gName].sort((a, b) => studentTeamNum(a) - studentTeamNum(b) || a.name.localeCompare(b.name));
+    for (const s of students) {
+      const t = studentTotal(s.id, config);
+      html += `<tr><td><strong>${s.name}</strong></td><td>${studentTeamNum(s)}</td>`;
+      for (const c of criteria) {
+        const score = getScore(s.id, c.id);
+        const cls = score !== null ? (score < (config.grading.passThreshold || 2) ? 'warn' : '') : '';
+        html += `<td class="${cls}">${score !== null ? score : '-'}</td>`;
+      }
+      html += `<td><strong>${t.complete ? t.total : '-'}</strong></td>`;
+      html += `<td class="grade-cell">${t.grade !== null ? t.grade : '-'}</td>`;
+      let status = '-';
+      if (t.complete) {
+        if (t.hasUnder) status = '<span class="warn">Onvoldoende</span>';
+        else status = '<span style="color:var(--score3);font-weight:600">Voldoende</span>';
+      }
+      html += `<td>${status}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+  el.innerHTML = html;
+}
+
+// ==================== FEEDBACK ====================
+function renderFeedback(selectedId) {
+  const el = document.getElementById('view-feedback');
+  let html = '<h1>Feedback per student</h1>';
+
+  html += '<div class="feedback-select no-print"><select id="feedbackStudentSelect" onchange="renderFeedback(parseInt(this.value))">';
+  html += '<option value="">-- Selecteer student --</option>';
+  const groups = {};
+  state.students.forEach(s => { if (!groups[s.groupId]) groups[s.groupId] = []; groups[s.groupId].push(s); });
+  for (const g of Object.keys(groups).sort()) {
+    html += `<optgroup label="${g}">`;
+    for (const s of groups[g].sort((a,b) => studentTeamNum(a) - studentTeamNum(b) || a.name.localeCompare(b.name))) {
+      html += `<option value="${s.id}" ${s.id === selectedId ? 'selected' : ''}>${s.name} (Team ${studentTeamNum(s)})</option>`;
+    }
+    html += '</optgroup>';
+  }
+  html += '</select>';
+
+  if (selectedId) {
+    html += ` <button class="btn btn-outline" onclick="printFeedback(${selectedId})" style="margin-left:0.5rem">Print / PDF</button>`;
+  }
+  html += '</div>';
+
+  if (selectedId) {
+    const s = state.students.find(st => st.id === selectedId);
+    if (s) {
+      const config = getActiveConfig(s.groupId);
+      if (!config) { el.innerHTML = html + '<p>Geen configuratie gevonden.</p>'; return; }
+      const t = studentTotal(s.id, config);
+      const teammates = getTeammates(s);
+      const teammateNames = teammates.map(m => m.name).join(', ');
+      const grp = getGroup(s.groupId);
+
+      html += `<div class="feedback-report" id="feedbackReport">
+        <h2>Feedbackrapport: ${s.name}</h2>
+        <div class="meta">${s.groupId} &bull; Team ${studentTeamNum(s)}${teammateNames ? ` (met ${teammateNames})` : ''} &bull; ${grp ? formatGroupDatetime(grp) : ''}<br>
+        Assessoren: ${grp ? getGroupAssessors(grp) : ''}</div>`;
+
+      for (const c of config.criteria) {
+        const score = getScore(s.id, c.id);
+        const note = getNote(s.id, c.id);
+        const noteLines = note ? note.split('\n') : [];
+        const tagLines = noteLines.filter(l => l.trim().startsWith('\u2713 ')).map(l => l.trim().substring(2));
+        const freeLines = noteLines.filter(l => !l.trim().startsWith('\u2713 ') && l.trim() !== '');
+
+        html += `<div class="feedback-criterion">
+          <div class="fc-header">
+            <span class="fc-name">${c.id}. ${c.name}</span>
+            ${score !== null ? `<span class="fc-score s${score}">${getLevelLabel(config, score)}</span>` : '<span class="fc-score" style="background:var(--bg)">Niet gescoord</span>'}
+          </div>
+          <div class="criterion-desc" style="margin-bottom:0.25rem">${c.desc}</div>`;
+
+        if (tagLines.length > 0) { html += `<div class="fc-tags">Observaties: ${tagLines.join(', ')}</div>`; }
+        if (freeLines.length > 0) { html += `<div class="fc-notes">${freeLines.join('<br>')}</div>`; }
+        html += '</div>';
+      }
+
+      html += `<div class="feedback-summary">
+        <div class="fs-box">
+          <h3>Totaalscore</h3>
+          <div class="fs-grade">${t.complete ? `${t.total}/${t.maxPoints}` : `${t.count}/${config.criteria.length} criteria`}</div>
+          ${t.grade !== null ? `<div style="margin-top:0.25rem;font-size:1.2rem;font-weight:600">Cijfer: ${t.grade}</div>` : ''}
+        </div>
+        <div class="fs-box">
+          <h3>Status</h3>
+          ${t.complete ? (t.hasUnder
+            ? '<div style="color:var(--score1);font-weight:700;font-size:1.2rem">Onvoldoende</div><div style="color:var(--text-muted);font-size:0.85rem">Een of meer criteria onder niveau</div>'
+            : '<div style="color:var(--score3);font-weight:700;font-size:1.2rem">Voldoende</div>')
+          : '<div style="color:var(--text-muted)">Beoordeling niet volledig</div>'}
+        </div>
+      </div>`;
+
+      html += '</div>';
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function printFeedback(studentId) {
+  document.querySelectorAll('.view').forEach(v => { v.classList.remove('print-active'); });
+  document.getElementById('view-feedback').classList.add('print-active');
+  window.print();
+  document.getElementById('view-feedback').classList.remove('print-active');
+}
+
+// ==================== STUDENT MANAGEMENT ====================
+function renderStudents() {
+  const el = document.getElementById('view-students');
+  let html = `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+    <h1 style="margin:0">Studenten</h1>
+    <button class="btn btn-primary" onclick="showGroupModal()">+ Groep</button>
+    <button class="btn btn-outline" onclick="showTeamModal()">+ Team</button>
+    <button class="btn btn-outline" onclick="showStudentModal()">+ Student</button>
+  </div>`;
+
+  if (state.groups.length === 0) {
+    html += `<div class="card" style="text-align:center;padding:3rem">
+      <p style="color:var(--text-muted)">Nog geen groepen. Maak eerst een groep aan, of laad voorbeelddata via Databeheer.</p>
+    </div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  for (const g of state.groups.slice().sort((a, b) => a.id.localeCompare(b.id))) {
+    const safeGid = g.id.replace(/'/g, "\\'");
+    const assessorText = getGroupAssessors(g);
+    html += `<div class="card" style="margin-top:1rem">
+      <div class="card-header">
+        <div>
+          <strong style="font-size:1.1rem">${g.name}</strong>
+          <span style="color:var(--text-muted);font-size:0.85rem;margin-left:0.75rem">${assessorText} &bull; ${formatGroupDatetime(g)}</span>
+        </div>
+        <div>
+          <button class="btn-action" onclick="showGroupModal('${safeGid}')" title="Groep bewerken">\u270E</button>
+          <button class="btn-action btn-action-danger" onclick="deleteGroup('${safeGid}')" title="Groep verwijderen">\u2715</button>
+        </div>
+      </div>`;
+
+    const teams = getGroupTeams(g.id);
+    if (teams.length === 0) {
+      html += `<p style="color:var(--text-muted);font-size:0.85rem">Nog geen teams. <a href="#" onclick="event.preventDefault(); showTeamModal(null,'${safeGid}')">Team toevoegen</a></p>`;
+    }
+
+    for (const t of teams) {
+      const teamStudents = state.students.filter(s => s.teamId === t.id);
+      html += `<div style="margin-left:0.5rem;margin-bottom:0.75rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem">
+          <strong style="color:var(--primary);font-size:0.9rem">Team ${t.num}</strong>
+          <button class="btn-action btn-action-danger" style="font-size:0.75rem" onclick="deleteTeam('${safeGid}', ${t.num})" title="Team verwijderen">\u2715</button>
+        </div>`;
+
+      if (teamStudents.length === 0) {
+        html += `<div style="color:var(--text-muted);font-size:0.85rem;margin-left:1rem">Geen studenten</div>`;
+      }
+      for (const s of teamStudents) {
+        html += `<div style="display:flex;align-items:center;gap:0.5rem;margin-left:1rem;padding:0.2rem 0">
+          <span style="flex:1">${s.name}</span>
+          <button class="btn-action" style="font-size:0.75rem" onclick="showStudentModal(${s.id})" title="Bewerken">\u270E</button>
+          <button class="btn-action btn-action-danger" style="font-size:0.75rem" onclick="deleteStudent(${s.id}, '${s.name.replace(/'/g, "\\'")}')" title="Verwijderen">\u2715</button>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ---- Assessor field helpers ----
+function addAssessorField(value) {
+  const container = document.getElementById('assessorFields');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:0.5rem;margin-bottom:0.25rem';
+  row.innerHTML = `<input type="text" class="assessor-input" placeholder="Naam assessor" value="${value || ''}" style="flex:1;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.9rem">
+    <button type="button" class="btn-action btn-action-danger" onclick="this.parentElement.remove()" style="font-size:0.75rem">\u2715</button>`;
+  container.appendChild(row);
+}
+
+function removeAssessorField(btn) { btn.parentElement.remove(); }
+
+// ---- Group CRUD ----
+let editingGroupId = null;
+
+function showGroupModal(groupId) {
+  editingGroupId = groupId || null;
+  document.getElementById('groupModalTitle').textContent = editingGroupId ? 'Groep bewerken' : 'Groep toevoegen';
+  // Populate config dropdown
+  const configSel = document.getElementById('groupConfigSelect');
+  configSel.innerHTML = state.configs.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  const assessorContainer = document.getElementById('assessorFields');
+  assessorContainer.innerHTML = '';
+
+  if (editingGroupId) {
+    const g = getGroup(editingGroupId);
+    if (g) {
+      document.getElementById('groupName').value = g.name;
+      if (g.configId) configSel.value = g.configId;
+      const assessors = g.assessors || [];
+      if (assessors.length === 0) { addAssessorField(''); addAssessorField(''); }
+      else { assessors.forEach(a => addAssessorField(a)); }
+      document.getElementById('groupDate').value = g.date || '';
+      document.getElementById('groupStartTime').value = g.startTime || '09:00';
+      document.getElementById('groupEndTime').value = g.endTime || '14:30';
+      document.getElementById('groupSlotDuration').value = g.slotDuration || 30;
+    }
+  } else {
+    document.getElementById('groupName').value = '';
+    addAssessorField('');
+    addAssessorField('');
+    document.getElementById('groupDate').value = '';
+    document.getElementById('groupStartTime').value = '09:00';
+    document.getElementById('groupEndTime').value = '14:30';
+    document.getElementById('groupSlotDuration').value = 30;
+  }
+  document.getElementById('groupModal').classList.add('open');
+  document.getElementById('groupName').focus();
+}
+function closeGroupModal() { document.getElementById('groupModal').classList.remove('open'); editingGroupId = null; }
+
+function saveGroup() {
+  const name = document.getElementById('groupName').value.trim();
+  if (!name) { alert('Vul een groepsnaam in.'); return; }
+  const configId = document.getElementById('groupConfigSelect').value || (state.configs.length > 0 ? state.configs[0].id : null);
+  const assessors = [...document.querySelectorAll('.assessor-input')].map(i => i.value.trim()).filter(Boolean);
+  const date = document.getElementById('groupDate').value;
+  const startTime = document.getElementById('groupStartTime').value;
+  const endTime = document.getElementById('groupEndTime').value;
+  const slotDuration = parseInt(document.getElementById('groupSlotDuration').value) || 30;
+
+  if (editingGroupId) {
+    const g = getGroup(editingGroupId);
+    if (g) { g.name = name; g.configId = configId; g.assessors = assessors; g.date = date; g.startTime = startTime; g.endTime = endTime; g.slotDuration = slotDuration; }
+  } else {
+    if (state.groups.find(g => g.id === name)) { alert('Er bestaat al een groep met deze naam.'); return; }
+    state.groups.push({ id: name, name, configId, assessors, date, startTime, endTime, slotDuration, breaks: ['12:00'] });
+  }
+  saveState();
+  closeGroupModal();
+  renderStudents();
+}
+
+function deleteGroup(groupId) {
+  const teams = getGroupTeams(groupId);
+  const studentCount = state.students.filter(s => s.groupId === groupId).length;
+  const msg = studentCount > 0
+    ? `Groep "${groupId}" verwijderen inclusief ${teams.length} team(s) en ${studentCount} student(en)? Alle data wordt gewist.`
+    : `Groep "${groupId}" verwijderen?`;
+  if (!confirm(msg)) return;
+  for (const t of teams) {
+    state.students.filter(s => s.teamId === t.id).forEach(s => { delete state.scores[s.id]; delete state.notes[s.id]; });
+    delete state.duoMode[t.id]; delete state.slots[t.id];
+  }
+  state.students = state.students.filter(s => s.groupId !== groupId);
+  state.teams = state.teams.filter(t => t.groupId !== groupId);
+  state.groups = state.groups.filter(g => g.id !== groupId);
+  saveState();
+  renderStudents();
+}
+
+// ---- Team CRUD ----
+let editingTeamId = null;
+
+function updateTeamNumSuggestion() {
+  const gId = document.getElementById('teamGroupSelect').value;
+  const existing = getGroupTeams(gId);
+  document.getElementById('teamNum').value = existing.length > 0 ? Math.max(...existing.map(t => t.num)) + 1 : 1;
+}
+
+function showTeamModal(teamId, preselectedGroupId) {
+  editingTeamId = teamId || null;
+  document.getElementById('teamModalTitle').textContent = editingTeamId ? 'Team bewerken' : 'Teams toevoegen';
+  const sel = document.getElementById('teamGroupSelect');
+  sel.innerHTML = state.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+  document.getElementById('teamCount').value = 1;
+  if (editingTeamId) {
+    const t = getTeamById(editingTeamId);
+    if (t) { sel.value = t.groupId; document.getElementById('teamNum').value = t.num; }
+    document.getElementById('teamCount').parentElement.style.display = 'none';
+  } else {
+    if (preselectedGroupId) sel.value = preselectedGroupId;
+    document.getElementById('teamCount').parentElement.style.display = '';
+    updateTeamNumSuggestion();
+  }
+  document.getElementById('teamModal').classList.add('open');
+}
+function closeTeamModal() { document.getElementById('teamModal').classList.remove('open'); editingTeamId = null; }
+
+function saveTeam() {
+  const groupId = document.getElementById('teamGroupSelect').value;
+  const startNum = parseInt(document.getElementById('teamNum').value);
+  const count = parseInt(document.getElementById('teamCount').value) || 1;
+  if (!groupId || !startNum) { alert('Selecteer een groep en vul een teamnummer in.'); return; }
+
+  if (editingTeamId) {
+    const tk = teamKey(groupId, startNum);
+    const t = getTeamById(editingTeamId);
+    if (t) { t.groupId = groupId; t.num = startNum; t.id = tk; }
+  } else {
+    for (let i = 0; i < count; i++) {
+      const num = startNum + i;
+      const tk = teamKey(groupId, num);
+      if (!state.teams.find(t => t.id === tk)) { state.teams.push({ id: tk, groupId, num }); }
+    }
+  }
+  assignDefaultSlots();
+  saveState();
+  closeTeamModal();
+  renderStudents();
+}
+
+function deleteTeam(group, teamNum) {
+  const students = getTeamStudents(group, teamNum);
+  const names = students.map(s => s.name).join(', ');
+  if (!confirm(`Team ${teamNum} verwijderen${names ? ' (' + names + ')' : ''}? Alle scores en notities worden gewist.`)) return;
+  const tk = teamKey(group, teamNum);
+  students.forEach(s => { delete state.scores[s.id]; delete state.notes[s.id]; });
+  delete state.duoMode[tk]; delete state.slots[tk];
+  state.students = state.students.filter(s => s.teamId !== tk);
+  state.teams = state.teams.filter(t => t.id !== tk);
+  saveState();
+  renderStudents();
+}
+
+// ---- Student CRUD ----
+let editingStudentId = null;
+
+function updateStudentTeamOptions() {
+  const groupId = document.getElementById('studentGroupSelect').value;
+  const sel = document.getElementById('studentTeamSelect');
+  const teams = getGroupTeams(groupId);
+  sel.innerHTML = teams.map(t => `<option value="${t.id}">Team ${t.num}</option>`).join('');
+}
+
+function showStudentModal(studentId) {
+  editingStudentId = studentId || null;
+  document.getElementById('studentModalTitle').textContent = editingStudentId ? 'Student bewerken' : 'Student toevoegen';
+  const gSel = document.getElementById('studentGroupSelect');
+  gSel.innerHTML = state.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+  if (editingStudentId) {
+    const s = state.students.find(st => st.id === editingStudentId);
+    if (s) {
+      document.getElementById('studentName').value = s.name;
+      gSel.value = s.groupId;
+      updateStudentTeamOptions();
+      document.getElementById('studentTeamSelect').value = s.teamId;
+    }
+  } else {
+    document.getElementById('studentName').value = '';
+    updateStudentTeamOptions();
+  }
+  document.getElementById('studentModal').classList.add('open');
+  document.getElementById('studentName').focus();
+}
+
+function closeStudentModal() { document.getElementById('studentModal').classList.remove('open'); editingStudentId = null; }
+
+function saveStudent() {
+  const name = document.getElementById('studentName').value.trim();
+  const groupId = document.getElementById('studentGroupSelect').value;
+  const teamId = document.getElementById('studentTeamSelect').value;
+  if (!name || !groupId || !teamId) { alert('Vul naam in en selecteer groep en team.'); return; }
+
+  if (editingStudentId) {
+    const s = state.students.find(st => st.id === editingStudentId);
+    if (s) { s.name = name; s.groupId = groupId; s.teamId = teamId; }
+  } else {
+    const newId = Math.max(0, ...state.students.map(s => s.id)) + 1;
+    state.students.push({ id: newId, name, groupId, teamId });
+  }
+  saveState();
+  closeStudentModal();
+  renderStudents();
+}
+
+function deleteStudent(studentId, studentName) {
+  if (!confirm(`Student "${studentName}" verwijderen? Alle scores en notities worden gewist.`)) return;
+  const student = state.students.find(s => s.id === studentId);
+  if (student) {
+    delete state.scores[studentId];
+    delete state.notes[studentId];
+    const tk = student.teamId;
+    const remaining = state.students.filter(s => s.teamId === tk && s.id !== studentId);
+    if (remaining.length === 0) { delete state.duoMode[tk]; delete state.slots[tk]; }
+  }
+  state.students = state.students.filter(s => s.id !== studentId);
+  saveState();
+  renderStudents();
+}
+
+// ==================== EXPORT ====================
+function renderExport() {
+  const el = document.getElementById('view-export');
+  el.innerHTML = `<h1>Databeheer</h1>
+    <div class="export-grid">
+      <div class="export-card">
+        <h3>CSV Overzicht</h3>
+        <p>Alle scores en cijfers in spreadsheet-formaat voor administratie.</p>
+        <button class="btn btn-primary" onclick="exportCSV()">Download CSV</button>
+      </div>
+      <div class="export-card">
+        <h3>JSON Backup</h3>
+        <p>Volledige data-backup inclusief observaties en notities. Kan later opnieuw worden ingeladen.</p>
+        <button class="btn btn-primary" onclick="exportJSON()">Download JSON</button>
+      </div>
+      <div class="export-card">
+        <h3>JSON Herstellen</h3>
+        <p>Laad een eerder gedownloade JSON backup in om data te herstellen.</p>
+        <input type="file" id="jsonRestoreInput" accept=".json" onchange="restoreJSON(this)" style="margin-bottom:0.5rem">
+      </div>
+      <div class="export-card">
+        <h3>Scores wissen</h3>
+        <p>Verwijder alle scores, observaties en notities. Studentenlijst blijft behouden.</p>
+        <button class="btn btn-danger" onclick="clearScores()">Scores wissen</button>
+      </div>
+      <div class="export-card">
+        <h3>Configuratie exporteren</h3>
+        <p>Deel een beoordelingsformulier-configuratie met een collega.</p>
+        <select id="exportConfigSelect" style="width:100%;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.5rem">
+          ${state.configs.map(c => `<option value="${c.id}">${c.title}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" onclick="exportConfigJSON(document.getElementById('exportConfigSelect').value)">Exporteer config</button>
+      </div>
+      <div class="export-card">
+        <h3>Configuratie importeren</h3>
+        <p>Laad een configuratie-JSON van een collega.</p>
+        <input type="file" accept=".json" onchange="importConfigFromFile(this)" style="margin-bottom:0.5rem">
+      </div>
+      <div class="export-card">
+        <h3>Voorbeelddata</h3>
+        <p>Laad 3 demoteams (6 studenten) om de app uit te proberen.</p>
+        <button class="btn btn-outline" onclick="loadDemoData()">Voorbeelddata laden</button>
+      </div>
+      <div class="export-card">
+        <h3>Volledige reset</h3>
+        <p>Wis alle data: studenten, scores, notities, planning. De app start leeg.</p>
+        <button class="btn btn-danger" onclick="fullReset()">Alles wissen</button>
+      </div>
+    </div>`;
+}
+
+function exportCSV() {
+  const config = getActiveConfig();
+  if (!config) { alert('Geen configuratie beschikbaar.'); return; }
+  let csv = 'Student,Groep,Team';
+  config.criteria.forEach(c => { csv += `,"${c.id}. ${c.name}"`; });
+  csv += ',Totaal,Cijfer,Status\n';
+
+  for (const s of state.students) {
+    const sConfig = getActiveConfig(s.groupId) || config;
+    const t = studentTotal(s.id, sConfig);
+    const grp = getGroup(s.groupId);
+    csv += `"${s.name}","${s.groupId}",${studentTeamNum(s)}`;
+    for (const c of sConfig.criteria) {
+      const score = getScore(s.id, c.id);
+      csv += `,${score !== null ? score : ''}`;
+    }
+    csv += `,${t.complete ? t.total : ''},${t.grade !== null ? t.grade : ''}`;
+    csv += `,${t.complete ? (t.hasUnder ? 'Onvoldoende' : 'Voldoende') : 'Incompleet'}`;
+    csv += '\n';
+  }
+
+  const filename = (config.title || 'assessment').replace(/\s+/g, '-').toLowerCase() + '-resultaten.csv';
+  downloadFile(csv, filename, 'text/csv;charset=utf-8');
+}
+
+function exportJSON() {
+  // Export state without API key
+  const exportState = JSON.parse(JSON.stringify(state));
+  if (exportState.settings) delete exportState.settings.apiKey;
+  const json = JSON.stringify(exportState, null, 2);
+  downloadFile(json, 'assessment-backup.json', 'application/json');
+}
+
+function restoreJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.students && data.scores) {
+        // Preserve current API key
+        const currentApiKey = state.settings?.apiKey;
+        state = data;
+        if (!state.configs) state.configs = [];
+        if (!state.groups) state.groups = [];
+        if (!state.teams) state.teams = [];
+        if (!state.settings) state.settings = {};
+        if (currentApiKey) state.settings.apiKey = currentApiKey;
+        migrateState();
+        saveState();
+        showView('export');
+        alert('Data hersteld!');
+      } else {
+        alert('Ongeldig bestand: verwachte velden ontbreken.');
+      }
+    } catch(err) { alert('Fout bij lezen bestand: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function clearScores() {
+  if (!confirm('Weet je zeker dat je alle scores, observaties en notities wilt wissen?')) return;
+  state.scores = {}; state.tags = {}; state.notes = {}; state.duoMode = {};
+  saveState();
+  showView('export');
+  alert('Alle scores gewist.');
+}
+
+function fullReset() {
+  if (!confirm('LET OP: Alle data wordt permanent gewist \u2014 studenten, scores, notities en planning.\n\nWeet je het zeker?')) return;
+  localStorage.removeItem('assessment_tool_state');
+  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: {} };
+  saveState();
+  showView('config'); // Show onboarding welcome screen
+  alert('Alle data gewist. De app is opnieuw gestart.');
+}
+
+function loadDemoData() {
+  if (state.students.length > 0 && !confirm('Er zijn al studenten geladen. Wil je deze vervangen door voorbeelddata?')) return;
+  // Ensure a demo config exists
+  if (!state.configs.find(c => c.id === 'config_promef_legacy')) {
+    state.configs.push({
+      id: 'config_promef_legacy',
+      title: 'Voorbeeld Assessment',
+      criteria: JSON.parse(JSON.stringify(PROMEF_LEGACY_CRITERIA)),
+      levels: {
+        count: 4,
+        labels: { '1': 'Onder niveau', '2': 'Op niveau', '3': 'Boven niveau', '4': 'Excellent' },
+        shortLabels: { '1': 'Onder', '2': 'Op', '3': 'Boven', '4': 'Excellent' }
+      },
+      grading: {
+        scale: [{minPoints:24,grade:10},{minPoints:20,grade:9},{minPoints:16,grade:8},{minPoints:14,grade:7},{minPoints:12,grade:6},{minPoints:10,grade:5},{minPoints:5,grade:4}],
+        defaultGrade: 4, passRule: 'Alle criteria minimaal op niveau (2)', passThreshold: 2
+      },
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    });
+    state.settings.activeConfigId = 'config_promef_legacy';
+  }
+  state.groups = JSON.parse(JSON.stringify(DEMO_GROUPS));
+  state.teams = JSON.parse(JSON.stringify(DEMO_TEAMS));
+  state.students = JSON.parse(JSON.stringify(DEMO_STUDENTS));
+  state.scores = {}; state.tags = {}; state.notes = {};
+  state.duoMode = {}; state.slots = {};
+  assignDefaultSlots();
+  saveState();
+  showView('dashboard');
+}
+
+function clearStudentScores(studentId, studentName) {
+  if (!confirm(`Scores, observaties en notities wissen voor ${studentName}?`)) return;
+  if (state.scores[studentId]) delete state.scores[studentId];
+  if (state.notes[studentId]) delete state.notes[studentId];
+  const student = state.students.find(s => s.id === studentId);
+  if (student) {
+    const tk = student.teamId;
+    if (state.tags[tk]) delete state.tags[tk];
+    if (state.duoMode[tk]) delete state.duoMode[tk];
+  }
+  saveState();
+  renderAssessment();
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob(['\uFEFF' + content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ==================== CSV IMPORT ====================
+function openImportModal() { document.getElementById('importModal').classList.add('open'); }
+function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
+
+function doImport() {
+  const fileInput = document.getElementById('csvFileInput');
+  const replace = document.getElementById('csvReplace').checked;
+  if (!fileInput.files[0]) { alert('Selecteer eerst een CSV-bestand.'); return; }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const result = importCSV(e.target.result);
+    if (!result || result.students.length === 0) {
+      alert('Kon geen studenten vinden in het CSV-bestand. Controleer het formaat.');
+      return;
+    }
+    // Assign configId to imported groups
+    const defaultConfigId = state.configs.length > 0 ? state.configs[0].id : null;
+    for (const g of result.groups) {
+      if (!g.configId) g.configId = defaultConfigId;
+    }
+
+    if (replace) {
+      state.groups = result.groups;
+      state.teams = result.teams;
+      state.students = result.students;
+      state.scores = {}; state.tags = {}; state.notes = {};
+      state.duoMode = {}; state.slots = {};
+    } else {
+      const maxId = Math.max(0, ...state.students.map(s => s.id));
+      result.students.forEach((s, i) => { s.id = maxId + i + 1; });
+      for (const g of result.groups) { if (!state.groups.find(x => x.id === g.id)) state.groups.push(g); }
+      for (const t of result.teams) { if (!state.teams.find(x => x.id === t.id)) state.teams.push(t); }
+      state.students.push(...result.students);
+    }
+    assignDefaultSlots();
+    saveState();
+    closeImportModal();
+    showView('dashboard');
+    alert(`${result.students.length} studenten ge\u00efmporteerd.`);
+  };
+  reader.readAsText(fileInput.files[0]);
+}
+
+// ==================== GUIDE ====================
+function renderGuide() {
+  document.getElementById('view-guide').innerHTML = `<div class="guide">
+<h1>Handleiding Assessment Tool</h1>
+<p>Deze tool helpt assessoren bij het scoren van assessments in het hoger onderwijs. Upload een beoordelingsformulier als PDF, en de app wordt automatisch ingericht. Je kunt ook handmatig een formulier instellen.</p>
+
+<h2>Snelstart: even uitproberen?</h2>
+<ol>
+  <li>Klik op <strong>Databeheer</strong> &rarr; <strong>Voorbeelddata laden</strong>.</li>
+  <li>Ga naar <strong>Overzicht</strong> en klik op een team om het scoren uit te proberen.</li>
+  <li>Klaar? Klik op <strong>Databeheer</strong> &rarr; <strong>Alles wissen</strong>.</li>
+</ol>
+
+<h2>Stap 1: Beoordelingsformulier instellen</h2>
+<h3>Optie A: PDF uploaden (aanbevolen)</h3>
+<ol>
+  <li>Ga naar <strong>Configuratie</strong> in de menubalk.</li>
+  <li>Klik op <strong>Upload PDF formulier</strong>.</li>
+  <li>De eerste keer wordt gevraagd om een <strong>Anthropic API-key</strong>. Deze is nodig voor de AI-analyse en wordt alleen lokaal opgeslagen.</li>
+  <li>Selecteer of sleep het PDF-beoordelingsformulier.</li>
+  <li>AI analyseert het formulier en maakt automatisch een configuratie aan met criteria, scoreniveaus en cesuur.</li>
+  <li>Controleer en pas de configuratie aan in de <strong>editor</strong> (criteria hernoemen, tags toevoegen/verwijderen, cesuur wijzigen).</li>
+</ol>
+<div class="guide-tip"><strong>Tip:</strong> Je kunt de AI ook nieuwe observatie-tags laten genereren door op <strong>Tags regenereren (AI)</strong> te klikken onderaan de editor.</div>
+
+<h3>Optie B: Handmatig instellen</h3>
+<ol>
+  <li>Ga naar <strong>Configuratie</strong> &rarr; <strong>Handmatig instellen</strong>.</li>
+  <li>Vul zelf de criteria, scoreniveaus en cesuur in via de editor.</li>
+</ol>
+
+<h3>Configuratie delen met collega's</h3>
+<ol>
+  <li>Ga naar <strong>Databeheer</strong> &rarr; <strong>Configuratie exporteren</strong>.</li>
+  <li>Je collega importeert het JSON-bestand via <strong>Configuratie importeren</strong>.</li>
+</ol>
+
+<h2>Stap 2: Studenten invoeren</h2>
+<h3>Via CSV (aanbevolen)</h3>
+<ol>
+  <li>Maak een CSV-bestand met kolommen: <strong>Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</strong>.</li>
+  <li>Je kunt zoveel assessor-kolommen toevoegen als nodig.</li>
+  <li>Klik op <strong>Importeer CSV</strong> rechtsboven.</li>
+</ol>
+<table class="guide-table">
+  <thead><tr><th>Naam</th><th>Groep</th><th>Team</th><th>Assessor 1</th><th>Assessor 2</th><th>Datumtijd</th></tr></thead>
+  <tbody>
+    <tr><td>Anna</td><td>G01</td><td>1</td><td>Witek</td><td>Arthur</td><td>di 7 apr 09:00-14:30</td></tr>
+    <tr><td>Bas</td><td>G01</td><td>1</td><td>Witek</td><td>Arthur</td><td>di 7 apr 09:00-14:30</td></tr>
+  </tbody>
+</table>
+
+<h3>Handmatig invoeren</h3>
+<ol>
+  <li>Ga naar <strong>Studenten</strong> &rarr; <strong>+ Groep</strong>: kies een beoordelingsformulier, vul assessoren en tijden in.</li>
+  <li>Voeg teams en studenten toe.</li>
+</ol>
+<div class="guide-tip"><strong>Meerdere formulieren:</strong> Je kunt meerdere beoordelingsformulieren beheren. Elke groep wordt gekoppeld aan een specifiek formulier.</div>
+
+<h2>Stap 3: Planning controleren</h2>
+<ol>
+  <li>Ga naar <strong>Overzicht</strong>. Je ziet een kalender met tijdslots.</li>
+  <li><strong>Sleep</strong> teams naar een ander tijdslot om de volgorde aan te passen.</li>
+  <li>Klik op een leeg slot om een <strong>pauze</strong> toe te voegen.</li>
+</ol>
+
+<h2>Stap 4: Assessment (tijdens de gesprekken)</h2>
+<ol>
+  <li>Klik in het <strong>Overzicht</strong> op het team dat aan de beurt is.</li>
+  <li>Klik per criterium op het juiste <strong>scoreniveau</strong>. Klik nogmaals om te wissen.</li>
+  <li>Vink <strong>Teamscore</strong> aan als alle teamleden dezelfde score krijgen.</li>
+  <li>Gebruik <strong>observatie-tags</strong>: klik op een tag en kies de student, of sleep de tag naar het notitieveld.</li>
+  <li>Klik op <strong>+ tag</strong> om ter plekke een eigen observatie-tag toe te voegen.</li>
+</ol>
+<div class="guide-tip"><strong>Alles wordt automatisch opgeslagen.</strong> Je hoeft nergens op "Opslaan" te klikken.</div>
+
+<h2>Stap 5: Resultaten en Feedback</h2>
+<ol>
+  <li><strong>Resultaten</strong>: totaaloverzicht met scores per criterium, cijfers en zak/slaag-status.</li>
+  <li><strong>Feedback</strong>: selecteer een student voor een individueel feedbackrapport. Klik op <strong>Print / PDF</strong> om het rapport op te slaan.</li>
+</ol>
+
+<h2>Stap 6: Data exporteren</h2>
+<ol>
+  <li><strong>CSV Overzicht</strong>: alle scores als spreadsheet voor administratie.</li>
+  <li><strong>JSON Backup</strong>: volledige backup van alle data (scores, notities, configuraties).</li>
+  <li><strong>JSON Herstellen</strong>: laad een eerdere backup in.</li>
+</ol>
+
+<h2>Instellingen</h2>
+<p>Ga naar <strong>Instellingen</strong> om:</p>
+<ul style="padding-left:1.5rem;margin-bottom:0.75rem">
+  <li>Je <strong>API-key</strong> te beheren (instellen, wijzigen, verwijderen).</li>
+  <li>Een overzicht van alle <strong>configuraties</strong> te zien.</li>
+</ul>
+
+<h2>Privacy &amp; persoonsgegevens</h2>
+<div class="guide-warn">
+  <strong>Let op:</strong>
+  <ul style="margin:0.5rem 0 0;padding-left:1.2rem">
+    <li>Gebruik <strong>alleen voornamen</strong> van studenten.</li>
+    <li>Alle data blijft <strong>lokaal opgeslagen in je browser</strong>. Er wordt niets naar een server gestuurd, behalve het PDF-formulier naar de AI voor analyse.</li>
+    <li>Je <strong>API-key</strong> wordt alleen lokaal opgeslagen en nooit meegeexporteerd in backups.</li>
+    <li>Deel geen JSON-backups via e-mail. Bewaar backups <strong>alleen lokaal</strong>.</li>
+    <li>Verwijder na afloop alle data via <strong>Databeheer &rarr; Alles wissen</strong>.</li>
+  </ul>
+</div>
+
+<h2>Veelgestelde vragen</h2>
+<table class="guide-table">
+  <tbody>
+    <tr><td>Wordt mijn data bewaard?</td><td>Ja, lokaal in je browser. Sluit je de browser, dan staat je data er nog.</td></tr>
+    <tr><td>Hoe maak ik een backup?</td><td><strong>Databeheer</strong> &rarr; <strong>JSON Backup</strong>. Doe dit regelmatig!</td></tr>
+    <tr><td>Kan ik meerdere formulieren gebruiken?</td><td>Ja. Maak via <strong>Configuratie</strong> meerdere configuraties aan en koppel elk aan een groep.</td></tr>
+    <tr><td>Hoe deel ik een formulier?</td><td>Exporteer de configuratie als JSON via <strong>Databeheer</strong>. Je collega importeert het bestand.</td></tr>
+    <tr><td>Kan ik op een tablet werken?</td><td>Ja, de app werkt op tablets. Op touchscreens gebruik je de klik-methode voor tags.</td></tr>
+  </tbody>
+</table>
+</div>`;
+}
+
+// ==================== RESPONSIVE HELPERS ====================
+function toggleMenu() {
+  document.getElementById('navMenu').classList.toggle('open');
+}
+
+let wasMobile = window.matchMedia('(max-width: 768px)').matches;
+window.addEventListener('resize', () => {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (isMobile !== wasMobile) { wasMobile = isMobile; if (currentView === 'dashboard') renderDashboard(); }
+});
+
+// ==================== CONFIG CRUD ====================
+function createConfig(data) {
+  const config = {
+    id: 'config_' + Date.now(),
+    ...data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  state.configs.push(config);
+  state.settings.activeConfigId = config.id;
+  saveState();
+  return config;
+}
+
+function updateConfig(configId, updates) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  Object.assign(config, updates, { updatedAt: new Date().toISOString() });
+  saveState();
+}
+
+function deleteConfig(configId) {
+  const linkedGroups = state.groups.filter(g => g.configId === configId);
+  if (linkedGroups.length > 0) { alert(`Kan niet verwijderen: configuratie is gekoppeld aan ${linkedGroups.length} groep(en). Ontkoppel deze eerst.`); return false; }
+  state.configs = state.configs.filter(c => c.id !== configId);
+  if (state.settings.activeConfigId === configId) {
+    state.settings.activeConfigId = state.configs[0]?.id || null;
+  }
+  saveState();
+  return true;
+}
+
+function duplicateConfig(configId) {
+  const original = state.configs.find(c => c.id === configId);
+  if (!original) return null;
+  const copy = JSON.parse(JSON.stringify(original));
+  copy.id = 'config_' + Date.now();
+  copy.title += ' (kopie)';
+  copy.createdAt = new Date().toISOString();
+  copy.updatedAt = new Date().toISOString();
+  state.configs.push(copy);
+  saveState();
+  return copy;
+}
+
+function exportConfigJSON(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const json = JSON.stringify(config, null, 2);
+  downloadFile(json, `${config.title.replace(/\s+/g, '-').toLowerCase()}-config.json`, 'application/json');
+}
+
+function importConfigFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const config = JSON.parse(e.target.result);
+      if (!config.criteria || !config.levels) { alert('Ongeldig configuratiebestand.'); return; }
+      config.id = 'config_' + Date.now();
+      config.createdAt = new Date().toISOString();
+      config.updatedAt = new Date().toISOString();
+      state.configs.push(config);
+      state.settings.activeConfigId = config.id;
+      saveState();
+      alert(`Configuratie "${config.title}" ge\u00efmporteerd.`);
+      if (currentView === 'settings') renderSettings();
+      else if (currentView === 'config') renderConfig();
+    } catch(err) { alert('Fout bij lezen bestand: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+// ==================== API KEY MODAL ====================
+let apiKeyCallback = null;
+function showApiKeyModal(callback) {
+  apiKeyCallback = callback || null;
+  document.getElementById('apiKeyInput').value = state.settings.apiKey || '';
+  document.getElementById('apiKeyModal').classList.add('open');
+  document.getElementById('apiKeyInput').focus();
+}
+function closeApiKeyModal() {
+  document.getElementById('apiKeyModal').classList.remove('open');
+  apiKeyCallback = null;
+}
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { alert('Vul een API-key in.'); return; }
+  state.settings.apiKey = key;
+  saveState();
+  closeApiKeyModal();
+  if (apiKeyCallback) apiKeyCallback();
+}
+function deleteApiKey() {
+  if (!confirm('API-key verwijderen?')) return;
+  delete state.settings.apiKey;
+  saveState();
+  renderSettings();
+}
+
+// ==================== CONFIG VIEW ====================
+let editingConfigId = null;
+
+function renderConfig() {
+  // Don't overwrite if in upload/parsing mode
+  if (configViewMode === 'upload' || configViewMode === 'parsing') return;
+
+  const el = document.getElementById('view-config');
+
+  // Onboarding: no configs yet
+  if (state.configs.length === 0) {
+    el.innerHTML = `<div class="card onboarding-card">
+      <h1>Welkom bij de Assessment Tool</h1>
+      <p style="color:var(--text-muted);margin:1rem 0">Upload een beoordelingsformulier (PDF) en laat AI de configuratie uitlezen, of stel handmatig een formulier in.</p>
+      <div class="onboarding-options">
+        <button class="btn btn-primary" onclick="startPDFUpload()">Upload PDF formulier</button>
+        <button class="btn btn-outline" onclick="startManualConfig()">Handmatig instellen</button>
+      </div>
+      <button class="btn btn-outline" onclick="loadDemoData(); showView('dashboard')" style="margin-top:0.5rem">Voorbeelddata laden</button>
+    </div>`;
+    return;
+  }
+
+  // If editing a specific config, show the editor
+  if (editingConfigId) {
+    renderConfigEditor(editingConfigId);
+    return;
+  }
+
+  // Default: show config list with option to create new
+  let html = `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+    <h1 style="margin:0">Configuraties</h1>
+    <button class="btn btn-primary" onclick="startPDFUpload()">+ Upload PDF</button>
+    <button class="btn btn-outline" onclick="startManualConfig()">+ Handmatig</button>
+  </div>`;
+
+  for (const c of state.configs) {
+    const linkedGroups = state.groups.filter(g => g.configId === c.id);
+    html += `<div class="config-list-item">
+      <div class="cli-info">
+        <div class="cli-title">${c.title}</div>
+        <div class="cli-meta">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 Gekoppeld aan: ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
+      </div>
+      <div class="cli-actions">
+        <button class="btn-action" onclick="editingConfigId='${c.id}'; renderConfig()" title="Bewerken">\u270E</button>
+        <button class="btn-action" onclick="duplicateConfig('${c.id}'); renderConfig()" title="Dupliceren">\u2398</button>
+        <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren">&#8681;</button>
+        <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConfig()" title="Verwijderen">\u2715</button>
+      </div>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:1rem">
+    <label class="btn btn-outline" style="cursor:pointer">Configuratie importeren (JSON)
+      <input type="file" accept=".json" onchange="importConfigFromFile(this)" style="display:none">
+    </label>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function startPDFUpload() {
+  if (!state.settings.apiKey) {
+    showApiKeyModal(() => { showPDFUploadUI(); });
+  } else {
+    showPDFUploadUI();
+  }
+}
+
+let configViewMode = null; // null, 'upload', 'parsing'
+
+function showPDFUploadUI() {
+  configViewMode = 'upload';
+  // Activate config view without re-rendering
+  currentView = 'config';
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav .tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-config').classList.add('active');
+  const tab = document.querySelector('nav .tab[data-view="config"]');
+  if (tab) tab.classList.add('active');
+  document.getElementById('navMenu')?.classList.remove('open');
+
+  const el = document.getElementById('view-config');
+  el.innerHTML = `<div style="max-width:600px;margin:0 auto">
+    <h1>PDF formulier uploaden</h1>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem">Upload een beoordelingsformulier als PDF. AI analyseert het formulier en maakt automatisch een configuratie aan.</p>
+    <div class="upload-zone" id="pdfDropZone" onclick="document.getElementById('pdfFileInput').click()"
+      ondragover="event.preventDefault(); this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="event.preventDefault(); this.classList.remove('drag-over'); handlePDFFile(event.dataTransfer.files[0])">
+      <p style="font-size:1.1rem;margin-bottom:0.5rem">Sleep een PDF hierheen</p>
+      <p style="color:var(--text-muted)">of klik om een bestand te kiezen</p>
+      <input type="file" id="pdfFileInput" accept=".pdf" onchange="handlePDFFile(this.files[0])" style="display:none">
+    </div>
+    <button class="btn btn-outline" onclick="configViewMode=null; editingConfigId=null; renderConfig()">Terug</button>
+  </div>`;
+}
+
+// ==================== AI INTEGRATION ====================
+const AI_SYSTEM_PROMPT = `Je bent een assistent die beoordelingsformulieren analyseert voor het hoger onderwijs.
+
+Analyseer het bijgevoegde PDF-document en extraheer de volgende informatie als gestructureerde JSON:
+
+1. **title**: De titel/naam van het assessment
+2. **criteria**: Alle beoordelingscriteria met:
+   - id: volgnummer (integer, startend bij 1)
+   - name: korte naam van het criterium (max 5 woorden)
+   - desc: volledige beschrijving/toelichting
+   - tags: genereer per criterium 3-4 observatie-indicatoren per scoreniveau. Baseer deze op de criteriumbeschrijving. Elk tag-object heeft: text (korte observatie, max 4 woorden) en level (integer, 1 = laagste niveau, oplopend).
+3. **levels**: Scoreniveaus met:
+   - count: aantal niveaus (integer)
+   - labels: per niveau het volledige label (key = niveau als string "1", "2", etc.)
+   - shortLabels: per niveau een kort label (max 10 karakters)
+4. **grading**: Cesuur/scoresleutel met:
+   - scale: array van { minPoints, grade } objecten, aflopend gesorteerd op minPoints
+   - defaultGrade: cijfer als minimum niet gehaald (integer)
+   - passRule: tekstuele beschrijving van de zak/slaag-regel
+   - passThreshold: minimaal vereist niveau per criterium (integer)
+
+Antwoord UITSLUITEND met geldige JSON. Geen tekst voor of na de JSON. Gebruik dit formaat:
+{
+  "title": "...",
+  "criteria": [
+    { "id": 1, "name": "...", "desc": "...", "tags": [{ "text": "...", "level": 1 }, ...] }
+  ],
+  "levels": {
+    "count": 4,
+    "labels": { "1": "...", "2": "...", "3": "...", "4": "..." },
+    "shortLabels": { "1": "...", "2": "...", "3": "...", "4": "..." }
+  },
+  "grading": {
+    "scale": [{ "minPoints": 24, "grade": 10 }, ...],
+    "defaultGrade": 4,
+    "passRule": "...",
+    "passThreshold": 2
+  }
+}`;
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error('Bestand kon niet worden gelezen'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function parsePDFWithAI(pdfBase64) {
+  const apiKey = state.settings.apiKey;
+  if (!apiKey) throw new Error('Geen API-key ingesteld');
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      system: AI_SYSTEM_PROMPT,
+      messages: [{
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: pdfBase64
+            }
+          },
+          {
+            type: 'text',
+            text: 'Analyseer dit beoordelingsformulier en extraheer de assessment-configuratie als JSON.'
+          }
+        ]
+      }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 401) throw new Error('Ongeldige API-key. Controleer je key in Instellingen.');
+    throw new Error(err.error?.message || `API-fout: ${response.status}`);
+  }
+
+  const result = await response.json();
+  const text = result.content?.[0]?.text || '';
+
+  // Extract JSON from response (may be in markdown code block)
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)```/) || text.match(/```\s*([\s\S]*?)```/) || [null, text];
+  if (!jsonMatch[1]) throw new Error('Geen JSON gevonden in AI-response');
+
+  return JSON.parse(jsonMatch[1].trim());
+}
+
+function validateConfigData(data) {
+  if (!data.title || typeof data.title !== 'string') throw new Error('Titel ontbreekt in AI-response');
+  if (!Array.isArray(data.criteria) || data.criteria.length === 0) throw new Error('Geen criteria gevonden in AI-response');
+  if (!data.levels?.count) throw new Error('Scoreniveaus ontbreken in AI-response');
+  if (!data.grading?.scale || data.grading.scale.length === 0) throw new Error('Cesuur/scoresleutel ontbreekt in AI-response');
+
+  // Normalize: ensure all criteria have IDs and tags
+  data.criteria.forEach((c, i) => {
+    if (!c.id) c.id = i + 1;
+    if (!c.tags) c.tags = [];
+    if (!c.name) c.name = 'Criterium ' + c.id;
+    if (!c.desc) c.desc = '';
+  });
+
+  // Ensure levels have all required fields
+  if (!data.levels.labels) data.levels.labels = {};
+  if (!data.levels.shortLabels) data.levels.shortLabels = {};
+  for (let i = 1; i <= data.levels.count; i++) {
+    if (!data.levels.labels[String(i)]) data.levels.labels[String(i)] = 'Niveau ' + i;
+    if (!data.levels.shortLabels[String(i)]) data.levels.shortLabels[String(i)] = 'N' + i;
+  }
+
+  // Ensure grading defaults
+  if (!data.grading.defaultGrade) data.grading.defaultGrade = 4;
+  if (!data.grading.passThreshold) data.grading.passThreshold = 2;
+  if (!data.grading.passRule) data.grading.passRule = '';
+
+  return data;
+}
+
+async function handlePDFFile(file) {
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Bestand is te groot (max 10 MB).');
+    return;
+  }
+
+  configViewMode = 'parsing';
+  const el = document.getElementById('view-config');
+  el.innerHTML = `<div class="parsing-progress">
+    <h2>Formulier analyseren...</h2>
+    <p style="margin-top:1rem">AI leest het beoordelingsformulier uit. Dit kan 10-30 seconden duren.</p>
+    <div style="margin-top:1.5rem;font-size:2rem">\u23F3</div>
+  </div>`;
+
+  try {
+    const base64 = await readFileAsBase64(file);
+    const parsed = await parsePDFWithAI(base64);
+    const validated = validateConfigData(parsed);
+    const config = createConfig(validated);
+    configViewMode = null;
+    editingConfigId = config.id;
+    renderConfigEditor(config.id);
+  } catch (err) {
+    configViewMode = null;
+    el.innerHTML = `<div class="card" style="max-width:600px;margin:2rem auto;text-align:center;padding:2rem">
+      <h2 style="color:var(--score1)">Fout bij analyseren</h2>
+      <p style="color:var(--text-muted);margin:1rem 0">${err.message}</p>
+      <div style="display:flex;gap:0.5rem;justify-content:center">
+        <button class="btn btn-primary" onclick="showPDFUploadUI()">Opnieuw proberen</button>
+        <button class="btn btn-outline" onclick="editingConfigId=null; renderConfig()">Terug</button>
+      </div>
+    </div>`;
+  }
+}
+
+async function regenerateTags(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  if (!state.settings.apiKey) {
+    showApiKeyModal(() => regenerateTags(configId));
+    return;
+  }
+
+  const criteriaText = config.criteria.map(c => `${c.id}. ${c.name}: ${c.desc}`).join('\n');
+  const levelLabels = Object.values(config.levels.labels).join(', ');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.settings.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        messages: [{
+          role: 'user',
+          content: `Genereer per criterium 3-4 korte observatie-tags (max 4 woorden) per scoreniveau.
+
+Assessment: ${config.title}
+Niveaus (${config.levels.count}): ${levelLabels}
+
+Criteria:
+${criteriaText}
+
+Antwoord als JSON array van objecten met id en tags:
+[{ "id": 1, "tags": [{ "text": "...", "level": 1 }, ...] }, ...]`
+        }]
+      })
+    });
+
+    if (!response.ok) throw new Error('API-fout: ' + response.status);
+    const result = await response.json();
+    const text = result.content?.[0]?.text || '';
+    const jsonMatch = text.match(/```json\s*([\s\S]*?)```/) || text.match(/```\s*([\s\S]*?)```/) || [null, text];
+    const newTags = JSON.parse(jsonMatch[1].trim());
+
+    // Merge: keep custom tags, replace AI-generated ones
+    for (const entry of newTags) {
+      const crit = config.criteria.find(c => c.id === entry.id);
+      if (crit && entry.tags) {
+        const customTags = (crit.tags || []).filter(t => t.custom);
+        crit.tags = [...entry.tags.map(t => ({ text: t.text, level: t.level, custom: false })), ...customTags];
+      }
+    }
+    config.updatedAt = new Date().toISOString();
+    saveState();
+    renderConfigEditor(configId);
+    alert('Tags opnieuw gegenereerd!');
+  } catch (err) {
+    alert('Fout bij genereren tags: ' + err.message);
+  }
+}
+
+function startManualConfig() {
+  const config = createConfig({
+    title: 'Nieuw beoordelingsformulier',
+    criteria: [
+      { id: 1, name: 'Criterium 1', desc: '', tags: [] },
+      { id: 2, name: 'Criterium 2', desc: '', tags: [] }
+    ],
+    levels: {
+      count: 3,
+      labels: { '1': 'Onvoldoende', '2': 'Voldoende', '3': 'Goed' },
+      shortLabels: { '1': 'Onv', '2': 'Vold', '3': 'Goed' }
+    },
+    grading: {
+      scale: [{ minPoints: 6, grade: 10 }, { minPoints: 5, grade: 8 }, { minPoints: 4, grade: 7 }, { minPoints: 3, grade: 6 }, { minPoints: 2, grade: 5 }],
+      defaultGrade: 4,
+      passRule: 'Alle criteria minimaal Voldoende',
+      passThreshold: 2
+    }
+  });
+  editingConfigId = config.id;
+  showView('config');
+}
+
+function showConfigEditor(configId) {
+  editingConfigId = configId;
+  showView('config');
+}
+
+// ==================== CONFIG EDITOR ====================
+function renderConfigEditor(configId) {
+  const el = document.getElementById('view-config');
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) { editingConfigId = null; renderConfig(); return; }
+
+  let html = `<div class="config-editor">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+      <button class="btn btn-outline" onclick="editingConfigId=null; renderConfig()">\u2190 Terug</button>
+      <h1 style="margin:0;flex:1">Configuratie bewerken</h1>
+    </div>
+
+    <div class="config-section">
+      <h2>Titel</h2>
+      <input type="text" value="${config.title.replace(/"/g, '&quot;')}" onchange="updateConfig('${configId}', {title: this.value}); document.querySelector('.config-editor h1').textContent = 'Configuratie: ' + this.value"
+        style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:1rem;font-weight:600">
+    </div>
+
+    <div class="config-section">
+      <h2>Criteria (${config.criteria.length})</h2>`;
+
+  for (let i = 0; i < config.criteria.length; i++) {
+    const c = config.criteria[i];
+    const safeId = configId;
+    html += `<div class="config-criterion-card">
+      <div class="cc-header">
+        <span class="cc-num">${c.id}.</span>
+        <input type="text" value="${c.name.replace(/"/g, '&quot;')}" onchange="editorUpdateCriterion('${safeId}', ${c.id}, 'name', this.value)">
+        <button class="btn-action" onclick="editorMoveCriterion('${safeId}', ${i}, -1)" title="Omhoog" ${i === 0 ? 'disabled' : ''}>\u2191</button>
+        <button class="btn-action" onclick="editorMoveCriterion('${safeId}', ${i}, 1)" title="Omlaag" ${i === config.criteria.length - 1 ? 'disabled' : ''}>\u2193</button>
+        <button class="btn-action btn-action-danger" onclick="editorRemoveCriterion('${safeId}', ${c.id})" title="Verwijderen">\u2715</button>
+      </div>
+      <textarea placeholder="Beschrijving..." onchange="editorUpdateCriterion('${safeId}', ${c.id}, 'desc', this.value)">${c.desc || ''}</textarea>`;
+
+    // Tags per level
+    for (let lvl = 1; lvl <= config.levels.count; lvl++) {
+      const lvlTags = (c.tags || []).filter(t => t.level === lvl);
+      html += `<div class="config-tag-editor">
+        <span class="tags-level-label">${getLevelLabel(config, lvl, true)}:</span>`;
+      lvlTags.forEach((tag, ti) => {
+        const tagIdx = c.tags.indexOf(tag);
+        html += `<span class="tag-chip level${lvl}">${tag.text}<span class="tag-remove" onclick="editorRemoveTag('${safeId}', ${c.id}, ${tagIdx})">\u2715</span></span>`;
+      });
+      html += `<span class="tag-chip" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:0.72rem;cursor:pointer"
+        onclick="editorAddTag('${safeId}', ${c.id}, ${lvl})">+ tag</span>`;
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  html += `<button class="btn btn-outline" onclick="editorAddCriterion('${configId}')" style="margin-top:0.5rem">+ Criterium toevoegen</button>
+    </div>`;
+
+  // Score levels
+  html += `<div class="config-section">
+    <h2>Scoreniveaus (${config.levels.count})</h2>`;
+  for (let lvl = 1; lvl <= config.levels.count; lvl++) {
+    html += `<div class="config-level-row">
+      <span class="level-num">${lvl}</span>
+      <input type="text" value="${(config.levels.labels[lvl] || '').replace(/"/g, '&quot;')}" placeholder="Volledig label"
+        onchange="editorUpdateLevel('${configId}', ${lvl}, 'labels', this.value)">
+      <input type="text" value="${(config.levels.shortLabels[lvl] || '').replace(/"/g, '&quot;')}" placeholder="Kort" style="max-width:100px"
+        onchange="editorUpdateLevel('${configId}', ${lvl}, 'shortLabels', this.value)">
+    </div>`;
+  }
+  html += `<div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+    <button class="btn btn-outline" onclick="editorAddLevel('${configId}')">+ Niveau</button>
+    ${config.levels.count > 2 ? `<button class="btn btn-outline" onclick="editorRemoveLevel('${configId}')">- Niveau</button>` : ''}
+  </div></div>`;
+
+  // Grading scale
+  html += `<div class="config-section">
+    <h2>Cesuur (scoresleutel)</h2>`;
+  const sortedScale = [...config.grading.scale].sort((a, b) => b.minPoints - a.minPoints);
+  for (let i = 0; i < sortedScale.length; i++) {
+    const row = sortedScale[i];
+    html += `<div class="config-grading-row">
+      <span style="font-size:0.85rem;color:var(--text-muted)">Vanaf</span>
+      <input type="number" value="${row.minPoints}" onchange="editorUpdateGrading('${configId}', ${i}, 'minPoints', parseInt(this.value))">
+      <span style="font-size:0.85rem;color:var(--text-muted)">punten =</span>
+      <input type="number" value="${row.grade}" onchange="editorUpdateGrading('${configId}', ${i}, 'grade', parseFloat(this.value))">
+      <button class="btn-action btn-action-danger" onclick="editorRemoveGradingRow('${configId}', ${i})" style="font-size:0.7rem">\u2715</button>
+    </div>`;
+  }
+  html += `<button class="btn btn-outline" onclick="editorAddGradingRow('${configId}')" style="margin-top:0.5rem">+ Rij</button>
+    <div style="margin-top:0.75rem">
+      <div class="config-grading-row">
+        <span style="font-size:0.85rem;color:var(--text-muted)">Zak/slaag-drempel: minimaal niveau</span>
+        <input type="number" value="${config.grading.passThreshold || 2}" min="1" onchange="editorUpdatePassThreshold('${configId}', parseInt(this.value))">
+      </div>
+    </div>
+  </div>`;
+
+  // Regenerate tags button
+  html += `<div style="margin-top:1.5rem;padding-top:1rem;border-top:2px solid var(--border)">
+    <button class="btn btn-outline" onclick="regenerateTags('${configId}')" ${!state.settings.apiKey ? 'title="Vereist API-key"' : ''}>Tags regenereren (AI)</button>
+    <span style="font-size:0.8rem;color:var(--text-muted);margin-left:0.5rem">Genereert nieuwe observatie-tags op basis van de criteria. Custom tags blijven behouden.</span>
+  </div>`;
+
+  html += `</div>`; // close config-editor
+
+  el.innerHTML = html;
+}
+
+// ---- Config editor helper functions ----
+function editorUpdateCriterion(configId, critId, field, value) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const crit = config.criteria.find(c => c.id === critId);
+  if (crit) { crit[field] = value; config.updatedAt = new Date().toISOString(); saveState(); }
+}
+
+function editorAddCriterion(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const maxId = config.criteria.length > 0 ? Math.max(...config.criteria.map(c => c.id)) : 0;
+  config.criteria.push({ id: maxId + 1, name: 'Nieuw criterium', desc: '', tags: [] });
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorRemoveCriterion(configId, critId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  if (config.criteria.length <= 1) { alert('Een configuratie moet minimaal 1 criterium hebben.'); return; }
+  if (!confirm('Criterium verwijderen?')) return;
+  config.criteria = config.criteria.filter(c => c.id !== critId);
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorMoveCriterion(configId, index, direction) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const newIdx = index + direction;
+  if (newIdx < 0 || newIdx >= config.criteria.length) return;
+  [config.criteria[index], config.criteria[newIdx]] = [config.criteria[newIdx], config.criteria[index]];
+  // Re-number IDs
+  config.criteria.forEach((c, i) => { c.id = i + 1; });
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorAddTag(configId, critId, level) {
+  const text = prompt('Observatie-tag tekst:');
+  if (!text || !text.trim()) return;
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const crit = config.criteria.find(c => c.id === critId);
+  if (!crit) return;
+  if (!crit.tags) crit.tags = [];
+  crit.tags.push({ text: text.trim(), level, custom: true });
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorRemoveTag(configId, critId, tagIndex) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const crit = config.criteria.find(c => c.id === critId);
+  if (!crit || !crit.tags) return;
+  crit.tags.splice(tagIndex, 1);
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorUpdateLevel(configId, level, field, value) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  config.levels[field][level] = value;
+  config.updatedAt = new Date().toISOString();
+  saveState();
+}
+
+function editorAddLevel(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const newLvl = config.levels.count + 1;
+  config.levels.count = newLvl;
+  config.levels.labels[newLvl] = 'Niveau ' + newLvl;
+  config.levels.shortLabels[newLvl] = 'N' + newLvl;
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorRemoveLevel(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config || config.levels.count <= 2) return;
+  const removeLvl = config.levels.count;
+  delete config.levels.labels[removeLvl];
+  delete config.levels.shortLabels[removeLvl];
+  // Remove tags at this level
+  for (const crit of config.criteria) {
+    if (crit.tags) crit.tags = crit.tags.filter(t => t.level !== removeLvl);
+  }
+  config.levels.count--;
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorUpdateGrading(configId, sortedIndex, field, value) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const sorted = [...config.grading.scale].sort((a, b) => b.minPoints - a.minPoints);
+  const row = sorted[sortedIndex];
+  if (!row) return;
+  // Find original in unsorted array
+  const origIdx = config.grading.scale.indexOf(row);
+  if (origIdx >= 0) { config.grading.scale[origIdx][field] = value; }
+  config.updatedAt = new Date().toISOString();
+  saveState();
+}
+
+function editorAddGradingRow(configId) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  config.grading.scale.push({ minPoints: 0, grade: 1 });
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorRemoveGradingRow(configId, sortedIndex) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  const sorted = [...config.grading.scale].sort((a, b) => b.minPoints - a.minPoints);
+  const row = sorted[sortedIndex];
+  if (!row) return;
+  config.grading.scale = config.grading.scale.filter(r => r !== row);
+  config.updatedAt = new Date().toISOString();
+  saveState();
+  renderConfigEditor(configId);
+}
+
+function editorUpdatePassThreshold(configId, value) {
+  const config = state.configs.find(c => c.id === configId);
+  if (!config) return;
+  config.grading.passThreshold = value;
+  config.updatedAt = new Date().toISOString();
+  saveState();
+}
+
+// ==================== SETTINGS VIEW ====================
+function renderSettings() {
+  const el = document.getElementById('view-settings');
+  const hasKey = !!state.settings.apiKey;
+  const maskedKey = hasKey ? state.settings.apiKey.substring(0, 10) + '\u2022'.repeat(20) + state.settings.apiKey.slice(-4) : '';
+
+  let html = `<h1>Instellingen</h1>
+
+  <div class="settings-section card">
+    <h2>API-key (Anthropic)</h2>
+    ${hasKey
+      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskedKey}</p>
+         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderSettings(); })" style="margin-right:0.5rem">Wijzigen</button>
+         <button class="btn btn-outline" onclick="deleteApiKey()">Verwijderen</button>`
+      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Geen API-key ingesteld. Een key is nodig om PDF-formulieren te laten analyseren door AI.</p>
+         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderSettings(); })">API-key instellen</button>`
+    }
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">De key wordt alleen lokaal in je browser opgeslagen.</p>
+  </div>
+
+  <div class="settings-section card">
+    <h2>Configuraties (${state.configs.length})</h2>`;
+
+  if (state.configs.length === 0) {
+    html += `<p style="color:var(--text-muted)">Geen configuraties. Ga naar <a href="#" onclick="event.preventDefault(); showView('config')">Configuratie</a> om er een aan te maken.</p>`;
+  } else {
+    for (const c of state.configs) {
+      const linkedGroups = state.groups.filter(g => g.configId === c.id);
+      const isActive = state.settings.activeConfigId === c.id;
+      html += `<div class="config-list-item" ${isActive ? 'style="border-color:var(--primary)"' : ''}>
+        <div class="cli-info">
+          <div class="cli-title">${isActive ? '\u25CF ' : '\u25CB '}${c.title}</div>
+          <div class="cli-meta">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
+        </div>
+        <div class="cli-actions">
+          <button class="btn-action" onclick="editingConfigId='${c.id}'; showView('config')" title="Bewerken">\u270E</button>
+          <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren">&#8681;</button>
+          <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderSettings()" title="Verwijderen">\u2715</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+// ==================== TEST SUITE ====================
+function runTests() {
+  const results = [];
+  const assert = (name, condition) => { results.push({ name, pass: !!condition }); if (!condition) console.error('FAIL:', name); };
+
+  // -- Config engine tests --
+  const testConfig = {
+    id: 'test', title: 'Test',
+    criteria: [{ id: 1, name: 'A', desc: '', tags: [] }, { id: 2, name: 'B', desc: '', tags: [] }, { id: 3, name: 'C', desc: '', tags: [] }],
+    levels: { count: 3, labels: { '1': 'Onvoldoende', '2': 'Voldoende', '3': 'Goed' }, shortLabels: { '1': 'Onv', '2': 'Vold', '3': 'Goed' } },
+    grading: { scale: [{ minPoints: 9, grade: 10 }, { minPoints: 7, grade: 8 }, { minPoints: 5, grade: 6 }], defaultGrade: 4, passRule: 'Min voldoende', passThreshold: 2 }
+  };
+  assert('C1: calculateGrade max', calculateGrade(testConfig, 9) === 10);
+  assert('C2: calculateGrade mid', calculateGrade(testConfig, 7) === 8);
+  assert('C3: calculateGrade low', calculateGrade(testConfig, 5) === 6);
+  assert('C4: calculateGrade below min', calculateGrade(testConfig, 4) === 4);
+  assert('C5: calculateGrade null config', calculateGrade(null, 15) === null);
+  assert('C6: getLevelLabel full', getLevelLabel(testConfig, 2, false) === 'Voldoende');
+  assert('C7: getLevelLabel short', getLevelLabel(testConfig, 2, true) === 'Vold');
+  assert('C8: getLevelLabel unknown', getLevelLabel(testConfig, 99) === '99');
+
+  // -- PROMEF grade parity tests --
+  const promefConfig = getActiveConfig();
+  if (promefConfig && promefConfig.grading) {
+    function calcOriginal(total) { if (total >= 24) return 10; if (total >= 20) return 9; if (total >= 16) return 8; if (total >= 14) return 7; if (total >= 12) return 6; if (total >= 10) return 5; return 4; }
+    for (let t = 5; t <= 24; t++) {
+      assert('G-parity-' + t, calculateGrade(promefConfig, t) === calcOriginal(t));
+    }
+    assert('G-below-5', calculateGrade(promefConfig, 4) === 4);
+  }
+
+  // -- studentTotal tests --
+  const savedState = JSON.parse(JSON.stringify(state));
+  state.scores = { 999: { 1: 3, 2: 2, 3: 3 } };
+  const t1 = studentTotal(999, testConfig);
+  assert('C9: studentTotal complete', t1.complete === true && t1.total === 8 && t1.grade === 8 && t1.hasUnder === false);
+  state.scores = { 999: { 1: 3 } };
+  const t2 = studentTotal(999, testConfig);
+  assert('C10: studentTotal incomplete', t2.complete === false && t2.count === 1 && t2.grade === null);
+  state.scores = { 999: { 1: 1, 2: 2, 3: 2 } };
+  const t3 = studentTotal(999, testConfig);
+  assert('C11: studentTotal hasUnder', t3.hasUnder === true);
+  assert('C12: studentTotal null config', studentTotal(999, null).total === 0);
+  state = JSON.parse(JSON.stringify(savedState));
+
+  // -- validateConfigData tests --
+  try { validateConfigData({ criteria: [{ id: 1 }], levels: { count: 2 }, grading: { scale: [{ minPoints: 1, grade: 5 }] } }); assert('C14: validate no title', false); }
+  catch(e) { assert('C14: validate no title throws', e.message.includes('Titel')); }
+  try { validateConfigData({ title: 'X', criteria: [], levels: { count: 2 }, grading: { scale: [{ minPoints: 1, grade: 5 }] } }); assert('C15: validate empty criteria', false); }
+  catch(e) { assert('C15: validate empty criteria throws', e.message.includes('criteria')); }
+
+  // -- Score toggle tests --
+  const savedState2 = JSON.parse(JSON.stringify(state));
+  state.scores = {};
+  setScore(1, 1, 3);
+  assert('S1: setScore toggle on', getScore(1, 1) === 3);
+  setScore(1, 1, 3);
+  assert('S2: setScore toggle off', getScore(1, 1) === null);
+  setScore(1, 1, 3);
+  setScore(1, 1, 2);
+  assert('S3: setScore switch level', getScore(1, 1) === 2);
+  state = JSON.parse(JSON.stringify(savedState2));
+
+  // -- Tag tests --
+  const savedState3 = JSON.parse(JSON.stringify(state));
+  state.notes = {};
+  insertTagInNote(1, 1, 'helder uitgelegd');
+  assert('T1: insertTag on empty', getNote(1, 1) === '\u2713 helder uitgelegd');
+  setNote(1, 2, 'goed gesprek');
+  insertTagInNote(1, 2, 'actief luisteren');
+  assert('T2: insertTag with text', getNote(1, 2).includes('goed gesprek') && getNote(1, 2).includes('\u2713 actief luisteren'));
+  insertTagInNote(1, 1, 'helder uitgelegd');
+  assert('T3: insertTag toggle off', !getNote(1, 1).includes('\u2713 helder uitgelegd'));
+  assert('T4: isTagInNote false', !isTagInNote(1, 1, 'helder uitgelegd'));
+  state = JSON.parse(JSON.stringify(savedState3));
+
+  // -- Config CRUD tests --
+  const savedState4 = JSON.parse(JSON.stringify(state));
+  const newCfg = createConfig({ title: 'Test CRUD', criteria: [{ id: 1, name: 'X', desc: '', tags: [] }], levels: { count: 2, labels: { '1': 'A', '2': 'B' }, shortLabels: { '1': 'A', '2': 'B' } }, grading: { scale: [{ minPoints: 2, grade: 10 }], defaultGrade: 4, passThreshold: 1, passRule: '' } });
+  assert('CR1: createConfig', state.configs.find(c => c.id === newCfg.id) !== undefined);
+  assert('CR2: createConfig becomes active', state.settings.activeConfigId === newCfg.id);
+  const dup = duplicateConfig(newCfg.id);
+  assert('CR6: duplicateConfig', dup && dup.title.includes('(kopie)') && dup.id !== newCfg.id);
+  const delOk = deleteConfig(dup.id);
+  assert('CR4: deleteConfig unlinked', delOk === true && !state.configs.find(c => c.id === dup.id));
+  state = JSON.parse(JSON.stringify(savedState4));
+
+  // -- CSV parse tests --
+  const csvNL = parseCSV('Naam;Groep;Team\nAnna;G01;1');
+  assert('V1: parseCSV semicolon', csvNL.length === 2 && csvNL[1][0] === 'Anna');
+  const csvEN = parseCSV('Naam,Groep,Team\nAnna,G01,1');
+  assert('V2: parseCSV comma', csvEN.length === 2 && csvEN[1][0] === 'Anna');
+
+  // -- Summary --
+  const passed = results.filter(r => r.pass).length;
+  const failed = results.filter(r => !r.pass);
+  console.log(`%cTests: ${passed}/${results.length} passed`, passed === results.length ? 'color:green;font-weight:bold' : 'color:red;font-weight:bold');
+  if (failed.length > 0) { console.table(failed.map(r => ({ test: r.name }))); }
+  return results;
+}
+
+// ==================== INIT ====================
+function init() {
+  loadState();
+  // Show onboarding if no configs
+  if (state.configs.length === 0) {
+    showView('config');
+  } else {
+    renderDashboard();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
