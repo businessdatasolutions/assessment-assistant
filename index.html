@@ -2930,7 +2930,7 @@ async function sendChatMessage() {
 }
 
 async function confirmAndExtract() {
-  chatMessages.push({ role: 'user', content: 'Bevestigd. Extraheer nu de configuratie als JSON.' });
+  chatMessages.push({ role: 'user', content: 'Bevestigd. Extraheer nu de configuratie als JSON. BELANGRIJK: verwerk ALLE correcties, aanvullingen en verduidelijkingen uit ons gesprek hierboven. De JSON moet de definitieve, gecorrigeerde versie bevatten — niet de oorspronkelijke interpretatie.' });
   chatBusy = true;
   renderChatUI();
 
@@ -2962,7 +2962,7 @@ async function confirmAndExtract() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 8192,
-        system: AI_SYSTEM_PROMPT,
+        system: AI_SYSTEM_PROMPT + '\n\nBELANGRIJK: Je hebt eerder in dit gesprek het formulier besproken met de gebruiker. De gebruiker heeft correcties en aanvullingen gegeven. Gebruik de DEFINITIEVE, GECORRIGEERDE interpretatie uit het gesprek — niet je oorspronkelijke analyse. Als de gebruiker heeft aangegeven dat er extra niveaus, andere labels, of aanvullende informatie is, neem dat dan op in de JSON.',
         messages: apiMessages
       })
     });
