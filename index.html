@@ -2686,6 +2686,24 @@ function validateConfigData(data) {
   }
   if (!data.levels.labels) data.levels.labels = {};
   if (!data.levels.shortLabels) data.levels.shortLabels = {};
+
+  // Fix 0-based level keys: renumber to 1-based
+  if (data.levels.labels['0'] !== undefined) {
+    const newLabels = {}, newShort = {};
+    for (const [k, v] of Object.entries(data.levels.labels)) {
+      newLabels[String(parseInt(k) + 1)] = v;
+    }
+    for (const [k, v] of Object.entries(data.levels.shortLabels || {})) {
+      newShort[String(parseInt(k) + 1)] = v;
+    }
+    data.levels.labels = newLabels;
+    data.levels.shortLabels = newShort;
+    data.levels.count = Object.keys(newLabels).length;
+    for (const c of data.criteria) {
+      if (c.tags) c.tags.forEach(t => { t.level = t.level + 1; });
+    }
+  }
+
   for (let i = 1; i <= data.levels.count; i++) {
     if (!data.levels.labels[String(i)]) data.levels.labels[String(i)] = 'Niveau ' + i;
     if (!data.levels.shortLabels[String(i)]) data.levels.shortLabels[String(i)] = 'N' + i;
