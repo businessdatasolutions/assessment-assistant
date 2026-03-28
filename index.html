@@ -1031,7 +1031,7 @@ function migrateState() {
   }
 
   // 5. Ensure aiProvider defaults
-  if (!state.settings.aiProvider) state.settings.aiProvider = 'anthropic';
+  if (!state.settings.aiProvider) state.settings.aiProvider = 'google';
 }
 
 function loadState() {
@@ -2070,7 +2070,7 @@ function renderConsoleFormulier() {
 }
 
 function renderConsoleAiModel() {
-  const provider = state.settings.aiProvider || 'anthropic';
+  const provider = state.settings.aiProvider || 'google';
   const hasAnthropicKey = !!state.settings.apiKey;
   const hasGeminiKey = !!state.settings.geminiApiKey;
   const maskKey = (k) => k.substring(0, 10) + '\u2022'.repeat(20) + k.slice(-4);
@@ -2201,7 +2201,7 @@ function doImportFromConsole() {
 // ==================== EXPORT ====================
 function renderExport() {
   const el = document.getElementById('view-export');
-  const provider = state.settings.aiProvider || 'anthropic';
+  const provider = state.settings.aiProvider || 'google';
   const hasAnthropicKey = !!state.settings.apiKey;
   const hasGeminiKey = !!state.settings.geminiApiKey;
   const maskKey = (k) => k.substring(0, 8) + '\u2022\u2022\u2022\u2022' + k.slice(-4);
@@ -2360,7 +2360,7 @@ function fullReset() {
   const savedGeminiKey = state.settings?.geminiApiKey;
   const savedProvider = state.settings?.aiProvider;
   localStorage.removeItem('assessment_tool_state');
-  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'anthropic' } };
+  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'google' } };
   if (!deleteKeys) {
     if (savedApiKey) state.settings.apiKey = savedApiKey;
     if (savedGeminiKey) state.settings.geminiApiKey = savedGeminiKey;
@@ -2722,7 +2722,7 @@ let apiKeyEditProvider = 'anthropic';
 
 function showApiKeyModal(callback, provider) {
   apiKeyCallback = callback || null;
-  apiKeyEditProvider = provider || state.settings.aiProvider || 'anthropic';
+  apiKeyEditProvider = provider || state.settings.aiProvider || 'google';
 
   const isGemini = apiKeyEditProvider === 'gemini';
   document.getElementById('apiKeyModalTitle').textContent = (isGemini ? 'Gemini' : 'Anthropic') + ' API-key instellen';
@@ -2836,7 +2836,7 @@ function renderConfig() {
 
 function startPDFUpload() {
   if (!getActiveApiKey()) {
-    const provider = state.settings.aiProvider || 'anthropic';
+    const provider = state.settings.aiProvider || 'google';
     showApiKeyModal(() => { showPDFUploadUI(); }, provider);
   } else {
     showPDFUploadUI();
@@ -2917,7 +2917,7 @@ function readFileAsBase64(file) {
 
 // ==================== AI PROVIDER ABSTRACTION ====================
 function getActiveApiKey() {
-  const provider = state.settings.aiProvider || 'anthropic';
+  const provider = state.settings.aiProvider || 'google';
   return provider === 'gemini' ? state.settings.geminiApiKey : state.settings.apiKey;
 }
 
@@ -2997,7 +2997,7 @@ async function callGemini({ messages, system, maxTokens = 4096 }) {
 }
 
 async function callAI({ messages, system, maxTokens = 4096 }) {
-  const provider = state.settings.aiProvider || 'anthropic';
+  const provider = state.settings.aiProvider || 'google';
   if (provider === 'gemini') return callGemini({ messages, system, maxTokens });
   return callAnthropic({ messages, system, maxTokens });
 }
@@ -3453,7 +3453,7 @@ async function regenerateTags(configId) {
   const config = state.configs.find(c => c.id === configId);
   if (!config) return;
   if (!getActiveApiKey()) {
-    const provider = state.settings.aiProvider || 'anthropic';
+    const provider = state.settings.aiProvider || 'google';
     showApiKeyModal(() => regenerateTags(configId), provider);
     return;
   }
@@ -3728,7 +3728,7 @@ function editorUpdatePassThreshold(configId, value) {
 // ==================== SETTINGS VIEW ====================
 function renderSettings() {
   const el = document.getElementById('view-settings');
-  const provider = state.settings.aiProvider || 'anthropic';
+  const provider = state.settings.aiProvider || 'google';
   const hasAnthropicKey = !!state.settings.apiKey;
   const hasGeminiKey = !!state.settings.geminiApiKey;
   const maskKey = (k) => k.substring(0, 10) + '\u2022'.repeat(20) + k.slice(-4);
