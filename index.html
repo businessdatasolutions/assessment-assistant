@@ -2355,19 +2355,16 @@ function clearScores() {
 
 function fullReset() {
   if (!confirm('LET OP: Alle data wordt permanent gewist \u2014 studenten, scores, notities en planning.\n\nWeet je het zeker?')) return;
-  const deleteKeys = confirm('Wil je ook je API-keys verwijderen?\n\nKlik "OK" om keys te wissen, of "Annuleren" om ze te behouden.');
   const savedApiKey = state.settings?.apiKey;
   const savedGeminiKey = state.settings?.geminiApiKey;
   const savedProvider = state.settings?.aiProvider;
   localStorage.removeItem('assessment_tool_state');
   state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'google' } };
-  if (!deleteKeys) {
-    if (savedApiKey) state.settings.apiKey = savedApiKey;
-    if (savedGeminiKey) state.settings.geminiApiKey = savedGeminiKey;
-    if (savedProvider) state.settings.aiProvider = savedProvider;
-  }
+  if (savedApiKey) state.settings.apiKey = savedApiKey;
+  if (savedGeminiKey) state.settings.geminiApiKey = savedGeminiKey;
+  if (savedProvider) state.settings.aiProvider = savedProvider;
   saveState();
-  showView('config'); // Show onboarding welcome screen
+  showView('dashboard');
   alert('Alle data gewist. De app is opnieuw gestart.');
 }
 
