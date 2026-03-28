@@ -1344,7 +1344,7 @@ function renderSidebar(view) {
       for (const t of teams) {
         const sts = getTeamStudents(g.id, t.num);
         for (const s of sts) {
-          html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm" onclick="document.getElementById('feedbackStudent').value='${s.id}'; renderFeedback();">${s.name} <span class="text-xs text-slate-400">(T${t.num})</span></button>`;
+          html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm" onclick="renderFeedback(${s.id})">${s.name} <span class="text-xs text-slate-400">(T${t.num})</span></button>`;
         }
       }
     }
