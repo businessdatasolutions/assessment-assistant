@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Assessment Tool</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
 /* ==================== BASE ==================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f1f5f9; --surface: #ffffff; --text: #1e293b; --text-muted: #64748b;
+  --bg: #eaf2fa; --surface: #ffffff; --text: #1e293b; --text-muted: #64748b;
   --border: #e2e8f0; --primary: #2563eb; --primary-light: #dbeafe;
   --score0: #ef4444; --score0-bg: #fef2f2; --score0-text: #991b1b;
   --score1: #f59e0b; --score1-bg: #fffbeb; --score1-text: #92400e;
@@ -17,24 +18,15 @@
   --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.1);
   --touch-min: 44px;
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
-button { cursor: pointer; font-family: inherit; font-size: inherit; border: none; background: none; }
-input, textarea { font-family: inherit; font-size: inherit; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #eaf2fa; }
 
-/* ==================== NAV ==================== */
-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 0.5rem; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
-nav .logo { font-weight: 700; font-size: 1.1rem; color: var(--primary); margin-right: 1.5rem; }
-nav .tab { padding: 0.5rem 1rem; border-radius: var(--radius); color: var(--text-muted); font-weight: 500; transition: all 0.15s; }
-nav .tab:hover { background: var(--bg); color: var(--text); }
-nav .tab.active { background: var(--primary-light); color: var(--primary); }
-nav .spacer { flex: 1; }
-nav .nav-actions { display: flex; gap: 0.5rem; }
-.nav-tabs-row { display: contents; }
-.hamburger { display: none; width: var(--touch-min); height: var(--touch-min); align-items: center; justify-content: center; font-size: 1.4rem; color: var(--text); border-radius: var(--radius); }
-.hamburger:hover { background: var(--bg); }
+/* ==================== CUSTOM UTILITIES ==================== */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+.sidebar-bg { background-color: #f8fafc; }
 
 /* ==================== LAYOUT ==================== */
-main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
 .view { display: none; }
 .view.active { display: block; }
 h1 { font-size: 1.5rem; margin-bottom: 1rem; }
@@ -329,32 +321,13 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 
 /* ==================== RESPONSIVE: TABLET (≤768px) ==================== */
 @media (max-width: 768px) {
-  /* -- Nav: hamburger menu -- */
-  nav { flex-wrap: nowrap; height: 56px; padding: 0 0.75rem; position: relative; }
-  nav .logo { margin-right: auto; }
-  nav .spacer { display: none; }
-  .hamburger { display: flex; }
-  .nav-tabs-row {
-    display: none; position: absolute; top: 100%; left: 0; right: 0;
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-direction: column;
-    padding: 0.5rem; z-index: 99;
-  }
-  .nav-tabs-row.open { display: flex; }
-  .nav-tabs-row .tab {
-    padding: 0.75rem 1rem; min-height: var(--touch-min); display: flex;
-    align-items: center; border-radius: var(--radius); font-size: 0.95rem; width: 100%;
-  }
-  .nav-tabs-row .tab.active { background: var(--primary-light); color: var(--primary); }
+  #app-sidebar { display: none; }
+  #app-sidebar.open { display: flex; position: fixed; top: 56px; left: 0; bottom: 0; z-index: 90; width: 280px; box-shadow: 4px 0 12px rgba(0,0,0,0.15); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; top: 56px; background: rgba(0,0,0,0.3); z-index: 89; }
+  .sidebar-overlay.open { display: block; }
 
-  /* -- Layout -- */
-  main { padding: 1rem 0.75rem; }
-  h1 { font-size: 1.25rem; }
-
-  /* -- Dashboard calendar: stacked per group -- */
   .calendar-mobile-group { margin-bottom: 1rem; }
 
-  /* -- Assessment: touch-friendly -- */
   .assess-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   .assess-header .team-title { font-size: 1.1rem; }
   .assess-nav { width: 100%; justify-content: space-between; }
@@ -373,11 +346,9 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
   .assess-footer { flex-direction: column; gap: 1rem; }
   .student-total { min-width: unset; }
 
-  /* -- Results table -- */
   .results-table th, .results-table td { padding: 0.4rem 0.5rem; font-size: 0.78rem; white-space: nowrap; }
   .results-table th { font-size: 0.7rem; }
 
-  /* -- Modals: bottom sheet style -- */
   .modal-overlay.open { align-items: flex-end; }
   .modal { max-width: none; width: 100%; border-radius: var(--radius) var(--radius) 0 0; max-height: 90vh; overflow-y: auto; }
   .modal .form-row { flex-direction: column; gap: 0.5rem; }
@@ -388,30 +359,22 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
   .modal .form-group select { min-height: var(--touch-min); font-size: 1rem; }
   .modal .btn { min-height: var(--touch-min); font-size: 1rem; }
 
-  /* -- Guide -- */
   .guide { max-width: 100%; }
   .guide-table { font-size: 0.8rem; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .guide-table th, .guide-table td { padding: 0.3rem 0.5rem; }
   .guide p, .guide li { font-size: 0.88rem; }
 
-  /* -- Export -- */
   .export-grid { grid-template-columns: 1fr; }
 
-  /* -- Feedback -- */
   .feedback-summary { flex-direction: column; gap: 1rem; }
   .feedback-report { padding: 1.25rem; }
   .feedback-select select { width: 100%; min-height: var(--touch-min); }
 
-  /* -- Tag picker: constrain to viewport -- */
   .tag-picker { left: 0.5rem !important; right: 0.5rem; width: auto; max-width: calc(100vw - 1rem); }
 }
 
 /* ==================== RESPONSIVE: PHONE (≤480px) ==================== */
 @media (max-width: 480px) {
-  nav { padding: 0 0.5rem; }
-  nav .logo { font-size: 0.95rem; }
-  main { padding: 0.75rem 0.5rem; }
-  h1 { font-size: 1.1rem; }
   .card { padding: 0.75rem; }
   .criterion-block { padding: 0.5rem; margin-bottom: 0.5rem; }
   .score-btn { font-size: 0.75rem; padding: 0.35rem; }
@@ -428,7 +391,7 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 /* ==================== PRINT ==================== */
 @media print {
   @page { margin: 1.5cm; }
-  nav, .assess-header, .assess-nav, .no-print { display: none !important; }
+  header, #app-sidebar, .assess-header, .assess-nav, .no-print { display: none !important; }
   body { background: white; color: black; }
   main { max-width: none; padding: 0; }
   .feedback-report { border: none; box-shadow: none; padding: 0; }
@@ -441,152 +404,198 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 }
 </style>
 </head>
-<body>
+<body class="h-screen flex flex-col overflow-hidden text-slate-800">
 
-<nav>
-  <span class="logo">Assessment Tool</span>
-  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
-  <div class="nav-tabs-row" id="navMenu">
-    <button class="tab active" data-view="dashboard">Overzicht</button>
-    <button class="tab" data-view="students">Studenten</button>
-    <button class="tab" data-view="results">Resultaten</button>
-    <button class="tab" data-view="feedback">Feedback</button>
-    <button class="tab" data-view="console">Console</button>
-    <button class="tab" data-view="guide">Handleiding</button>
+<!-- BEGIN: Header -->
+<header class="bg-white border-b border-slate-200 h-14 flex items-center px-4 justify-between shrink-0">
+  <div class="flex items-center space-x-8">
+    <!-- Logo -->
+    <div class="flex items-center space-x-2 text-blue-600 font-semibold text-lg">
+      <div class="bg-blue-500 text-white rounded p-1">
+        <i class="fa-solid fa-pen-nib text-sm"></i>
+      </div>
+      <span>Assessment Tool</span>
+    </div>
+    <!-- Nav Tabs -->
+    <nav class="hidden md:flex space-x-1" id="navTabs">
+      <button class="nav-tab px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" data-view="dashboard">Overzicht</button>
+      <button class="nav-tab px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" data-view="students">Studenten</button>
+      <button class="nav-tab px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" data-view="results">Resultaten</button>
+      <button class="nav-tab px-3 py-1.5 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" data-view="feedback">Feedback</button>
+    </nav>
   </div>
-</nav>
+  <!-- Right Actions -->
+  <div class="flex items-center space-x-4 text-sm text-slate-600">
+    <button class="md:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-slate-100" onclick="toggleSidebar()" aria-label="Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <button class="nav-tab hidden md:flex items-center space-x-1 hover:text-slate-900" data-view="console">
+      <i class="fa-solid fa-gear"></i>
+      <span>Console</span>
+    </button>
+    <button class="nav-tab hidden md:flex items-center space-x-1 hover:text-slate-900" data-view="guide">
+      <i class="fa-regular fa-circle-question"></i>
+      <span>Handleiding</span>
+    </button>
+  </div>
+</header>
+<!-- END: Header -->
 
-<main>
-  <section id="view-dashboard" class="view active"></section>
-  <section id="view-console" class="view"></section>
-  <section id="view-config" class="view"></section>
-  <section id="view-assessment" class="view"></section>
-  <section id="view-results" class="view"></section>
-  <section id="view-feedback" class="view"></section>
-  <section id="view-students" class="view"></section>
-  <section id="view-export" class="view"></section>
-  <section id="view-settings" class="view"></section>
-  <section id="view-guide" class="view"></section>
-</main>
+<!-- BEGIN: Content Layout -->
+<div class="flex flex-1 overflow-hidden">
+  <!-- Sidebar -->
+  <aside id="app-sidebar" class="w-64 sidebar-bg border-r border-slate-200 flex-col shrink-0 hidden md:flex">
+    <div class="p-4 border-b border-slate-200">
+      <div id="sidebar-module-label" class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1 truncate cursor-pointer hover:text-blue-800" onclick="showView('console')" title="Actieve module — klik om te wijzigen"></div>
+      <h2 class="font-medium text-slate-700 text-sm" id="sidebar-title">Groepen</h2>
+    </div>
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1" id="sidebar-content">
+    </div>
+  </aside>
+  <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto custom-scrollbar p-6">
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-console" class="view"></section>
+    <section id="view-config" class="view"></section>
+    <section id="view-assessment" class="view"></section>
+    <section id="view-results" class="view"></section>
+    <section id="view-feedback" class="view"></section>
+    <section id="view-students" class="view"></section>
+    <section id="view-export" class="view"></section>
+    <section id="view-settings" class="view"></section>
+    <section id="view-guide" class="view"></section>
+  </main>
+</div>
+<!-- END: Content Layout -->
 
 <div id="calendarPrintArea"></div>
 
-<div class="modal-overlay" id="importModal">
-  <div class="modal">
-    <h2>CSV importeren</h2>
-    <div class="form-group">
-      <label>Selecteer CSV-bestand</label>
-      <input type="file" id="csvFileInput" accept=".csv">
-      <div class="form-help">Verwacht kolommen: Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</div>
+<div class="modal-overlay fixed inset-0 bg-black/40 z-[200] items-center justify-center" id="importModal">
+  <div class="modal bg-white rounded-lg p-8 max-w-lg w-[90%] shadow-xl">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">CSV importeren</h2>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Selecteer CSV-bestand</label>
+      <input type="file" id="csvFileInput" accept=".csv" class="w-full border border-slate-300 rounded-md p-2 text-sm">
+      <div class="text-xs text-slate-500 mt-1">Verwacht kolommen: Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</div>
     </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="csvReplace" checked> Bestaande data vervangen</label>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Importeren in module</label>
+      <select id="csvModuleSelect" class="w-full border border-slate-300 rounded-md p-2 text-sm">
+      </select>
+      <div class="mt-2">
+        <input type="text" id="csvNewModuleName" class="w-full border border-slate-300 rounded-md p-2 text-sm hidden" placeholder="Naam nieuwe module...">
+      </div>
     </div>
-    <div class="modal-actions">
+    <div class="form-group mb-4">
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="csvReplace" checked class="rounded border-slate-300 text-blue-600"> Bestaande data vervangen</label>
+    </div>
+    <div class="flex gap-2 justify-end mt-6">
       <button class="btn btn-outline" onclick="closeImportModal()">Annuleren</button>
       <button class="btn btn-primary" onclick="doImport()">Importeren</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="groupModal">
-  <div class="modal">
-    <h2 id="groupModalTitle">Groep toevoegen</h2>
-    <div class="form-group">
-      <label>Naam</label>
-      <input type="text" id="groupName" placeholder="bijv. BKN-F01">
+<div class="modal-overlay fixed inset-0 bg-black/40 z-[200] items-center justify-center" id="groupModal">
+  <div class="modal bg-white rounded-lg p-8 max-w-lg w-[90%] shadow-xl">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4" id="groupModalTitle">Groep toevoegen</h2>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Naam</label>
+      <input type="text" id="groupName" placeholder="bijv. BKN-F01" class="w-full border border-slate-300 rounded-md p-2 text-sm">
     </div>
-    <div class="form-group">
-      <label>Beoordelingsformulier</label>
-      <select id="groupConfigSelect"></select>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Beoordelingsformulier</label>
+      <select id="groupConfigSelect" class="w-full border border-slate-300 rounded-md p-2 text-sm"></select>
     </div>
-    <div class="form-group">
-      <label>Assessoren</label>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Assessoren</label>
       <div id="assessorFields"></div>
-      <button type="button" class="btn btn-outline" onclick="addAssessorField()" style="margin-top:0.25rem;font-size:0.85rem;padding:0.3rem 0.8rem">+ Assessor</button>
+      <button type="button" class="btn btn-outline mt-1 text-sm px-3 py-1" onclick="addAssessorField()">+ Assessor</button>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Datum</label>
-        <input type="date" id="groupDate">
+    <div class="form-row flex gap-3">
+      <div class="form-group flex-1 mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Datum</label>
+        <input type="date" id="groupDate" class="w-full border border-slate-300 rounded-md p-2 text-sm">
       </div>
-      <div class="form-group" style="flex:0 0 auto">
-        <label>Van</label>
-        <input type="time" id="groupStartTime" value="09:00">
+      <div class="form-group mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Van</label>
+        <input type="time" id="groupStartTime" value="09:00" class="border border-slate-300 rounded-md p-2 text-sm">
       </div>
-      <div class="form-group" style="flex:0 0 auto">
-        <label>Tot</label>
-        <input type="time" id="groupEndTime" value="14:30">
+      <div class="form-group mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Tot</label>
+        <input type="time" id="groupEndTime" value="14:30" class="border border-slate-300 rounded-md p-2 text-sm">
       </div>
-      <div class="form-group" style="flex:0 0 auto">
-        <label>Slotduur</label>
-        <input type="number" id="groupSlotDuration" min="15" step="15" value="30" style="width:70px">
+      <div class="form-group mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Slotduur</label>
+        <input type="number" id="groupSlotDuration" min="15" step="15" value="30" class="w-[70px] border border-slate-300 rounded-md p-2 text-sm">
       </div>
     </div>
-    <div class="modal-actions">
+    <div class="flex gap-2 justify-end mt-6">
       <button class="btn btn-outline" onclick="closeGroupModal()">Annuleren</button>
       <button class="btn btn-primary" onclick="saveGroup()">Opslaan</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="teamModal">
-  <div class="modal">
-    <h2 id="teamModalTitle">Team toevoegen</h2>
-    <div class="form-row">
-      <div class="form-group" style="flex:2">
-        <label>Groep</label>
-        <select id="teamGroupSelect" onchange="updateTeamNumSuggestion()"></select>
+<div class="modal-overlay fixed inset-0 bg-black/40 z-[200] items-center justify-center" id="teamModal">
+  <div class="modal bg-white rounded-lg p-8 max-w-lg w-[90%] shadow-xl">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4" id="teamModalTitle">Team toevoegen</h2>
+    <div class="form-row flex gap-3">
+      <div class="form-group flex-[2] mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Groep</label>
+        <select id="teamGroupSelect" onchange="updateTeamNumSuggestion()" class="w-full border border-slate-300 rounded-md p-2 text-sm"></select>
       </div>
-      <div class="form-group" style="flex:1">
-        <label>Vanaf nr</label>
-        <input type="number" id="teamNum" min="1" placeholder="Nr">
+      <div class="form-group flex-1 mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Vanaf nr</label>
+        <input type="number" id="teamNum" min="1" placeholder="Nr" class="w-full border border-slate-300 rounded-md p-2 text-sm">
       </div>
-      <div class="form-group" style="flex:1">
-        <label>Aantal</label>
-        <input type="number" id="teamCount" min="1" value="1">
+      <div class="form-group flex-1 mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Aantal</label>
+        <input type="number" id="teamCount" min="1" value="1" class="w-full border border-slate-300 rounded-md p-2 text-sm">
       </div>
     </div>
-    <div class="modal-actions">
+    <div class="flex gap-2 justify-end mt-6">
       <button class="btn btn-outline" onclick="closeTeamModal()">Annuleren</button>
       <button class="btn btn-primary" onclick="saveTeam()">Opslaan</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="studentModal">
-  <div class="modal">
-    <h2 id="studentModalTitle">Student toevoegen</h2>
-    <div class="form-group">
-      <label>Naam</label>
-      <input type="text" id="studentName" placeholder="Volledige naam">
+<div class="modal-overlay fixed inset-0 bg-black/40 z-[200] items-center justify-center" id="studentModal">
+  <div class="modal bg-white rounded-lg p-8 max-w-lg w-[90%] shadow-xl">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4" id="studentModalTitle">Student toevoegen</h2>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1">Naam</label>
+      <input type="text" id="studentName" placeholder="Volledige naam" class="w-full border border-slate-300 rounded-md p-2 text-sm">
     </div>
-    <div class="form-row">
-      <div class="form-group" style="flex:2">
-        <label>Groep</label>
-        <select id="studentGroupSelect" onchange="updateStudentTeamOptions()"></select>
+    <div class="form-row flex gap-3">
+      <div class="form-group flex-[2] mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Groep</label>
+        <select id="studentGroupSelect" onchange="updateStudentTeamOptions()" class="w-full border border-slate-300 rounded-md p-2 text-sm"></select>
       </div>
-      <div class="form-group" style="flex:1">
-        <label>Team</label>
-        <select id="studentTeamSelect"></select>
+      <div class="form-group flex-1 mb-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">Team</label>
+        <select id="studentTeamSelect" class="w-full border border-slate-300 rounded-md p-2 text-sm"></select>
       </div>
     </div>
-    <div class="modal-actions">
+    <div class="flex gap-2 justify-end mt-6">
       <button class="btn btn-outline" onclick="closeStudentModal()">Annuleren</button>
       <button class="btn btn-primary" onclick="saveStudent()">Opslaan</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="apiKeyModal">
-  <div class="modal">
-    <h2 id="apiKeyModalTitle">API-key instellen</h2>
-    <p id="apiKeyModalDesc" style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem"></p>
-    <div class="form-group">
-      <label id="apiKeyModalLabel">API-key</label>
-      <input type="password" id="apiKeyInput" placeholder="..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.9rem;font-family:monospace">
+<div class="modal-overlay fixed inset-0 bg-black/40 z-[200] items-center justify-center" id="apiKeyModal">
+  <div class="modal bg-white rounded-lg p-8 max-w-lg w-[90%] shadow-xl">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4" id="apiKeyModalTitle">API-key instellen</h2>
+    <p id="apiKeyModalDesc" class="text-sm text-slate-500 mb-4"></p>
+    <div class="form-group mb-4">
+      <label class="block text-sm font-medium text-slate-700 mb-1" id="apiKeyModalLabel">API-key</label>
+      <input type="password" id="apiKeyInput" placeholder="..." class="w-full border border-slate-300 rounded-md p-2 text-sm font-mono">
     </div>
-    <div class="modal-actions">
+    <div class="flex gap-2 justify-end mt-6">
       <button class="btn btn-outline" onclick="closeApiKeyModal()">Annuleren</button>
       <button class="btn btn-primary" onclick="saveApiKey()">Opslaan</button>
     </div>
@@ -662,6 +671,30 @@ const DEMO_STUDENTS = [
 ];
 
 // ==================== CONFIG ENGINE ====================
+function getActiveModule() {
+  if (!state.modules || state.modules.length === 0) return null;
+  const id = state.settings.activeModuleId;
+  return state.modules.find(m => m.id === id) || state.modules[0] || null;
+}
+
+function getModuleGroups(moduleId) {
+  if (!moduleId) return [];
+  return state.groups.filter(g => g.moduleId === moduleId);
+}
+
+function getModuleStudents(moduleId) {
+  if (!moduleId) return [];
+  const groupIds = new Set(getModuleGroups(moduleId).map(g => g.id));
+  return state.students.filter(s => groupIds.has(s.groupId));
+}
+
+function setActiveModule(moduleId) {
+  state.settings.activeModuleId = moduleId;
+  const mod = state.modules.find(m => m.id === moduleId);
+  if (mod && mod.configId) state.settings.activeConfigId = mod.configId;
+  saveState();
+}
+
 function getActiveConfig(groupId) {
   if (groupId) {
     const group = getGroup(groupId);
@@ -669,6 +702,12 @@ function getActiveConfig(groupId) {
       const c = state.configs.find(c => c.id === group.configId);
       if (c) return c;
     }
+  }
+  // Fall back to active module's config
+  const mod = getActiveModule();
+  if (mod && mod.configId) {
+    const c = state.configs.find(c => c.id === mod.configId);
+    if (c) return c;
   }
   const activeId = state.settings.activeConfigId;
   return state.configs.find(c => c.id === activeId) || state.configs[0] || null;
@@ -741,7 +780,7 @@ function applyConfigColors(config) {
 }
 
 // ==================== STATE ====================
-let state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: {} };
+let state = { modules: [], configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: {} };
 
 function teamKey(group, team) { return `${group}-${team}`; }
 
@@ -783,8 +822,11 @@ function getGroupAssessors(group) {
 }
 
 function buildGroupsLookup() {
+  const mod = getActiveModule();
+  const moduleId = mod ? mod.id : null;
   const groups = {};
   for (const g of state.groups) {
+    if (moduleId && g.moduleId !== moduleId) continue;
     groups[g.id] = { datetime: formatGroupDatetime(g), assessors: getGroupAssessors(g), teams: {} };
   }
   for (const t of state.teams) {
@@ -1032,6 +1074,30 @@ function migrateState() {
 
   // 5. Ensure aiProvider defaults
   if (!state.settings.aiProvider) state.settings.aiProvider = 'google';
+
+  // 6. Migrate to modules: create a module for each config if modules don't exist yet
+  if (!state.modules) state.modules = [];
+  if (state.modules.length === 0 && state.configs.length > 0) {
+    for (const c of state.configs) {
+      const moduleId = 'mod_' + c.id.replace('config_', '');
+      state.modules.push({ id: moduleId, name: c.title, configId: c.id });
+      // Link groups that use this config to this module
+      for (const g of state.groups) {
+        if (g.configId === c.id && !g.moduleId) g.moduleId = moduleId;
+      }
+    }
+    // Groups without configId: link to first module
+    for (const g of state.groups) {
+      if (!g.moduleId && state.modules.length > 0) g.moduleId = state.modules[0].id;
+    }
+    // Set active module
+    if (!state.settings.activeModuleId) {
+      const activeConfig = state.settings.activeConfigId;
+      const matchingModule = state.modules.find(m => m.configId === activeConfig);
+      state.settings.activeModuleId = matchingModule ? matchingModule.id : state.modules[0].id;
+    }
+    saveState();
+  }
 }
 
 function loadState() {
@@ -1044,6 +1110,7 @@ function loadState() {
   if (saved) {
     try { state = JSON.parse(saved); } catch(e) { console.error('Load error', e); }
   }
+  if (!state.modules) state.modules = [];
   if (!state.configs) state.configs = [];
   if (!state.groups) state.groups = [];
   if (!state.teams) state.teams = [];
@@ -1105,7 +1172,7 @@ function importCSV(text) {
     if (!groupMap[groupName]) {
       const { date, startTime, endTime } = parseDatetimeString(r[di] || '');
       const assessors = assessorIndices.map(idx => r[idx] || '').filter(Boolean);
-      groupMap[groupName] = { id: groupName, name: groupName, assessors, date, startTime, endTime, slotDuration: 30, breaks: ['12:00'] };
+      groupMap[groupName] = { id: groupName, name: groupName, assessors, date, startTime, endTime, slotDuration: 30, breaks: ['12:00'], moduleId: null };
     }
     if (!teamMap[tk]) teamMap[tk] = { id: tk, groupId: groupName, num: teamNum };
     students.push({ id: i, name: r[ni], groupId: groupName, teamId: tk });
@@ -1120,13 +1187,25 @@ let currentTeamGroup = null, currentTeamNum = null;
 function showView(view) {
   currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('nav .tab').forEach(t => t.classList.remove('active'));
+
+  // Update nav tab highlighting
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.remove('bg-blue-100', 'text-blue-800', 'border-b-2', 'border-blue-500');
+    t.classList.add('text-slate-600');
+  });
   const el = document.getElementById('view-' + view);
   if (el) el.classList.add('active');
-  const tab = document.querySelector(`nav .tab[data-view="${view}"]`);
-  if (tab) tab.classList.add('active');
-  const menu = document.getElementById('navMenu');
-  if (menu) menu.classList.remove('open');
+  const tab = document.querySelector(`.nav-tab[data-view="${view}"]`);
+  if (tab) {
+    tab.classList.remove('text-slate-600');
+    tab.classList.add('bg-blue-100', 'text-blue-800');
+  }
+
+  // Close mobile sidebar
+  const sidebar = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
 
   // Redirect legacy views to console
   if (view === 'settings') { view = 'console'; currentView = 'console'; consoleSubTab = 'aimodel'; }
@@ -1134,9 +1213,25 @@ function showView(view) {
 
   // Highlight console tab when config sub-view is active
   if (view === 'config') {
-    const consoleTab = document.querySelector('nav .tab[data-view="console"]');
-    if (consoleTab) consoleTab.classList.add('active');
+    const consoleTab = document.querySelector('.nav-tab[data-view="console"]');
+    if (consoleTab) {
+      consoleTab.classList.remove('text-slate-600');
+      consoleTab.classList.add('bg-blue-100', 'text-blue-800');
+    }
   }
+
+  // Show/hide sidebar based on view
+  const hideSidebar = ['console', 'config', 'guide'].includes(view);
+  if (sidebar) {
+    if (hideSidebar) {
+      sidebar.classList.add('md:hidden');
+    } else {
+      sidebar.classList.remove('md:hidden');
+    }
+  }
+
+  // Render sidebar content
+  renderSidebar(view);
 
   if (view === 'console') renderConsole();
   else if (view === 'config') renderConfig();
@@ -1148,9 +1243,122 @@ function showView(view) {
   else if (view === 'guide') renderGuide();
 }
 
-document.querySelectorAll('nav .tab').forEach(tab => {
-  tab.addEventListener('click', () => showView(tab.dataset.view));
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  if (tab.dataset.view) tab.addEventListener('click', () => showView(tab.dataset.view));
 });
+
+function renderSidebar(view) {
+  const titleEl = document.getElementById('sidebar-title');
+  const contentEl = document.getElementById('sidebar-content');
+  if (!titleEl || !contentEl) return;
+
+  // Show active module name in sidebar header
+  const mod = getActiveModule();
+  const moduleLabel = document.getElementById('sidebar-module-label');
+  if (moduleLabel) {
+    if (mod) {
+      moduleLabel.textContent = mod.name;
+      moduleLabel.classList.remove('hidden');
+    } else {
+      moduleLabel.classList.add('hidden');
+    }
+  }
+
+  // Mobile navigation links at the top of sidebar
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  let mobileNav = '';
+  if (isMobile) {
+    const tabs = [
+      { view: 'dashboard', label: 'Overzicht', icon: 'fa-calendar' },
+      { view: 'students', label: 'Studenten', icon: 'fa-users' },
+      { view: 'results', label: 'Resultaten', icon: 'fa-chart-bar' },
+      { view: 'feedback', label: 'Feedback', icon: 'fa-comment' },
+      { view: 'console', label: 'Console', icon: 'fa-gear' },
+      { view: 'guide', label: 'Handleiding', icon: 'fa-circle-question' }
+    ];
+    mobileNav = '<div class="border-b border-slate-200 pb-2 mb-2">';
+    for (const t of tabs) {
+      const active = t.view === view;
+      mobileNav += `<button class="w-full text-left px-3 py-2 rounded-md text-sm ${active ? 'bg-blue-100 text-blue-800 font-medium' : 'text-slate-600 hover:bg-slate-100'}" onclick="showView('${t.view}')"><i class="fa-solid ${t.icon} mr-2 w-4 text-center"></i>${t.label}</button>`;
+    }
+    mobileNav += '</div>';
+  }
+
+  if (view === 'dashboard' || view === 'students') {
+    titleEl.textContent = 'Groepen';
+    const mod = getActiveModule();
+    const sidebarGroups = mod ? getModuleGroups(mod.id) : state.groups;
+    let html = '';
+    for (const g of sidebarGroups) {
+      const teams = getGroupTeams(g.id);
+      const config = getActiveConfig(g.id);
+      const total = teams.length;
+      const done = teams.filter(t => {
+        const sts = getTeamStudents(g.id, t.num);
+        return sts.length > 0 && config && config.criteria.every(c => sts.every(s => getScore(s.id, c.id) !== null && getScore(s.id, c.id) !== undefined));
+      }).length;
+      html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm" onclick="showView('${view}')">${g.id}${g.name !== g.id ? ' — ' + g.name : ''} <span class="text-xs text-slate-400">(${done}/${total})</span></button>`;
+    }
+    if (sidebarGroups.length === 0) html = '<p class="text-xs text-slate-400 px-3 py-2">Nog geen groepen</p>';
+    contentEl.innerHTML = mobileNav + html;
+
+  } else if (view === 'assessment') {
+    titleEl.textContent = 'Teams';
+    let html = '';
+    if (currentTeamGroup) {
+      const teams = getGroupTeams(currentTeamGroup);
+      for (const t of teams) {
+        const sts = getTeamStudents(currentTeamGroup, t.num);
+        const names = sts.map(s => s.name).join(' & ');
+        const isActive = t.num === currentTeamNum;
+        if (isActive) {
+          html += `<button class="w-full text-left px-3 py-2 rounded-md bg-blue-100 text-blue-900 font-medium flex justify-between items-center border border-blue-200 text-sm">
+            <span>Team ${t.num}: ${names}</span>
+            <i class="fa-solid fa-check-circle text-blue-500"></i>
+          </button>`;
+        } else {
+          html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm" onclick="openAssessment('${currentTeamGroup}', ${t.num})">Team ${t.num}: ${names}</button>`;
+        }
+      }
+    }
+    contentEl.innerHTML = mobileNav + html;
+
+  } else if (view === 'results') {
+    titleEl.textContent = 'Groepen';
+    const mod2 = getActiveModule();
+    const resultGroups = mod2 ? getModuleGroups(mod2.id) : state.groups;
+    let html = '';
+    for (const g of resultGroups) {
+      html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm">${g.id}</button>`;
+    }
+    if (resultGroups.length === 0) html = '<p class="text-xs text-slate-400 px-3 py-2">Nog geen groepen</p>';
+    contentEl.innerHTML = mobileNav + html;
+
+  } else if (view === 'feedback') {
+    titleEl.textContent = 'Studenten';
+    const mod3 = getActiveModule();
+    const fbGroups = mod3 ? getModuleGroups(mod3.id) : state.groups;
+    let html = '';
+    for (const g of fbGroups) {
+      const teams = getGroupTeams(g.id);
+      for (const t of teams) {
+        const sts = getTeamStudents(g.id, t.num);
+        for (const s of sts) {
+          html += `<button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 text-sm" onclick="document.getElementById('feedbackStudent').value='${s.id}'; renderFeedback();">${s.name} <span class="text-xs text-slate-400">(T${t.num})</span></button>`;
+        }
+      }
+    }
+    if (html === '') html = '<p class="text-xs text-slate-400 px-3 py-2">Nog geen studenten</p>';
+    contentEl.innerHTML = mobileNav + html;
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar) sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
 
 function openAssessment(group, team) {
   currentTeamGroup = group;
@@ -1218,13 +1426,14 @@ function renderDashboard() {
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
   if (sortedGroups.length === 0) {
-    el.innerHTML = `<div class="card onboarding-card">
-      <h1>Welkom bij de Assessment Tool</h1>
-      <p style="color:var(--text-muted);margin:1rem 0">
+    el.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-slate-200 max-w-xl mx-auto mt-12 text-center p-12">
+      <div class="bg-blue-100 text-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-pen-nib text-2xl"></i></div>
+      <h1 class="text-2xl font-semibold text-slate-900 mb-2">Welkom bij de Assessment Tool</h1>
+      <p class="text-slate-500 mb-6">
         Er zijn nog geen assessmentgroepen ingepland. Laad voorbeelddata om de tool
         te verkennen, of bekijk de handleiding om te leren hoe je zelf aan de slag gaat.
       </p>
-      <div class="onboarding-options">
+      <div class="flex gap-3 justify-center flex-wrap">
         <button class="btn btn-primary" onclick="loadDemoData()">Voorbeelddata laden</button>
         <button class="btn btn-outline" onclick="showView('guide')">Handleiding bekijken</button>
       </div>
@@ -1238,9 +1447,9 @@ function renderDashboard() {
     groupSlotSets[gName] = new Set(getGroupTimeSlots(g));
   }
 
-  let html = `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
-    <h1 style="margin:0">Overzicht Assessments</h1>
-    <button class="btn btn-outline no-print" onclick="printCalendar()">Print / PDF</button>
+  let html = `<div class="flex items-center gap-4 mb-4 flex-wrap">
+    <h1 class="text-2xl font-semibold text-slate-900">Overzicht Assessments</h1>
+    <button class="btn btn-outline no-print" onclick="printCalendar()"><i class="fa-solid fa-print mr-1"></i>Print / PDF</button>
   </div>`;
 
   if (isMobile) {
@@ -1453,7 +1662,7 @@ function renderAssessment() {
   if (students.length === 0) { showView('dashboard'); return; }
 
   const config = getActiveConfig(currentTeamGroup);
-  if (!config) { el.innerHTML = '<p>Geen configuratie gevonden voor deze groep.</p>'; return; }
+  if (!config) { el.innerHTML = '<p class="text-slate-500">Geen configuratie gevonden voor deze groep.</p>'; return; }
   applyConfigColors(config);
 
   const allTeams = getAllTeams();
@@ -1464,111 +1673,128 @@ function renderAssessment() {
   const names = students.map(s => s.name).join(' & ');
   const grp = getGroup(currentTeamGroup);
 
-  let html = `<div class="assess-header">
-    <button class="back-btn" onclick="showView('dashboard')">\u2190 Overzicht</button>
-    <span class="team-title">Team ${currentTeamNum}: ${names}</span>
-    <span style="color:var(--text-muted);font-size:0.9rem">${currentTeamGroup} &bull; ${formatGroupDatetime(grp)}</span>
-    <div class="assess-nav">
-      <button ${prevTeam ? `onclick="openAssessment('${prevTeam.group}', ${prevTeam.team})"` : 'disabled'}>\u2190 Vorig</button>
-      <button ${nextTeam ? `onclick="openAssessment('${nextTeam.group}', ${nextTeam.team})"` : 'disabled'}>Volgend \u2192</button>
+  // Page header
+  let html = `<div class="mb-6">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <h1 class="text-2xl font-semibold text-slate-900">Team ${currentTeamNum}: ${names}</h1>
+      <div class="flex gap-2">
+        <button class="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors" ${prevTeam ? `onclick="openAssessment('${prevTeam.group}', ${prevTeam.team})"` : 'disabled style="opacity:0.3;cursor:not-allowed"'}><i class="fa-solid fa-chevron-left mr-1"></i>Vorig</button>
+        <button class="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors" ${nextTeam ? `onclick="openAssessment('${nextTeam.group}', ${nextTeam.team})"` : 'disabled style="opacity:0.3;cursor:not-allowed"'}>Volgend<i class="fa-solid fa-chevron-right ml-1"></i></button>
+      </div>
     </div>
+    <div class="text-sm text-slate-500 mt-1">${currentTeamGroup} &bull; ${formatGroupDatetime(grp)}</div>
   </div>`;
 
   for (const crit of config.criteria) {
     const duo = isDuoMode(currentTeamGroup, currentTeamNum, crit.id);
-    html += `<div class="criterion-block">
-      <div class="criterion-title">
-        <span class="crit-num">${crit.id}.</span> ${crit.name}
-        <span class="duo-toggle">
-          <input type="checkbox" id="duo-${tk}-${crit.id}" ${duo ? 'checked' : ''}
-            onchange="toggleDuoMode('${currentTeamGroup}', ${currentTeamNum}, ${crit.id}); renderAssessment();">
-          <label for="duo-${tk}-${crit.id}">Teamscore</label>
-        </span>
-      </div>
-      <div class="criterion-desc">${crit.desc}</div>`;
 
+    // Card wrapper
+    html += `<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">`;
+
+    // Title & description
+    html += `<h3 class="text-lg font-medium text-slate-900 mb-2">${crit.id}. ${crit.name}</h3>`;
+    html += `<p class="text-sm text-slate-600 mb-4">${crit.desc}</p>`;
+
+    // Duo/team score toggle
+    html += `<label class="flex items-center space-x-2 mb-6 cursor-pointer">
+      <input type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" id="duo-${tk}-${crit.id}" ${duo ? 'checked' : ''}
+        onchange="toggleDuoMode('${currentTeamGroup}', ${currentTeamNum}, ${crit.id}); renderAssessment();">
+      <span class="text-sm text-slate-700">Teamscore</span>
+    </label>`;
+
+    // Scoring grid
     if (duo) {
       const score = getScore(students[0].id, crit.id);
-      html += `<div class="duo-score-row"><div class="score-btns">`;
+      html += `<div class="flex justify-center mb-6"><div class="flex gap-2">`;
       for (let lvl = 0; lvl < config.levels.count; lvl++) {
-        html += `<button class="score-btn s${lvl} ${score === lvl ? 'active' : ''}"
+        const active = score === lvl;
+        html += `<button class="py-1.5 px-4 rounded-full border text-sm font-medium transition-colors score-btn s${lvl} ${active ? 'active' : ''}"
           onclick="setScore(${students[0].id}, ${crit.id}, ${lvl}); renderAssessment();"
-          title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl, true)}</button>`;
+          title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl)}</button>`;
       }
       html += `</div></div>`;
     } else {
-      html += `<div class="scores-row">`;
+      html += `<div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 mb-6 items-center">`;
       for (const s of students) {
         const score = getScore(s.id, crit.id);
-        html += `<div class="student-score">
-          <div class="student-label">${s.name}</div>
-          <div class="score-btns">`;
+        html += `<div class="text-sm font-medium text-slate-700 pr-4">${s.name}</div>`;
+        html += `<div class="flex gap-2 flex-wrap">`;
         for (let lvl = 0; lvl < config.levels.count; lvl++) {
-          html += `<button class="score-btn s${lvl} ${score === lvl ? 'active' : ''}"
+          const active = score === lvl;
+          html += `<button class="py-1.5 px-3 rounded-full border text-sm transition-colors score-btn s${lvl} ${active ? 'active' : ''}"
             onclick="setScore(${s.id}, ${crit.id}, ${lvl}); renderAssessment();"
-            title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl, true)}</button>`;
+            title="${getLevelLabel(config, lvl)}">${getLevelLabel(config, lvl)}</button>`;
         }
-        html += `</div></div>`;
+        html += `</div>`;
       }
       html += `</div>`;
     }
 
-    // Tags grouped by score level
-    html += `<div class="tags-section" data-crit-tags="${crit.id}">`;
+    // Divider
+    html += `<hr class="border-slate-200 mb-4">`;
+
+    // Tags grouped by level
+    html += `<div class="space-y-3 mb-6" data-crit-tags="${crit.id}">`;
     for (let lvl = 0; lvl < config.levels.count; lvl++) {
       const lvlTags = (crit.tags || []).filter(t => t.level === lvl);
-      html += `<div class="tags-level-group"><span class="tags-level-label">${getLevelLabel(config, lvl, true)}</span>`;
+      if (lvlTags.length === 0) continue;
+      html += `<div class="flex flex-wrap gap-2">`;
       for (const tag of lvlTags) {
         const assignees = getTagAssignees(crit.id, tag.text);
         const badges = assignees.map(s => `<span class="tag-badge">${s.name[0]}</span>`).join('');
         const safeText = tag.text.replace(/'/g, "\\'");
-        html += `<span class="tag-chip level${lvl}" data-tag="${tag.text}" draggable="true"
+        html += `<span class="tag-chip level${lvl} px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer hover:opacity-80" data-tag="${tag.text}" draggable="true"
           ondragstart="startTagDrag(event, ${crit.id}, '${safeText}')"
           ondragend="endTagDrag(event)"
           onclick="showTagPicker(event, ${crit.id}, '${safeText}')">${tag.text}${badges}</span>`;
       }
       html += `</div>`;
     }
-    // Add custom tag button
-    html += `<div class="tags-level-group">
-      <span class="tags-level-label"></span>
-      <span class="tag-chip" style="border:1px dashed var(--border);background:transparent;color:var(--text-muted);font-size:0.72rem;cursor:pointer"
-        onclick="showAddTagForm(${crit.id})">+ tag</span>
+    // Custom tag button
+    html += `<div class="flex flex-wrap gap-2">
+      <span class="px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer border border-dashed border-slate-300 text-slate-400 hover:text-slate-600 hover:border-slate-400"
+        onclick="showAddTagForm(${crit.id})"><i class="fa-solid fa-plus text-[10px] mr-1"></i>tag</span>
     </div>`;
     html += `</div>`;
 
-    // Notes per student
-    html += `<div class="notes-row">`;
+    // Notes/feedback per student
+    const colCls = students.length === 1 ? '' : `grid grid-cols-${Math.min(students.length, 3)} gap-6`;
+    html += `<div class="${students.length > 1 ? colCls : ''}">`;
     for (const s of students) {
       const note = getNote(s.id, crit.id);
-      html += `<div class="note-field">
-        <label>${s.name}</label>
-        <textarea placeholder="Sleep een tag of typ notitie\u2026"
+      html += `<div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-sm font-medium text-slate-800">${s.name}</label>
+        </div>
+        <textarea class="w-full border border-slate-300 rounded-md p-3 text-sm text-slate-700 placeholder-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-y h-24"
+          placeholder="Sleep een tag of typ notitie\u2026"
           oninput="setNote(${s.id}, ${crit.id}, this.value); updateTagBadges(${crit.id})"
           ondragover="event.preventDefault(); this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleNoteDrop(event, ${s.id}, ${crit.id}); this.classList.remove('drag-over')">${note}</textarea>
       </div>`;
     }
-    html += `</div></div>`;
+    html += `</div>`;
+
+    html += `</div>`; // close card
   }
 
   // Footer with totals
-  html += `<div class="assess-footer">`;
+  html += `<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex gap-8 flex-wrap">`;
   for (const s of students) {
     const t = studentTotal(s.id, config);
     let statusHtml = '';
     if (t.complete) {
-      if (t.hasUnder) statusHtml = `<div class="total-warn">Onvoldoende: criterium onder niveau</div>`;
-      else statusHtml = `<div class="total-pass">Voldoende</div>`;
+      if (t.hasUnder) statusHtml = `<div class="text-amber-600 text-sm font-medium mt-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Onvoldoende: criterium onder niveau</div>`;
+      else statusHtml = `<div class="text-green-600 text-sm font-medium mt-1"><i class="fa-solid fa-check-circle mr-1"></i>Voldoende</div>`;
     } else {
-      statusHtml = `<div style="color:var(--text-muted);font-size:0.85rem">${t.count}/${config.criteria.length} criteria gescoord</div>`;
+      statusHtml = `<div class="text-slate-500 text-sm mt-1">${t.count}/${config.criteria.length} criteria gescoord</div>`;
     }
-    html += `<div class="student-total">
-      <div class="total-name">${s.name}</div>
-      <span class="total-score">${t.total}/${t.maxPoints}</span>
+    html += `<div class="flex-1 min-w-[200px]">
+      <div class="font-semibold text-slate-900">${s.name}</div>
+      <span class="text-2xl font-bold text-slate-900">${t.total}/${t.maxPoints}</span>
       ${statusHtml}
-      <button class="btn-reset-student" onclick="clearStudentScores(${s.id}, '${s.name.replace(/'/g, "\\'")}')">Scores wissen</button>
+      <button class="mt-2 px-3 py-1 text-xs text-slate-500 border border-slate-200 rounded hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors" onclick="clearStudentScores(${s.id}, '${s.name.replace(/'/g, "\\'")}')"><i class="fa-solid fa-trash-can mr-1"></i>Scores wissen</button>
     </div>`;
   }
   html += `</div>`;
@@ -1579,13 +1805,16 @@ function renderAssessment() {
 // ==================== RESULTS ====================
 function renderResults() {
   const el = document.getElementById('view-results');
+  const mod = getActiveModule();
+  const moduleGroupIds = mod ? new Set(getModuleGroups(mod.id).map(g => g.id)) : null;
   const groups = {};
   state.students.forEach(s => {
+    if (moduleGroupIds && !moduleGroupIds.has(s.groupId)) return;
     if (!groups[s.groupId]) groups[s.groupId] = [];
     groups[s.groupId].push(s);
   });
 
-  let html = '<h1>Resultaten</h1>';
+  let html = '<h1 class="text-2xl font-semibold text-slate-900 mb-4">Resultaten</h1>';
   const sortedGroups = Object.keys(groups).sort();
 
   for (const gName of sortedGroups) {
@@ -1593,8 +1822,8 @@ function renderResults() {
     if (!config) continue;
     const criteria = config.criteria;
 
-    html += '<div style="overflow-x:auto;margin-bottom:1.5rem">';
-    html += `<table class="results-table">
+    html += '<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto mb-6">';
+    html += `<table class="results-table w-full">
       <thead><tr>
         <th>Student</th><th>Team</th>
         ${criteria.map(c => `<th title="${c.name}">${c.id}. ${c.name.split(' ')[0]}</th>`).join('')}
@@ -1614,8 +1843,8 @@ function renderResults() {
       html += `<td><strong>${t.complete ? t.total : '-'}</strong></td>`;
       let status = '-';
       if (t.complete) {
-        if (t.hasUnder) status = '<span class="warn">Onvoldoende</span>';
-        else status = '<span style="color:var(--score3);font-weight:600">Voldoende</span>';
+        if (t.hasUnder) status = '<span class="text-amber-600 font-semibold">Onvoldoende</span>';
+        else status = '<span class="text-green-600 font-semibold">Voldoende</span>';
       }
       html += `<td>${status}</td></tr>`;
     }
@@ -1627,12 +1856,14 @@ function renderResults() {
 // ==================== FEEDBACK ====================
 function renderFeedback(selectedId) {
   const el = document.getElementById('view-feedback');
-  let html = '<h1>Feedback per student</h1>';
+  let html = '<h1 class="text-2xl font-semibold text-slate-900 mb-4">Feedback per student</h1>';
 
-  html += '<div class="feedback-select no-print"><select id="feedbackStudentSelect" onchange="renderFeedback(parseInt(this.value))">';
+  html += '<div class="flex items-center gap-3 mb-4 no-print"><select id="feedbackStudentSelect" class="border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" onchange="renderFeedback(parseInt(this.value))">';
   html += '<option value="">-- Selecteer student --</option>';
+  const mod = getActiveModule();
+  const moduleGroupIds = mod ? new Set(getModuleGroups(mod.id).map(g => g.id)) : null;
   const groups = {};
-  state.students.forEach(s => { if (!groups[s.groupId]) groups[s.groupId] = []; groups[s.groupId].push(s); });
+  state.students.forEach(s => { if (moduleGroupIds && !moduleGroupIds.has(s.groupId)) return; if (!groups[s.groupId]) groups[s.groupId] = []; groups[s.groupId].push(s); });
   for (const g of Object.keys(groups).sort()) {
     html += `<optgroup label="${g}">`;
     for (const s of groups[g].sort((a,b) => studentTeamNum(a) - studentTeamNum(b) || a.name.localeCompare(b.name))) {
@@ -1643,7 +1874,7 @@ function renderFeedback(selectedId) {
   html += '</select>';
 
   if (selectedId) {
-    html += ` <button class="btn btn-outline" onclick="printFeedback(${selectedId})" style="margin-left:0.5rem">Print / PDF</button>`;
+    html += ` <button class="btn btn-outline" onclick="printFeedback(${selectedId})"><i class="fa-solid fa-print mr-1"></i>Print / PDF</button>`;
   }
   html += '</div>';
 
@@ -1651,15 +1882,15 @@ function renderFeedback(selectedId) {
     const s = state.students.find(st => st.id === selectedId);
     if (s) {
       const config = getActiveConfig(s.groupId);
-      if (!config) { el.innerHTML = html + '<p>Geen configuratie gevonden.</p>'; return; }
+      if (!config) { el.innerHTML = html + '<p class="text-slate-500">Geen configuratie gevonden.</p>'; return; }
       const t = studentTotal(s.id, config);
       const teammates = getTeammates(s);
       const teammateNames = teammates.map(m => m.name).join(', ');
       const grp = getGroup(s.groupId);
 
-      html += `<div class="feedback-report" id="feedbackReport">
-        <h2>Feedbackrapport: ${s.name}</h2>
-        <div class="meta">${s.groupId} &bull; Team ${studentTeamNum(s)}${teammateNames ? ` (met ${teammateNames})` : ''} &bull; ${grp ? formatGroupDatetime(grp) : ''}<br>
+      html += `<div class="feedback-report bg-white rounded-lg shadow-sm border border-slate-200 p-8" id="feedbackReport">
+        <h2 class="text-xl font-semibold text-slate-900 mb-1">Feedbackrapport: ${s.name}</h2>
+        <div class="text-sm text-slate-500 mb-6">${s.groupId} &bull; Team ${studentTeamNum(s)}${teammateNames ? ` (met ${teammateNames})` : ''} &bull; ${grp ? formatGroupDatetime(grp) : ''}<br>
         Assessoren: ${grp ? getGroupAssessors(grp) : ''}</div>`;
 
       for (const c of config.criteria) {
@@ -1669,29 +1900,29 @@ function renderFeedback(selectedId) {
         const tagLines = noteLines.filter(l => l.trim().startsWith('\u2713 ')).map(l => l.trim().substring(2));
         const freeLines = noteLines.filter(l => !l.trim().startsWith('\u2713 ') && l.trim() !== '');
 
-        html += `<div class="feedback-criterion">
-          <div class="fc-header">
-            <span class="fc-name">${c.id}. ${c.name}</span>
-            ${score !== null ? `<span class="fc-score s${score}">${getLevelLabel(config, score)}</span>` : '<span class="fc-score" style="background:var(--bg)">Niet gescoord</span>'}
+        html += `<div class="feedback-criterion mb-5 pb-5 border-b border-slate-200 last:border-0">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-semibold text-slate-900">${c.id}. ${c.name}</span>
+            ${score !== null ? `<span class="fc-score s${score} font-bold px-3 py-0.5 rounded-full text-sm">${getLevelLabel(config, score)}</span>` : '<span class="px-3 py-0.5 rounded-full text-sm bg-slate-100 text-slate-500">Niet gescoord</span>'}
           </div>
-          <div class="criterion-desc" style="margin-bottom:0.25rem">${c.desc}</div>`;
+          <div class="text-sm text-slate-500 mb-1">${c.desc}</div>`;
 
-        if (tagLines.length > 0) { html += `<div class="fc-tags">Observaties: ${tagLines.join(', ')}</div>`; }
-        if (freeLines.length > 0) { html += `<div class="fc-notes">${freeLines.join('<br>')}</div>`; }
+        if (tagLines.length > 0) { html += `<div class="text-sm text-slate-600 mt-1"><i class="fa-solid fa-tags text-slate-400 mr-1"></i>Observaties: ${tagLines.join(', ')}</div>`; }
+        if (freeLines.length > 0) { html += `<div class="text-sm italic text-slate-700 mt-1">${freeLines.join('<br>')}</div>`; }
         html += '</div>';
       }
 
-      html += `<div class="feedback-summary">
-        <div class="fs-box">
-          <h3>Totaalscore</h3>
-          <div class="fs-grade">${t.complete ? `${t.total}/${t.maxPoints}` : `${t.count}/${config.criteria.length} criteria`}</div>
+      html += `<div class="flex gap-8 mt-6 pt-6 border-t-2 border-slate-200">
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-slate-500 mb-2">Totaalscore</h3>
+          <div class="text-3xl font-extrabold text-slate-900">${t.complete ? `${t.total}/${t.maxPoints}` : `${t.count}/${config.criteria.length} criteria`}</div>
         </div>
-        <div class="fs-box">
-          <h3>Status</h3>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-slate-500 mb-2">Status</h3>
           ${t.complete ? (t.hasUnder
-            ? '<div style="color:var(--score1);font-weight:700;font-size:1.2rem">Onvoldoende</div><div style="color:var(--text-muted);font-size:0.85rem">Een of meer criteria onder niveau</div>'
-            : '<div style="color:var(--score3);font-weight:700;font-size:1.2rem">Voldoende</div>')
-          : '<div style="color:var(--text-muted)">Beoordeling niet volledig</div>'}
+            ? '<div class="text-xl font-bold text-amber-600">Onvoldoende</div><div class="text-sm text-slate-500">Een of meer criteria onder niveau</div>'
+            : '<div class="text-xl font-bold text-green-600">Voldoende</div>')
+          : '<div class="text-slate-500">Beoordeling niet volledig</div>'}
         </div>
       </div>`;
 
@@ -1712,57 +1943,60 @@ function printFeedback(studentId) {
 // ==================== STUDENT MANAGEMENT ====================
 function renderStudents() {
   const el = document.getElementById('view-students');
-  let html = `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
-    <h1 style="margin:0">Studenten</h1>
-    <button class="btn btn-primary" onclick="showGroupModal()">+ Groep</button>
-    <button class="btn btn-outline" onclick="showTeamModal()">+ Team</button>
-    <button class="btn btn-outline" onclick="showStudentModal()">+ Student</button>
+  let html = `<div class="flex items-center gap-3 mb-4 flex-wrap">
+    <h1 class="text-2xl font-semibold text-slate-900">Studenten</h1>
+    <button class="btn btn-primary" onclick="showGroupModal()"><i class="fa-solid fa-plus mr-1"></i>Groep</button>
+    <button class="btn btn-outline" onclick="showTeamModal()"><i class="fa-solid fa-plus mr-1"></i>Team</button>
+    <button class="btn btn-outline" onclick="showStudentModal()"><i class="fa-solid fa-plus mr-1"></i>Student</button>
   </div>`;
 
-  if (state.groups.length === 0) {
-    html += `<div class="card" style="text-align:center;padding:3rem">
-      <p style="color:var(--text-muted)">Nog geen groepen. Maak eerst een groep aan, of laad voorbeelddata via Console.</p>
+  const mod = getActiveModule();
+  const moduleGroups = mod ? getModuleGroups(mod.id) : state.groups;
+
+  if (moduleGroups.length === 0) {
+    html += `<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
+      <p class="text-slate-500">Nog geen groepen in deze module. Maak eerst een groep aan, of importeer via Console.</p>
     </div>`;
     el.innerHTML = html;
     return;
   }
 
-  for (const g of state.groups.slice().sort((a, b) => a.id.localeCompare(b.id))) {
+  for (const g of moduleGroups.slice().sort((a, b) => a.id.localeCompare(b.id))) {
     const safeGid = g.id.replace(/'/g, "\\'");
     const assessorText = getGroupAssessors(g);
-    html += `<div class="card" style="margin-top:1rem">
-      <div class="card-header">
+    html += `<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-4">
+      <div class="flex justify-between items-center mb-3">
         <div>
-          <strong style="font-size:1.1rem">${g.name}</strong>
-          <span style="color:var(--text-muted);font-size:0.85rem;margin-left:0.75rem">${assessorText} &bull; ${formatGroupDatetime(g)}</span>
+          <strong class="text-lg text-slate-900">${g.name}</strong>
+          <span class="text-sm text-slate-500 ml-3">${assessorText} &bull; ${formatGroupDatetime(g)}</span>
         </div>
-        <div>
-          <button class="btn-action" onclick="showGroupModal('${safeGid}')" title="Groep bewerken">\u270E</button>
-          <button class="btn-action btn-action-danger" onclick="deleteGroup('${safeGid}')" title="Groep verwijderen">\u2715</button>
+        <div class="flex gap-1">
+          <button class="btn-action" onclick="showGroupModal('${safeGid}')" title="Groep bewerken"><i class="fa-solid fa-pen text-xs"></i></button>
+          <button class="btn-action btn-action-danger" onclick="deleteGroup('${safeGid}')" title="Groep verwijderen"><i class="fa-solid fa-xmark text-xs"></i></button>
         </div>
       </div>`;
 
     const teams = getGroupTeams(g.id);
     if (teams.length === 0) {
-      html += `<p style="color:var(--text-muted);font-size:0.85rem">Nog geen teams. <a href="#" onclick="event.preventDefault(); showTeamModal(null,'${safeGid}')">Team toevoegen</a></p>`;
+      html += `<p class="text-sm text-slate-500">Nog geen teams. <a href="#" class="text-blue-600 hover:underline" onclick="event.preventDefault(); showTeamModal(null,'${safeGid}')">Team toevoegen</a></p>`;
     }
 
     for (const t of teams) {
       const teamStudents = state.students.filter(s => s.teamId === t.id);
-      html += `<div style="margin-left:0.5rem;margin-bottom:0.75rem">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem">
-          <strong style="color:var(--primary);font-size:0.9rem">Team ${t.num}</strong>
-          <button class="btn-action btn-action-danger" style="font-size:0.75rem" onclick="deleteTeam('${safeGid}', ${t.num})" title="Team verwijderen">\u2715</button>
+      html += `<div class="ml-2 mb-3">
+        <div class="flex items-center gap-2 mb-1">
+          <strong class="text-blue-600 text-sm">Team ${t.num}</strong>
+          <button class="btn-action btn-action-danger text-xs" onclick="deleteTeam('${safeGid}', ${t.num})" title="Team verwijderen"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
 
       if (teamStudents.length === 0) {
-        html += `<div style="color:var(--text-muted);font-size:0.85rem;margin-left:1rem">Geen studenten</div>`;
+        html += `<div class="text-sm text-slate-400 ml-4">Geen studenten</div>`;
       }
       for (const s of teamStudents) {
-        html += `<div style="display:flex;align-items:center;gap:0.5rem;margin-left:1rem;padding:0.2rem 0">
-          <span style="flex:1">${s.name}</span>
-          <button class="btn-action" style="font-size:0.75rem" onclick="showStudentModal(${s.id})" title="Bewerken">\u270E</button>
-          <button class="btn-action btn-action-danger" style="font-size:0.75rem" onclick="deleteStudent(${s.id}, '${s.name.replace(/'/g, "\\'")}')" title="Verwijderen">\u2715</button>
+        html += `<div class="flex items-center gap-2 ml-4 py-1">
+          <span class="flex-1 text-sm text-slate-700">${s.name}</span>
+          <button class="btn-action text-xs" onclick="showStudentModal(${s.id})" title="Bewerken"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-action btn-action-danger text-xs" onclick="deleteStudent(${s.id}, '${s.name.replace(/'/g, "\\'")}')" title="Verwijderen"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
       }
       html += `</div>`;
@@ -1838,7 +2072,8 @@ function saveGroup() {
     if (g) { g.name = name; g.configId = configId; g.assessors = assessors; g.date = date; g.startTime = startTime; g.endTime = endTime; g.slotDuration = slotDuration; }
   } else {
     if (state.groups.find(g => g.id === name)) { alert('Er bestaat al een groep met deze naam.'); return; }
-    state.groups.push({ id: name, name, configId, assessors, date, startTime, endTime, slotDuration, breaks: ['12:00'] });
+    const mod = getActiveModule();
+    state.groups.push({ id: name, name, configId, assessors, date, startTime, endTime, slotDuration, breaks: ['12:00'], moduleId: mod ? mod.id : null });
   }
   saveState();
   closeGroupModal();
@@ -1994,21 +2229,24 @@ function deleteStudent(studentId, studentName) {
 }
 
 // ==================== CONSOLE VIEW ====================
-let consoleSubTab = 'formulier';
+let consoleSubTab = 'modules';
 
 function renderConsole(subTab) {
   if (subTab) consoleSubTab = subTab;
   const el = document.getElementById('view-console');
   const tab = consoleSubTab;
 
-  let html = `<h1>Console</h1>
-    <div class="console-tabs">
-      <button class="console-tab ${tab === 'formulier' ? 'active' : ''}" onclick="renderConsole('formulier')">Formulier</button>
-      <button class="console-tab ${tab === 'aimodel' ? 'active' : ''}" onclick="renderConsole('aimodel')">AI-model</button>
-      <button class="console-tab ${tab === 'data' ? 'active' : ''}" onclick="renderConsole('data')">Data</button>
+  let html = `<h1 class="text-2xl font-semibold text-slate-900 mb-4">Console</h1>
+    <div class="console-tabs flex gap-0 border-b-2 border-slate-200 mb-6">
+      <button class="console-tab px-5 py-2 text-sm font-medium border-b-2 -mb-[2px] transition-colors ${tab === 'modules' ? 'text-blue-600 border-blue-600 font-semibold' : 'text-slate-500 border-transparent hover:text-slate-700'}" onclick="renderConsole('modules')">Modules</button>
+      <button class="console-tab px-5 py-2 text-sm font-medium border-b-2 -mb-[2px] transition-colors ${tab === 'formulier' ? 'text-blue-600 border-blue-600 font-semibold' : 'text-slate-500 border-transparent hover:text-slate-700'}" onclick="renderConsole('formulier')">Formulieren</button>
+      <button class="console-tab px-5 py-2 text-sm font-medium border-b-2 -mb-[2px] transition-colors ${tab === 'data' ? 'text-blue-600 border-blue-600 font-semibold' : 'text-slate-500 border-transparent hover:text-slate-700'}" onclick="renderConsole('data')">Data</button>
+      <button class="console-tab px-5 py-2 text-sm font-medium border-b-2 -mb-[2px] transition-colors ${tab === 'aimodel' ? 'text-blue-600 border-blue-600 font-semibold' : 'text-slate-500 border-transparent hover:text-slate-700'}" onclick="renderConsole('aimodel')">AI-model</button>
     </div>`;
 
-  if (tab === 'formulier') {
+  if (tab === 'modules') {
+    html += renderConsoleModules();
+  } else if (tab === 'formulier') {
     html += renderConsoleFormulier();
   } else if (tab === 'aimodel') {
     html += renderConsoleAiModel();
@@ -2017,6 +2255,158 @@ function renderConsole(subTab) {
   }
 
   el.innerHTML = html;
+}
+
+function renderConsoleModules() {
+  const modules = state.modules;
+  const activeModuleId = state.settings.activeModuleId;
+  let html = '';
+
+  // Module list
+  html += `<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-slate-900">Modules</h2>
+      <button class="btn btn-primary text-sm" onclick="createModule()"><i class="fa-solid fa-plus mr-1"></i>Nieuwe module</button>
+    </div>`;
+
+  if (modules.length === 0) {
+    html += `<p class="text-sm text-slate-500">Nog geen modules. Maak een module aan om een formulier en studenten te koppelen.</p>`;
+  } else {
+    for (const m of modules) {
+      const isActive = m.id === activeModuleId;
+      const config = m.configId ? state.configs.find(c => c.id === m.configId) : null;
+      const groups = getModuleGroups(m.id);
+      const studentCount = getModuleStudents(m.id).length;
+      const teamCount = groups.reduce((n, g) => n + getGroupTeams(g.id).length, 0);
+
+      html += `<div class="flex items-start gap-3 p-4 border rounded-lg mb-3 cursor-pointer transition-colors ${isActive ? 'border-blue-400 bg-blue-50/50 ring-1 ring-blue-200' : 'border-slate-200 hover:border-slate-300 bg-white'}" onclick="setActiveModule('${m.id}'); renderConsole('modules')">
+        <input type="radio" name="activeModule" ${isActive ? 'checked' : ''} class="mt-1 text-blue-600 focus:ring-blue-500 cursor-pointer" onclick="event.stopPropagation(); setActiveModule('${m.id}'); renderConsole('modules')">
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-slate-900 text-base">${m.name}</div>
+          <div class="mt-2 flex flex-wrap gap-4 text-sm">
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-file-lines text-slate-400"></i>
+              ${config
+                ? `<span class="text-slate-700">${config.title}</span> <span class="text-slate-400">(${config.criteria.length} criteria)</span>`
+                : '<span class="text-amber-600">Geen formulier gekoppeld</span>'}
+            </div>
+            <div class="flex items-center gap-1.5">
+              <i class="fa-solid fa-users text-slate-400"></i>
+              ${groups.length > 0
+                ? `<span class="text-slate-700">${groups.length} groep${groups.length !== 1 ? 'en' : ''}, ${teamCount} team${teamCount !== 1 ? 's' : ''}, ${studentCount} student${studentCount !== 1 ? 'en' : ''}</span>`
+                : '<span class="text-amber-600">Geen studenten gekoppeld</span>'}
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-1 shrink-0" onclick="event.stopPropagation()">
+          <button class="btn-action" onclick="renameModule('${m.id}')" title="Naam wijzigen"><i class="fa-solid fa-pen text-xs"></i></button>
+          <button class="btn-action btn-action-danger" onclick="deleteModule('${m.id}')" title="Module verwijderen"><i class="fa-solid fa-xmark text-xs"></i></button>
+        </div>
+      </div>`;
+
+      // Show linking options for active module
+      if (isActive) {
+        html += `<div class="ml-8 mb-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+          <h3 class="text-sm font-semibold text-slate-700 mb-3">Koppelingen voor "${m.name}"</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1"><i class="fa-solid fa-file-lines mr-1"></i>Formulier</label>
+              <select class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" onchange="linkConfigToModule('${m.id}', this.value)">
+                <option value="">— Geen formulier —</option>
+                ${state.configs.map(c => `<option value="${c.id}" ${m.configId === c.id ? 'selected' : ''}>${c.title} (${c.criteria.length} criteria)</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1"><i class="fa-solid fa-users mr-1"></i>Studentenset</label>
+              ${groups.length > 0
+                ? `<div class="text-sm text-slate-700">${groups.length} groep${groups.length !== 1 ? 'en' : ''}: ${groups.map(g => g.name).join(', ')}</div>
+                   <p class="text-xs text-slate-400 mt-1">${teamCount} team${teamCount !== 1 ? 's' : ''}, ${studentCount} student${studentCount !== 1 ? 'en' : ''}</p>`
+                : `<p class="text-sm text-slate-400">Nog geen studenten. Importeer via CSV of maak groepen aan bij Studenten.</p>`}
+            </div>
+          </div>
+        </div>`;
+      }
+    }
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function createModule() {
+  const name = prompt('Naam voor de nieuwe module:');
+  if (!name || !name.trim()) return;
+  const id = 'mod_' + Date.now();
+  state.modules.push({ id, name: name.trim(), configId: null });
+  setActiveModule(id);
+  renderConsole('modules');
+}
+
+function renameModule(moduleId) {
+  const m = state.modules.find(mod => mod.id === moduleId);
+  if (!m) return;
+  const name = prompt('Nieuwe naam:', m.name);
+  if (!name || !name.trim()) return;
+  m.name = name.trim();
+  saveState();
+  renderConsole('modules');
+}
+
+function deleteModule(moduleId) {
+  const m = state.modules.find(mod => mod.id === moduleId);
+  if (!m) return;
+  const groups = getModuleGroups(moduleId);
+  const msg = groups.length > 0
+    ? `Module "${m.name}" verwijderen? De ${groups.length} gekoppelde groep(en) en hun studenten/scores worden ook verwijderd.`
+    : `Module "${m.name}" verwijderen?`;
+  if (!confirm(msg)) return;
+
+  // Remove linked groups, teams, students, scores
+  const groupIds = new Set(groups.map(g => g.id));
+  const studentIds = state.students.filter(s => groupIds.has(s.groupId)).map(s => s.id);
+  for (const sid of studentIds) { delete state.scores[sid]; delete state.notes[sid]; }
+  state.students = state.students.filter(s => !groupIds.has(s.groupId));
+  state.teams = state.teams.filter(t => !groupIds.has(t.groupId));
+  state.groups = state.groups.filter(g => !groupIds.has(g.id));
+  state.modules = state.modules.filter(mod => mod.id !== moduleId);
+
+  // Switch active module if needed
+  if (state.settings.activeModuleId === moduleId) {
+    state.settings.activeModuleId = state.modules.length > 0 ? state.modules[0].id : null;
+  }
+  saveState();
+  renderConsole('modules');
+}
+
+function linkConfigToModule(moduleId, configId) {
+  const m = state.modules.find(mod => mod.id === moduleId);
+  if (!m) return;
+  m.configId = configId || null;
+  // Also update groups in this module
+  for (const g of getModuleGroups(moduleId)) {
+    g.configId = configId || null;
+  }
+  if (state.settings.activeModuleId === moduleId) {
+    state.settings.activeConfigId = configId || null;
+  }
+  saveState();
+  renderConsole('modules');
+}
+
+function linkGroupToModule(moduleId, groupId) {
+  const g = getGroup(groupId);
+  if (!g) return;
+  g.moduleId = moduleId;
+  const m = state.modules.find(mod => mod.id === moduleId);
+  if (m && m.configId) g.configId = m.configId;
+  saveState();
+}
+
+function unlinkGroupFromModule(groupId) {
+  const g = getGroup(groupId);
+  if (!g) return;
+  g.moduleId = null;
+  saveState();
 }
 
 function renderConsoleFormulier() {
@@ -2039,21 +2429,21 @@ function renderConsoleFormulier() {
     <h2>Configuraties (${configs.length})</h2>`;
 
   if (configs.length === 0) {
-    html += `<p style="color:var(--text-muted)">Geen configuraties. Upload een PDF of stel er handmatig een in.</p>`;
+    html += `<p class="text-sm text-slate-500">Geen configuraties. Upload een PDF of stel er handmatig een in.</p>`;
   } else {
     for (const c of configs) {
       const linkedGroups = state.groups.filter(g => g.configId === c.id);
       const isActive = state.settings.activeConfigId === c.id;
-      html += `<div class="config-list-item" ${isActive ? 'style="border-color:var(--primary)"' : ''}>
-        <div class="cli-info">
-          <div class="cli-title">${isActive ? '\u25CF ' : '\u25CB '}${c.title}</div>
-          <div class="cli-meta">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
+      html += `<div class="flex items-center gap-3 p-4 border rounded-lg mb-2 bg-white cursor-pointer transition-colors ${isActive ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 hover:border-slate-300'}" onclick="state.settings.activeConfigId='${c.id}'; saveState(); renderConsole()">
+        <input type="radio" name="activeConfig" ${isActive ? 'checked' : ''} class="text-blue-600 focus:ring-blue-500 cursor-pointer" onclick="event.stopPropagation(); state.settings.activeConfigId='${c.id}'; saveState(); renderConsole()">
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-slate-900">${c.title}</div>
+          <div class="text-sm text-slate-500">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
         </div>
-        <div class="cli-actions">
-          ${!isActive ? `<button class="btn-action" onclick="state.settings.activeConfigId='${c.id}'; saveState(); renderConsole()" title="Activeren">\u25CF</button>` : ''}
-          <button class="btn-action" onclick="editingConfigId='${c.id}'; showView('config')" title="Bewerken">\u270E</button>
-          <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren">&#8681;</button>
-          <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConsole()" title="Verwijderen">\u2715</button>
+        <div class="flex gap-1" onclick="event.stopPropagation()">
+          <button class="btn-action" onclick="editingConfigId='${c.id}'; showView('config')" title="Bewerken"><i class="fa-solid fa-pen text-xs"></i></button>
+          <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren"><i class="fa-solid fa-download text-xs"></i></button>
+          <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConsole()" title="Verwijderen"><i class="fa-solid fa-xmark text-xs"></i></button>
         </div>
       </div>`;
     }
@@ -2113,6 +2503,15 @@ function renderConsoleData() {
   html += `<div class="card" style="margin-bottom:1.5rem">
     <h2>Studenten importeren</h2>
     <p style="color:var(--text-muted);margin-bottom:0.75rem">Importeer studenten, groepen en teams vanuit een CSV-bestand.</p>
+    <div class="form-group" style="margin-bottom:0.75rem">
+      <label style="display:block;font-weight:500;margin-bottom:0.25rem;font-size:0.9rem">Importeren in module</label>
+      <select id="consoleCSVModuleSelect" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" onchange="document.getElementById('consoleCSVNewModuleName').classList.toggle('hidden', this.value !== '__new__'); document.getElementById('consoleCSVImportBtn').disabled = !this.value;">
+        <option value="">— Selecteer een module —</option>
+        ${state.modules.map(m => `<option value="${m.id}" ${m.id === state.settings.activeModuleId ? 'selected' : ''}>${m.name}</option>`).join('')}
+        <option value="__new__">+ Nieuwe module aanmaken...</option>
+      </select>
+      <input type="text" id="consoleCSVNewModuleName" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm mt-2 hidden" placeholder="Naam nieuwe module...">
+    </div>
     <div class="form-group" style="margin-bottom:0.5rem">
       <input type="file" id="consoleCSVInput" accept=".csv">
       <div class="form-help">Verwacht kolommen: Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</div>
@@ -2120,7 +2519,7 @@ function renderConsoleData() {
     <div class="form-group" style="margin-bottom:0.75rem">
       <label><input type="checkbox" id="consoleCSVReplace" checked> Bestaande data vervangen</label>
     </div>
-    <button class="btn btn-primary" onclick="doImportFromConsole()">Importeren</button>
+    <button class="btn btn-primary" id="consoleCSVImportBtn" onclick="doImportFromConsole()" ${state.modules.length > 0 ? '' : 'disabled'}>Importeren</button>
   </div>`;
 
   // Export & backup
@@ -2165,6 +2564,19 @@ function doImportFromConsole() {
   const replace = document.getElementById('consoleCSVReplace').checked;
   if (!fileInput.files[0]) { alert('Selecteer eerst een CSV-bestand.'); return; }
 
+  // Get target module from dropdown
+  const moduleSel = document.getElementById('consoleCSVModuleSelect');
+  let targetModuleId = moduleSel ? moduleSel.value : null;
+  if (!targetModuleId) { alert('Selecteer eerst een module.'); return; }
+  if (targetModuleId === '__new__') {
+    const newName = document.getElementById('consoleCSVNewModuleName').value.trim();
+    if (!newName) { alert('Vul een naam in voor de nieuwe module.'); return; }
+    targetModuleId = 'mod_' + Date.now();
+    if (!state.modules) state.modules = [];
+    state.modules.push({ id: targetModuleId, name: newName, configId: null });
+    setActiveModule(targetModuleId);
+  }
+
   const reader = new FileReader();
   reader.onload = (e) => {
     const result = importCSV(e.target.result);
@@ -2172,17 +2584,22 @@ function doImportFromConsole() {
       alert('Kon geen studenten vinden in het CSV-bestand. Controleer het formaat.');
       return;
     }
-    const defaultConfigId = state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null);
+    const targetModule = (state.modules || []).find(m => m.id === targetModuleId);
+    const defaultConfigId = targetModule && targetModule.configId ? targetModule.configId : (state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null));
     for (const g of result.groups) {
+      g.moduleId = targetModuleId;
       if (!g.configId) g.configId = defaultConfigId;
     }
 
     if (replace) {
-      state.groups = result.groups;
-      state.teams = result.teams;
-      state.students = result.students;
-      state.scores = {}; state.tags = {}; state.notes = {};
-      state.duoMode = {}; state.slots = {};
+      // Only replace data within the target module
+      const keepGroups = state.groups.filter(g => g.moduleId !== targetModuleId);
+      const keepGroupIds = new Set(keepGroups.map(g => g.id));
+      const removedStudentIds = state.students.filter(s => !keepGroupIds.has(s.groupId)).map(s => s.id);
+      for (const sid of removedStudentIds) { delete state.scores[sid]; delete state.notes[sid]; }
+      state.groups = [...keepGroups, ...result.groups];
+      state.teams = [...state.teams.filter(t => keepGroupIds.has(t.groupId)), ...result.teams];
+      state.students = [...state.students.filter(s => keepGroupIds.has(s.groupId)), ...result.students];
     } else {
       const maxId = Math.max(0, ...state.students.map(s => s.id));
       result.students.forEach((s, i) => { s.id = maxId + i + 1; });
@@ -2193,7 +2610,7 @@ function doImportFromConsole() {
     assignDefaultSlots();
     saveState();
     showView('dashboard');
-    alert(`${result.students.length} studenten ge\u00efmporteerd.`);
+    alert(`${result.students.length} studenten geïmporteerd.`);
   };
   reader.readAsText(fileInput.files[0]);
 }
@@ -2359,7 +2776,7 @@ function fullReset() {
   const savedGeminiKey = state.settings?.geminiApiKey;
   const savedProvider = state.settings?.aiProvider;
   localStorage.removeItem('assessment_tool_state');
-  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'google' } };
+  state = { modules: [], configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'google' } };
   if (savedApiKey) state.settings.apiKey = savedApiKey;
   if (savedGeminiKey) state.settings.geminiApiKey = savedGeminiKey;
   if (savedProvider) state.settings.aiProvider = savedProvider;
@@ -2386,7 +2803,16 @@ function loadDemoData() {
     });
     state.settings.activeConfigId = 'config_promef_legacy';
   }
-  state.groups = JSON.parse(JSON.stringify(DEMO_GROUPS));
+  // Create a demo module if needed
+  let demoModuleId = 'mod_demo';
+  if (!state.modules.find(m => m.id === demoModuleId)) {
+    state.modules.push({ id: demoModuleId, name: 'Voorbeeld Assessment', configId: 'config_promef_legacy' });
+  }
+  setActiveModule(demoModuleId);
+
+  const demoGroups = JSON.parse(JSON.stringify(DEMO_GROUPS));
+  for (const g of demoGroups) { g.moduleId = demoModuleId; }
+  state.groups = demoGroups;
   state.teams = JSON.parse(JSON.stringify(DEMO_TEAMS));
   state.students = JSON.parse(JSON.stringify(DEMO_STUDENTS));
   state.scores = {}; state.tags = {}; state.notes = {};
@@ -2420,13 +2846,44 @@ function downloadFile(content, filename, mimeType) {
 }
 
 // ==================== CSV IMPORT ====================
-function openImportModal() { document.getElementById('importModal').classList.add('open'); }
+function openImportModal() {
+  // Populate module selector
+  const sel = document.getElementById('csvModuleSelect');
+  const newNameInput = document.getElementById('csvNewModuleName');
+  if (sel) {
+    let opts = '';
+    for (const m of state.modules) {
+      const isActive = m.id === state.settings.activeModuleId;
+      opts += `<option value="${m.id}" ${isActive ? 'selected' : ''}>${m.name}</option>`;
+    }
+    opts += '<option value="__new__">+ Nieuwe module aanmaken...</option>';
+    sel.innerHTML = opts;
+    sel.onchange = function() {
+      newNameInput.classList.toggle('hidden', this.value !== '__new__');
+      if (this.value === '__new__') newNameInput.focus();
+    };
+    newNameInput.classList.add('hidden');
+    newNameInput.value = '';
+  }
+  document.getElementById('importModal').classList.add('open');
+}
 function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
 
 function doImport() {
   const fileInput = document.getElementById('csvFileInput');
   const replace = document.getElementById('csvReplace').checked;
   if (!fileInput.files[0]) { alert('Selecteer eerst een CSV-bestand.'); return; }
+
+  // Determine target module
+  const moduleSel = document.getElementById('csvModuleSelect');
+  let targetModuleId = moduleSel ? moduleSel.value : null;
+  if (targetModuleId === '__new__') {
+    const newName = document.getElementById('csvNewModuleName').value.trim();
+    if (!newName) { alert('Vul een naam in voor de nieuwe module.'); return; }
+    targetModuleId = 'mod_' + Date.now();
+    state.modules.push({ id: targetModuleId, name: newName, configId: null });
+    setActiveModule(targetModuleId);
+  }
 
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -2435,18 +2892,27 @@ function doImport() {
       alert('Kon geen studenten vinden in het CSV-bestand. Controleer het formaat.');
       return;
     }
-    // Assign configId to imported groups (use active config, not first)
-    const defaultConfigId = state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null);
+    // Assign moduleId and configId to imported groups
+    const targetModule = state.modules.find(m => m.id === targetModuleId);
+    const defaultConfigId = targetModule && targetModule.configId ? targetModule.configId : (state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null));
     for (const g of result.groups) {
+      g.moduleId = targetModuleId;
       if (!g.configId) g.configId = defaultConfigId;
     }
 
     if (replace) {
-      state.groups = result.groups;
-      state.teams = result.teams;
-      state.students = result.students;
-      state.scores = {}; state.tags = {}; state.notes = {};
-      state.duoMode = {}; state.slots = {};
+      // Only replace data within the target module
+      const keepGroups = state.groups.filter(g => g.moduleId !== targetModuleId);
+      const keepGroupIds = new Set(keepGroups.map(g => g.id));
+      const keepTeams = state.teams.filter(t => keepGroupIds.has(t.groupId));
+      const keepStudents = state.students.filter(s => keepGroupIds.has(s.groupId));
+      // Clear scores/notes for removed students
+      const removedStudentIds = state.students.filter(s => !keepGroupIds.has(s.groupId)).map(s => s.id);
+      for (const sid of removedStudentIds) { delete state.scores[sid]; delete state.notes[sid]; }
+
+      state.groups = [...keepGroups, ...result.groups];
+      state.teams = [...keepTeams, ...result.teams];
+      state.students = [...keepStudents, ...result.students];
     } else {
       const maxId = Math.max(0, ...state.students.map(s => s.id));
       result.students.forEach((s, i) => { s.id = maxId + i + 1; });
@@ -2455,31 +2921,33 @@ function doImport() {
       state.students.push(...result.students);
     }
     assignDefaultSlots();
+    if (targetModuleId) setActiveModule(targetModuleId);
     saveState();
     closeImportModal();
     showView('dashboard');
-    alert(`${result.students.length} studenten ge\u00efmporteerd.`);
+    alert(`${result.students.length} studenten geïmporteerd in module "${targetModule ? targetModule.name : 'onbekend'}".`);
   };
   reader.readAsText(fileInput.files[0]);
 }
 
 // ==================== GUIDE ====================
 function renderGuide() {
-  document.getElementById('view-guide').innerHTML = `<div class="guide">
-<h1>Handleiding Assessment Tool</h1>
+  document.getElementById('view-guide').innerHTML = `<div class="guide max-w-3xl">
+<h1 class="text-2xl font-semibold text-slate-900 mb-4">Handleiding Assessment Tool</h1>
 <p>Met deze app score je assessments op je laptop of tablet. Je uploadt je beoordelingsformulier als PDF en de app zet alles voor je klaar &mdash; net alsof je een sjabloon opent in Word. Je kunt ook handmatig een formulier invullen.</p>
+<p>De app werkt met <strong>modules</strong>. Een module is een assessmentronde: bijvoorbeeld een vak of toetsperiode. Elke module koppelt &eacute;&eacute;n beoordelingsformulier aan een set studenten. Zo kun je meerdere assessments naast elkaar beheren.</p>
 
 <h2>Snelstart: even uitproberen?</h2>
 <ol>
-  <li>Ga naar <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Voorbeelddata laden</strong>.</li>
-  <li>Ga naar <strong>Overzicht</strong> en klik op een team om het scoren uit te proberen. Je ziet nu een overzicht met voorbeeldstudenten.</li>
+  <li>Open de app. Als er nog geen data is, zie je een welkomstscherm. Klik op <strong>Voorbeelddata laden</strong>. (Je kunt dit ook doen via <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Voorbeelddata laden</strong>.)</li>
+  <li>Ga naar <strong>Overzicht</strong> en klik op een team om het scoren uit te proberen. In de zijbalk links zie je de groepen.</li>
   <li>Klaar met proberen? Ga naar <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Alles wissen</strong>.</li>
 </ol>
 <div class="guide-tip"><strong>Tip:</strong> Daarna kun je met je eigen data aan de slag.</div>
 
 <h2>API-key: wat is dat en hoe krijg je er een?</h2>
 <p>Een API-key is een soort wachtwoord waarmee de app verbinding maakt met een AI-dienst (kunstmatige intelligentie). Vergelijk het met een licentiesleutel voor software: je vult de code &eacute;&eacute;n keer in, en daarna werkt het.</p>
-<p>Een API-key is <strong>alleen nodig als je een PDF wilt laten analyseren</strong> door AI. Als je het formulier handmatig invult (zie Stap&nbsp;1, Optie&nbsp;B), heb je geen API-key nodig.</p>
+<p>Een API-key is <strong>alleen nodig als je een PDF wilt laten analyseren</strong> door AI. Als je het formulier handmatig invult (zie Stap&nbsp;2, Optie&nbsp;B), heb je geen API-key nodig.</p>
 <div class="guide-tip"><strong>Welke dienst kiezen?</strong> We raden <strong>Google Gemini</strong> aan. Die is gratis en het makkelijkst in te stellen. Je hebt alleen een Google-account nodig (hetzelfde account als je Gmail of Google Drive).</div>
 
 <h3>Optie 1: Google Gemini key aanmaken (gratis, aanbevolen)</h3>
@@ -2489,7 +2957,7 @@ function renderGuide() {
   <li>Klik op de blauwe knop <strong>Create API Key</strong>.</li>
   <li>Er verschijnt een lange code die begint met <code>AIza...</code>. Kopieer deze code (selecteer de tekst en druk Ctrl+C, of klik rechts en kies &ldquo;Kopi&euml;ren&rdquo;).</li>
   <li>Ga terug naar de Assessment Tool.</li>
-  <li>Ga naar <strong>Console</strong> &rarr; <strong>AI-model</strong>.</li>
+  <li>Klik rechtsboven op <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>AI-model</strong>.</li>
   <li>Kies bij AI-provider de knop <strong>Google (Gemini)</strong>.</li>
   <li>Klik op <strong>Gemini key instellen</strong> en plak de code in het veld (Ctrl+V).</li>
   <li>Klik op <strong>Opslaan</strong>. Klaar!</li>
@@ -2501,7 +2969,7 @@ function renderGuide() {
   <li>Maak een account aan (of log in als je er al een hebt). Je moet hier een betaalmethode (creditcard) koppelen.</li>
   <li>Ga naar <strong>Settings</strong> &rarr; <strong>API Keys</strong>.</li>
   <li>Klik op <strong>Create Key</strong>. Er verschijnt een code die begint met <code>sk-ant-...</code>. Kopieer deze code.</li>
-  <li>Ga terug naar de Assessment Tool &rarr; <strong>Console</strong> &rarr; <strong>AI-model</strong>.</li>
+  <li>Ga terug naar de Assessment Tool &rarr; <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>AI-model</strong>.</li>
   <li>Kies bij AI-provider de knop <strong>Anthropic (Claude)</strong>.</li>
   <li>Klik op <strong>Anthropic key instellen</strong> en plak de code.</li>
   <li>Klik op <strong>Opslaan</strong>.</li>
@@ -2509,37 +2977,54 @@ function renderGuide() {
 <div class="guide-tip"><strong>Kosten:</strong> Google Gemini is gratis. Bij Anthropic betaal je per gebruik &mdash; het analyseren van &eacute;&eacute;n PDF kost een paar cent.</div>
 <div class="guide-warn"><strong>Veiligheid:</strong> Je API-key wordt <strong>alleen in je eigen browser opgeslagen</strong>, op jouw computer. De key wordt nooit naar onze server gestuurd en niet meegenomen in backups. Deel je key niet met anderen &mdash; het is jouw persoonlijke sleutel.</div>
 
-<h2>Stap 1: Beoordelingsformulier instellen</h2>
+<h2>Stap 1: Module aanmaken</h2>
+<p>Een module is een container voor je assessment. Maak er een aan voordat je een formulier of studenten toevoegt.</p>
+<ol>
+  <li>Klik rechtsboven op <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; tabblad <strong>Modules</strong>.</li>
+  <li>Klik op <strong>Nieuwe module</strong> en geef een naam op (bijv. &ldquo;STRAOR Periode 3&rdquo;).</li>
+  <li>De module is nu actief. In de zijbalk links zie je de naam van de actieve module.</li>
+</ol>
+<div class="guide-tip"><strong>Tip:</strong> Klik op de modulenaam in de zijbalk om snel naar de Console te gaan en van module te wisselen.</div>
+
+<h2>Stap 2: Beoordelingsformulier instellen</h2>
 <h3>Optie A: PDF uploaden (aanbevolen)</h3>
 <ol>
-  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong>.</li>
-  <li>Klik op <strong>Upload PDF formulier</strong>.</li>
+  <li>Ga naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Formulieren</strong>.</li>
+  <li>Klik op <strong>PDF uploaden</strong>.</li>
   <li>Heb je nog geen API-key ingesteld? De app vraagt je er nu om. Zie het hoofdstuk &ldquo;API-key&rdquo; hierboven voor uitleg.</li>
   <li>Selecteer je PDF-beoordelingsformulier (of sleep het bestand naar het upload-vak).</li>
-  <li>De AI leest je PDF en vult automatisch de criteria, scoreniveaus en zak-/slaaggrens in. Net alsof iemand het formulier voor je overtypt.</li>
-  <li>Controleer of alles klopt. Je kunt criteria aanpassen, observatie-tags toevoegen of de zak-/slaaggrens wijzigen.</li>
+  <li>De AI leest je PDF en vult automatisch de criteria en scoreniveaus in. Net alsof iemand het formulier voor je overtypt.</li>
+  <li>Controleer of alles klopt. Je kunt criteria aanpassen of observatie-tags toevoegen.</li>
 </ol>
 <div class="guide-tip"><strong>Tip:</strong> Je kunt de AI ook nieuwe observatie-tags laten genereren. Klik onderaan de editor op <strong>Tags regenereren (AI)</strong>.</div>
 
 <h3>Optie B: Handmatig instellen</h3>
 <ol>
-  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong> &rarr; <strong>Handmatig instellen</strong>.</li>
+  <li>Ga naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Formulieren</strong> &rarr; <strong>Handmatig instellen</strong>.</li>
   <li>Vul zelf de criteria en scoreniveaus in. Dit werkt vergelijkbaar met een tabel invullen in Excel.</li>
+</ol>
+
+<h3>Formulier koppelen aan module</h3>
+<ol>
+  <li>Ga naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Modules</strong>.</li>
+  <li>Klik op je module. Onder <strong>Koppelingen</strong> kies je bij <strong>Formulier</strong> het juiste beoordelingsformulier.</li>
 </ol>
 
 <h3>Configuratie delen met collega&rsquo;s</h3>
 <ol>
-  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong> en klik op het export-icoon bij de configuratie. Je downloadt dan een JSON-bestand.</li>
-  <li>Stuur dit bestand naar je collega. Die importeert het via <strong>Console</strong> &rarr; <strong>Formulier</strong> &rarr; <strong>Configuratie importeren</strong>.</li>
+  <li>Ga naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Formulieren</strong> en klik op het download-icoon bij de configuratie. Je downloadt dan een JSON-bestand.</li>
+  <li>Stuur dit bestand naar je collega. Die importeert het via <strong>Console</strong> &rarr; <strong>Formulieren</strong> &rarr; <strong>Configuratie importeren</strong>.</li>
 </ol>
 
-<h2>Stap 2: Studenten invoeren</h2>
+<h2>Stap 3: Studenten invoeren</h2>
 <h3>Via CSV-bestand (aanbevolen)</h3>
 <p>Een CSV-bestand is een eenvoudige tabel die je kunt maken in Excel.</p>
 <ol>
   <li>Maak in Excel een tabel met de kolommen: <strong>Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</strong>. Je kunt zoveel assessor-kolommen toevoegen als nodig.</li>
   <li>Sla het bestand op als CSV: klik in Excel op <strong>Opslaan als</strong> en kies als bestandstype <strong>CSV (gescheiden door lijstscheidingstekens)</strong>.</li>
-  <li>Klik in de app op <strong>Importeer CSV</strong> (rechtsboven) en selecteer je bestand.</li>
+  <li>Ga in de app naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Studenten importeren</strong>.</li>
+  <li>Kies bij <strong>Importeren in module</strong> de juiste module (of maak een nieuwe aan).</li>
+  <li>Selecteer je CSV-bestand en klik op <strong>Importeren</strong>.</li>
 </ol>
 <div class="guide-tip"><strong>Voorbeeld:</strong> Zo ziet de tabel eruit in Excel:</div>
 <table class="guide-table">
@@ -2552,22 +3037,21 @@ function renderGuide() {
 
 <h3>Handmatig invoeren</h3>
 <ol>
-  <li>Ga naar <strong>Studenten</strong> en klik op <strong>+ Groep</strong>.</li>
+  <li>Ga naar <strong>Studenten</strong> (in de navigatiebalk) en klik op <strong>+ Groep</strong>.</li>
   <li>Kies een beoordelingsformulier, vul assessoren en tijden in.</li>
   <li>Voeg teams en studenten toe.</li>
 </ol>
-<div class="guide-tip"><strong>Meerdere formulieren:</strong> Je kunt meerdere beoordelingsformulieren beheren. Elke groep wordt gekoppeld aan een specifiek formulier.</div>
 
-<h2>Stap 3: Planning controleren</h2>
+<h2>Stap 4: Planning controleren</h2>
 <ol>
-  <li>Ga naar <strong>Overzicht</strong>. Je ziet een kalender met tijdslots.</li>
+  <li>Ga naar <strong>Overzicht</strong>. Je ziet een kalender met tijdslots. In de zijbalk links staan de groepen van de actieve module.</li>
   <li><strong>Sleep</strong> teams naar een ander tijdslot om de volgorde aan te passen. (Klik op het team, houd de muisknop ingedrukt, beweeg naar het gewenste slot en laat los.)</li>
   <li>Klik op een leeg vak om een <strong>pauze</strong> toe te voegen.</li>
 </ol>
 
-<h2>Stap 4: Assessment (tijdens de gesprekken)</h2>
+<h2>Stap 5: Assessment (tijdens de gesprekken)</h2>
 <ol>
-  <li>Klik in het <strong>Overzicht</strong> op het team dat aan de beurt is.</li>
+  <li>Klik in het <strong>Overzicht</strong> op het team dat aan de beurt is. In de zijbalk zie je de teams van de groep.</li>
   <li>Klik per criterium op het juiste <strong>scoreniveau</strong>. Het werkt als een aan/uit-knop: klik nogmaals om de score te wissen.</li>
   <li>Vink <strong>Teamscore</strong> aan als alle teamleden dezelfde score krijgen.</li>
   <li>Klik op een <strong>observatie-tag</strong> om een opmerking vast te leggen. Kies daarna bij welke student de observatie hoort.</li>
@@ -2575,15 +3059,15 @@ function renderGuide() {
 </ol>
 <div class="guide-tip"><strong>Alles wordt automatisch opgeslagen.</strong> Je hoeft nergens op &ldquo;Opslaan&rdquo; te klikken.</div>
 
-<h2>Stap 5: Resultaten en Feedback</h2>
+<h2>Stap 6: Resultaten en Feedback</h2>
 <ol>
-  <li><strong>Resultaten</strong>: een totaaloverzicht met scores per criterium en zak/slaag-status.</li>
-  <li><strong>Feedback</strong>: selecteer een student voor een individueel feedbackrapport.</li>
+  <li><strong>Resultaten</strong>: een totaaloverzicht met scores per criterium en zak/slaag-status. In de zijbalk kun je per groep filteren.</li>
+  <li><strong>Feedback</strong>: selecteer een student in de zijbalk voor een individueel feedbackrapport.</li>
   <li>Klik op <strong>Print / PDF</strong> om het rapport op te slaan. Het opent in je browser. Kies in het printvenster <strong>Opslaan als PDF</strong> (of druk Ctrl+P en kies &ldquo;Opslaan als PDF&rdquo;).</li>
 </ol>
 
-<h2>Stap 6: Data exporteren</h2>
-<p>Ga naar <strong>Console</strong> &rarr; <strong>Data</strong>. Hier vind je:</p>
+<h2>Stap 7: Data exporteren</h2>
+<p>Ga naar <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Data</strong>. Hier vind je:</p>
 <ol>
   <li><strong>CSV Overzicht</strong>: alle scores als Excel-achtig bestand (CSV) voor je administratie.</li>
   <li><strong>JSON Backup</strong>: een reservekopie van al je gegevens (scores, notities, configuraties).</li>
@@ -2592,11 +3076,12 @@ function renderGuide() {
 <div class="guide-warn"><strong>Belangrijk:</strong> Maak na elke assessmentdag een backup! Als je je browsergegevens wist (of een andere computer gebruikt), zijn je gegevens anders kwijt.</div>
 
 <h2>Console</h2>
-<p>Klik bovenaan op <strong>Console</strong>. Je vindt hier drie onderdelen:</p>
+<p>Klik rechtsboven op <strong><i class="fa-solid fa-gear"></i> Console</strong>. Je vindt hier vier onderdelen:</p>
 <ul style="padding-left:1.5rem;margin-bottom:0.75rem">
-  <li><strong>Formulier</strong>: beoordelingsformulieren aanmaken, bewerken of importeren.</li>
+  <li><strong>Modules</strong>: assessmentrondes aanmaken, hernoemen of verwijderen, en een formulier aan een module koppelen.</li>
+  <li><strong>Formulieren</strong>: beoordelingsformulieren aanmaken, bewerken, importeren of exporteren.</li>
+  <li><strong>Data</strong>: studenten importeren (CSV), backups maken en herstellen, scores wissen of alle gegevens wissen.</li>
   <li><strong>AI-model</strong>: je API-key bekijken, wijzigen of verwijderen, en wisselen tussen Google Gemini en Anthropic Claude (zie het hoofdstuk &ldquo;API-key&rdquo; hierboven).</li>
-  <li><strong>Data</strong>: studenten importeren (CSV), backups maken en herstellen, of alle gegevens wissen.</li>
 </ul>
 
 <h2>Privacy &amp; persoonsgegevens</h2>
@@ -2607,17 +3092,18 @@ function renderGuide() {
     <li>Alle gegevens blijven <strong>lokaal opgeslagen in je browser</strong>, op jouw computer. Alleen als je een PDF laat analyseren wordt dat formulier naar de AI-dienst (Google of Anthropic) gestuurd. Verder wordt er niets verstuurd.</li>
     <li>Je <strong>API-key</strong> wordt alleen lokaal opgeslagen en nooit meegenomen in backups.</li>
     <li>Stuur backup-bestanden niet via e-mail. Bewaar ze <strong>op je eigen computer</strong> of in je persoonlijke OneDrive.</li>
-    <li>Verwijder na afloop alle gegevens via <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Alles wissen</strong>.</li>
+    <li>Verwijder na afloop alle gegevens via <strong><i class="fa-solid fa-gear"></i> Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Alles wissen</strong>.</li>
   </ul>
 </div>
 
 <h2>Veelgestelde vragen</h2>
 <table class="guide-table">
   <tbody>
+    <tr><td>Wat is een module?</td><td>Een module is een assessmentronde. Je koppelt er een formulier en studenten aan. Zo kun je meerdere assessments apart beheren.</td></tr>
     <tr><td>Wordt mijn data bewaard?</td><td>Ja, lokaal in je browser. Sluit je de browser, dan staat je data er nog.</td></tr>
     <tr><td>Hoe maak ik een backup?</td><td><strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>JSON Backup</strong>. Doe dit regelmatig!</td></tr>
-    <tr><td>Kan ik meerdere formulieren gebruiken?</td><td>Ja. Maak via <strong>Console</strong> &rarr; <strong>Formulier</strong> meerdere configuraties aan en koppel elk aan een groep.</td></tr>
-    <tr><td>Hoe deel ik een formulier?</td><td>Exporteer de configuratie via <strong>Console</strong> &rarr; <strong>Formulier</strong> (klik op het export-icoon). Je collega importeert het bestand.</td></tr>
+    <tr><td>Kan ik meerdere formulieren gebruiken?</td><td>Ja. Maak via <strong>Console</strong> &rarr; <strong>Formulieren</strong> meerdere configuraties aan en koppel elk aan een module.</td></tr>
+    <tr><td>Hoe deel ik een formulier?</td><td>Exporteer de configuratie via <strong>Console</strong> &rarr; <strong>Formulieren</strong> (klik op het download-icoon). Je collega importeert het bestand.</td></tr>
     <tr><td>Kan ik op een tablet werken?</td><td>Ja, de app werkt op tablets en telefoons.</td></tr>
     <tr><td>Wat als ik mijn API-key kwijt ben?</td><td>Je kunt altijd een nieuwe aanmaken. Ga naar <strong>Console</strong> &rarr; <strong>AI-model</strong> en stel een nieuwe key in.</td></tr>
     <tr><td>Kost het geld?</td><td>Google Gemini is gratis. Bij Anthropic betaal je per gebruik (een paar cent per PDF-analyse).</td></tr>
@@ -2629,9 +3115,7 @@ function renderGuide() {
 }
 
 // ==================== RESPONSIVE HELPERS ====================
-function toggleMenu() {
-  document.getElementById('navMenu').classList.toggle('open');
-}
+// toggleMenu removed — replaced by toggleSidebar()
 
 let wasMobile = window.matchMedia('(max-width: 768px)').matches;
 window.addEventListener('resize', () => {
@@ -2781,14 +3265,15 @@ function renderConfig() {
 
   // Onboarding: no configs yet
   if (state.configs.length === 0) {
-    el.innerHTML = `<div class="card onboarding-card">
-      <h1>Welkom bij de Assessment Tool</h1>
-      <p style="color:var(--text-muted);margin:1rem 0">Upload een beoordelingsformulier (PDF) en laat AI de configuratie uitlezen, of stel handmatig een formulier in.</p>
-      <div class="onboarding-options">
-        <button class="btn btn-primary" onclick="startPDFUpload()">Upload PDF formulier</button>
+    el.innerHTML = `<div class="bg-white rounded-lg shadow-sm border border-slate-200 max-w-xl mx-auto mt-12 text-center p-12">
+      <div class="bg-blue-100 text-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-file-lines text-2xl"></i></div>
+      <h1 class="text-2xl font-semibold text-slate-900 mb-2">Welkom bij de Assessment Tool</h1>
+      <p class="text-slate-500 mb-6">Upload een beoordelingsformulier (PDF) en laat AI de configuratie uitlezen, of stel handmatig een formulier in.</p>
+      <div class="flex gap-3 justify-center flex-wrap">
+        <button class="btn btn-primary" onclick="startPDFUpload()"><i class="fa-solid fa-upload mr-1"></i>Upload PDF formulier</button>
         <button class="btn btn-outline" onclick="startManualConfig()">Handmatig instellen</button>
       </div>
-      <button class="btn btn-outline" onclick="loadDemoData(); showView('dashboard')" style="margin-top:0.5rem">Voorbeelddata laden</button>
+      <button class="btn btn-outline mt-3" onclick="loadDemoData(); showView('dashboard')">Voorbeelddata laden</button>
     </div>`;
     return;
   }
@@ -2800,31 +3285,31 @@ function renderConfig() {
   }
 
   // Default: show config list with option to create new
-  let html = `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
-    <h1 style="margin:0">Configuraties</h1>
-    <button class="btn btn-primary" onclick="startPDFUpload()">+ Upload PDF</button>
-    <button class="btn btn-outline" onclick="startManualConfig()">+ Handmatig</button>
+  let html = `<div class="flex items-center gap-3 mb-4 flex-wrap">
+    <h1 class="text-2xl font-semibold text-slate-900">Configuraties</h1>
+    <button class="btn btn-primary" onclick="startPDFUpload()"><i class="fa-solid fa-upload mr-1"></i>Upload PDF</button>
+    <button class="btn btn-outline" onclick="startManualConfig()"><i class="fa-solid fa-plus mr-1"></i>Handmatig</button>
   </div>`;
 
   for (const c of state.configs) {
     const linkedGroups = state.groups.filter(g => g.configId === c.id);
-    html += `<div class="config-list-item">
-      <div class="cli-info">
-        <div class="cli-title">${c.title}</div>
-        <div class="cli-meta">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 Gekoppeld aan: ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
+    html += `<div class="flex items-center gap-3 p-4 border border-slate-200 rounded-lg mb-2 bg-white">
+      <div class="flex-1">
+        <div class="font-semibold text-slate-900">${c.title}</div>
+        <div class="text-sm text-slate-500">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 Gekoppeld aan: ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
       </div>
-      <div class="cli-actions">
-        <button class="btn-action" onclick="editingConfigId='${c.id}'; renderConfig()" title="Bewerken">\u270E</button>
-        <button class="btn-action" onclick="duplicateConfig('${c.id}'); renderConfig()" title="Dupliceren">\u2398</button>
-        <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren">&#8681;</button>
-        <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConfig()" title="Verwijderen">\u2715</button>
+      <div class="flex gap-1">
+        <button class="btn-action" onclick="editingConfigId='${c.id}'; renderConfig()" title="Bewerken"><i class="fa-solid fa-pen text-xs"></i></button>
+        <button class="btn-action" onclick="duplicateConfig('${c.id}'); renderConfig()" title="Dupliceren"><i class="fa-solid fa-copy text-xs"></i></button>
+        <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren"><i class="fa-solid fa-download text-xs"></i></button>
+        <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConfig()" title="Verwijderen"><i class="fa-solid fa-xmark text-xs"></i></button>
       </div>
     </div>`;
   }
 
-  html += `<div style="margin-top:1rem">
-    <label class="btn btn-outline" style="cursor:pointer">Configuratie importeren (JSON)
-      <input type="file" accept=".json" onchange="importConfigFromFile(this)" style="display:none">
+  html += `<div class="mt-4">
+    <label class="btn btn-outline cursor-pointer"><i class="fa-solid fa-file-import mr-1"></i>Configuratie importeren (JSON)
+      <input type="file" accept=".json" onchange="importConfigFromFile(this)" class="hidden">
     </label>
   </div>`;
 
@@ -3881,7 +4366,7 @@ function runTests() {
 // ==================== INIT ====================
 function init() {
   loadState();
-  renderDashboard();
+  showView('dashboard');
 }
 
 init();
