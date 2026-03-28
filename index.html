@@ -1023,25 +1023,7 @@ function migrateState() {
     if (!g.assessors) g.assessors = [];
   }
 
-  // 3. Bootstrap PROMEF legacy config if no configs exist
-  if (!state.configs || state.configs.length === 0) {
-    state.configs = [{
-      id: 'config_promef_legacy',
-      title: 'PROMEF eindassessment F-cluster',
-      criteria: JSON.parse(JSON.stringify(PROMEF_LEGACY_CRITERIA)),
-      levels: {
-        count: 4,
-        labels: { '0': 'Onder niveau', '1': 'Op niveau', '2': 'Boven niveau', '3': 'Excellent' },
-        shortLabels: { '0': 'Onder', '1': 'Op', '2': 'Boven', '3': 'Excellent' }
-      },
-      passThreshold: 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }];
-    state.settings.activeConfigId = 'config_promef_legacy';
-  }
-
-  // 4. Ensure all groups have configId
+  // 3. Ensure all groups have configId
   for (const g of state.groups) {
     if (!g.configId && state.configs.length > 0) {
       g.configId = state.configs[0].id;
@@ -1234,6 +1216,21 @@ function renderDashboard() {
   const groups = buildGroupsLookup();
   const sortedGroups = Object.keys(groups).sort();
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  if (sortedGroups.length === 0) {
+    el.innerHTML = `<div class="card onboarding-card">
+      <h1>Welkom bij de Assessment Tool</h1>
+      <p style="color:var(--text-muted);margin:1rem 0">
+        Er zijn nog geen assessmentgroepen ingepland. Laad voorbeelddata om de tool
+        te verkennen, of bekijk de handleiding om te leren hoe je zelf aan de slag gaat.
+      </p>
+      <div class="onboarding-options">
+        <button class="btn btn-primary" onclick="loadDemoData()">Voorbeelddata laden</button>
+        <button class="btn btn-outline" onclick="showView('guide')">Handleiding bekijken</button>
+      </div>
+    </div>`;
+    return;
+  }
 
   const groupSlotSets = {};
   for (const gName of sortedGroups) {
@@ -3883,12 +3880,7 @@ function runTests() {
 // ==================== INIT ====================
 function init() {
   loadState();
-  // Show onboarding if no configs
-  if (state.configs.length === 0) {
-    showView('config');
-  } else {
-    renderDashboard();
-  }
+  renderDashboard();
 }
 
 init();
