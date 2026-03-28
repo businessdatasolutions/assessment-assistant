@@ -230,15 +230,34 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 .guide .guide-table td:first-child { font-weight: 500; }
 .guide code { background: var(--bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.85em; }
 
+/* ==================== CONSOLE SUB-TABS ==================== */
+.console-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
+.console-tab { padding: 0.5rem 1.25rem; font-size: 0.9rem; font-weight: 500; border: none; background: none; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+.console-tab:hover { color: var(--text); }
+.console-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+@media (max-width: 768px) {
+  .console-tab { padding: 0.5rem 0.75rem; font-size: 0.85rem; flex: 1; text-align: center; }
+}
+
 /* ==================== CHAT UI ==================== */
 .chat-container { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 150px); }
 .chat-messages { flex: 1; overflow-y: auto; padding: 1rem 0; }
 .chat-msg { margin-bottom: 1rem; display: flex; gap: 0.75rem; }
 .chat-msg.assistant { flex-direction: row; }
 .chat-msg.user { flex-direction: row-reverse; }
-.chat-msg .msg-bubble { max-width: 80%; padding: 0.75rem 1rem; border-radius: var(--radius); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
+.chat-msg .msg-bubble { max-width: 80%; padding: 0.75rem 1rem; border-radius: var(--radius); font-size: 0.9rem; line-height: 1.6; }
 .chat-msg.assistant .msg-bubble { background: var(--surface); border: 1px solid var(--border); }
-.chat-msg.user .msg-bubble { background: var(--primary); color: white; }
+.chat-msg.assistant .msg-bubble h3, .chat-msg.assistant .msg-bubble h4, .chat-msg.assistant .msg-bubble h5 { margin: 0.75rem 0 0.35rem; font-size: 0.95rem; color: var(--text); }
+.chat-msg.assistant .msg-bubble h3:first-child, .chat-msg.assistant .msg-bubble h4:first-child { margin-top: 0; }
+.chat-msg.assistant .msg-bubble ul { margin: 0.35rem 0; padding-left: 1.25rem; }
+.chat-msg.assistant .msg-bubble li { margin-bottom: 0.25rem; }
+.chat-msg.assistant .msg-bubble code { background: var(--bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.85em; }
+.chat-msg.assistant .msg-bubble strong { font-weight: 600; }
+.chat-msg.assistant .msg-bubble table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.85em; }
+.chat-msg.assistant .msg-bubble th, .chat-msg.assistant .msg-bubble td { border: 1px solid var(--border); padding: 0.35rem 0.5rem; text-align: left; }
+.chat-msg.assistant .msg-bubble th { background: var(--bg); font-weight: 600; }
+.chat-msg.assistant .msg-bubble td:first-child { font-weight: 500; }
+.chat-msg.user .msg-bubble { background: var(--primary); color: white; white-space: pre-wrap; }
 .chat-msg .msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
 .chat-msg.assistant .msg-avatar { background: var(--primary-light); color: var(--primary); }
 .chat-msg.user .msg-avatar { background: var(--bg); color: var(--text-muted); }
@@ -246,7 +265,9 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 .chat-input-row textarea { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; resize: none; min-height: 44px; max-height: 120px; field-sizing: content; }
 .chat-input-row button { min-width: 44px; }
 .chat-typing { color: var(--text-muted); font-size: 0.85rem; font-style: italic; padding: 0.5rem 0; }
-.chat-actions { display: flex; gap: 0.5rem; padding-top: 0.5rem; }
+.chat-actions { display: flex; gap: 0.5rem; padding: 0.75rem 0; align-items: center; border-top: 1px solid var(--border); }
+.chat-actions .chat-actions-hint { flex: 1; font-size: 0.8rem; color: var(--text-muted); }
+.chat-actions .btn { white-space: nowrap; }
 @media (max-width: 768px) {
   .chat-container { height: calc(100vh - 120px); }
   .chat-msg .msg-bubble { max-width: 90%; font-size: 0.85rem; }
@@ -426,24 +447,19 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
   <span class="logo">Assessment Tool</span>
   <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
   <div class="nav-tabs-row" id="navMenu">
-    <button class="tab" data-view="config">Configuratie</button>
     <button class="tab active" data-view="dashboard">Overzicht</button>
+    <button class="tab" data-view="students">Studenten</button>
     <button class="tab" data-view="results">Resultaten</button>
     <button class="tab" data-view="feedback">Feedback</button>
-    <button class="tab" data-view="students">Studenten</button>
-    <button class="tab" data-view="export">Databeheer</button>
-    <button class="tab" data-view="settings">Instellingen</button>
+    <button class="tab" data-view="console">Console</button>
     <button class="tab" data-view="guide">Handleiding</button>
-  </div>
-  <span class="spacer"></span>
-  <div class="nav-actions">
-    <button class="btn btn-outline" onclick="openImportModal()" title="CSV importeren">Importeer CSV</button>
   </div>
 </nav>
 
 <main>
-  <section id="view-config" class="view"></section>
   <section id="view-dashboard" class="view active"></section>
+  <section id="view-console" class="view"></section>
+  <section id="view-config" class="view"></section>
   <section id="view-assessment" class="view"></section>
   <section id="view-results" class="view"></section>
   <section id="view-feedback" class="view"></section>
@@ -564,11 +580,11 @@ h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-muted); }
 
 <div class="modal-overlay" id="apiKeyModal">
   <div class="modal">
-    <h2>API-key instellen</h2>
-    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">De API-key wordt alleen lokaal in je browser opgeslagen en is nodig om PDF-formulieren te laten analyseren door AI. Je kunt een key aanmaken via <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.</p>
+    <h2 id="apiKeyModalTitle">API-key instellen</h2>
+    <p id="apiKeyModalDesc" style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem"></p>
     <div class="form-group">
-      <label>Anthropic API-key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.9rem;font-family:monospace">
+      <label id="apiKeyModalLabel">API-key</label>
+      <input type="password" id="apiKeyInput" placeholder="..." style="width:100%;padding:0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.9rem;font-family:monospace">
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeApiKeyModal()">Annuleren</button>
@@ -971,7 +987,7 @@ function saveState() {
     localStorage.setItem('assessment_tool_state', JSON.stringify(state));
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
-      alert('Opslagruimte vol! Exporteer je data via Databeheer \u2192 JSON Backup en wis oude data.');
+      alert('Opslagruimte vol! Exporteer je data via Console \u2192 JSON Backup en wis oude data.');
     } else {
       console.error('Save error:', e);
     }
@@ -1031,6 +1047,9 @@ function migrateState() {
       g.configId = state.configs[0].id;
     }
   }
+
+  // 5. Ensure aiProvider defaults
+  if (!state.settings.aiProvider) state.settings.aiProvider = 'anthropic';
 }
 
 function loadState() {
@@ -1127,14 +1146,23 @@ function showView(view) {
   const menu = document.getElementById('navMenu');
   if (menu) menu.classList.remove('open');
 
-  if (view === 'config') renderConfig();
+  // Redirect legacy views to console
+  if (view === 'settings') { view = 'console'; currentView = 'console'; consoleSubTab = 'aimodel'; }
+  else if (view === 'export') { view = 'console'; currentView = 'console'; consoleSubTab = 'data'; }
+
+  // Highlight console tab when config sub-view is active
+  if (view === 'config') {
+    const consoleTab = document.querySelector('nav .tab[data-view="console"]');
+    if (consoleTab) consoleTab.classList.add('active');
+  }
+
+  if (view === 'console') renderConsole();
+  else if (view === 'config') renderConfig();
   else if (view === 'dashboard') renderDashboard();
   else if (view === 'assessment') renderAssessment();
   else if (view === 'results') renderResults();
   else if (view === 'feedback') renderFeedback();
   else if (view === 'students') renderStudents();
-  else if (view === 'export') renderExport();
-  else if (view === 'settings') renderSettings();
   else if (view === 'guide') renderGuide();
 }
 
@@ -1696,7 +1724,7 @@ function renderStudents() {
 
   if (state.groups.length === 0) {
     html += `<div class="card" style="text-align:center;padding:3rem">
-      <p style="color:var(--text-muted)">Nog geen groepen. Maak eerst een groep aan, of laad voorbeelddata via Databeheer.</p>
+      <p style="color:var(--text-muted)">Nog geen groepen. Maak eerst een groep aan, of laad voorbeelddata via Console.</p>
     </div>`;
     el.innerHTML = html;
     return;
@@ -1968,11 +1996,247 @@ function deleteStudent(studentId, studentName) {
   renderStudents();
 }
 
+// ==================== CONSOLE VIEW ====================
+let consoleSubTab = 'formulier';
+
+function renderConsole(subTab) {
+  if (subTab) consoleSubTab = subTab;
+  const el = document.getElementById('view-console');
+  const tab = consoleSubTab;
+
+  let html = `<h1>Console</h1>
+    <div class="console-tabs">
+      <button class="console-tab ${tab === 'formulier' ? 'active' : ''}" onclick="renderConsole('formulier')">Formulier</button>
+      <button class="console-tab ${tab === 'aimodel' ? 'active' : ''}" onclick="renderConsole('aimodel')">AI-model</button>
+      <button class="console-tab ${tab === 'data' ? 'active' : ''}" onclick="renderConsole('data')">Data</button>
+    </div>`;
+
+  if (tab === 'formulier') {
+    html += renderConsoleFormulier();
+  } else if (tab === 'aimodel') {
+    html += renderConsoleAiModel();
+  } else if (tab === 'data') {
+    html += renderConsoleData();
+  }
+
+  el.innerHTML = html;
+}
+
+function renderConsoleFormulier() {
+  const configs = state.configs;
+  let html = '';
+
+  // New config actions
+  html += `<div class="card" style="margin-bottom:1.5rem">
+    <h2>Nieuw formulier</h2>
+    <p style="color:var(--text-muted);margin-bottom:0.75rem">Upload een beoordelingsformulier als PDF voor AI-analyse, of stel handmatig een formulier in.</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="startPDFUpload()">PDF uploaden</button>
+      <button class="btn btn-outline" onclick="startManualConfig()">Handmatig instellen</button>
+      <button class="btn btn-outline" onclick="loadDemoData()">Voorbeelddata laden</button>
+    </div>
+  </div>`;
+
+  // Config list
+  html += `<div class="card">
+    <h2>Configuraties (${configs.length})</h2>`;
+
+  if (configs.length === 0) {
+    html += `<p style="color:var(--text-muted)">Geen configuraties. Upload een PDF of stel er handmatig een in.</p>`;
+  } else {
+    for (const c of configs) {
+      const linkedGroups = state.groups.filter(g => g.configId === c.id);
+      const isActive = state.settings.activeConfigId === c.id;
+      html += `<div class="config-list-item" ${isActive ? 'style="border-color:var(--primary)"' : ''}>
+        <div class="cli-info">
+          <div class="cli-title">${isActive ? '\u25CF ' : '\u25CB '}${c.title}</div>
+          <div class="cli-meta">${c.criteria.length} criteria, ${c.levels.count} niveaus${linkedGroups.length > 0 ? ` \u2022 ${linkedGroups.map(g => g.name).join(', ')}` : ''}</div>
+        </div>
+        <div class="cli-actions">
+          ${!isActive ? `<button class="btn-action" onclick="state.settings.activeConfigId='${c.id}'; saveState(); renderConsole()" title="Activeren">\u25CF</button>` : ''}
+          <button class="btn-action" onclick="editingConfigId='${c.id}'; showView('config')" title="Bewerken">\u270E</button>
+          <button class="btn-action" onclick="exportConfigJSON('${c.id}')" title="Exporteren">&#8681;</button>
+          <button class="btn-action btn-action-danger" onclick="if(deleteConfig('${c.id}')) renderConsole()" title="Verwijderen">\u2715</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Config import
+  html += `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+    <label style="font-size:0.85rem;color:var(--text-muted)">Configuratie importeren (vanuit backup JSON):</label>
+    <input type="file" accept=".json" onchange="importConfigFromFile(this)" style="margin-top:0.25rem">
+  </div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+function renderConsoleAiModel() {
+  const provider = state.settings.aiProvider || 'anthropic';
+  const hasAnthropicKey = !!state.settings.apiKey;
+  const hasGeminiKey = !!state.settings.geminiApiKey;
+  const maskKey = (k) => k.substring(0, 10) + '\u2022'.repeat(20) + k.slice(-4);
+
+  let html = `<div class="card">
+    <h2>AI-provider</h2>
+    <p style="color:var(--text-muted);margin-bottom:1rem">Kies welke AI-provider wordt gebruikt voor PDF-analyse en tag-generatie.</p>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem">
+      <button class="btn ${provider === 'anthropic' ? 'btn-primary' : 'btn-outline'}" onclick="setAiProvider('anthropic')">Anthropic (Claude)</button>
+      <button class="btn ${provider === 'gemini' ? 'btn-primary' : 'btn-outline'}" onclick="setAiProvider('gemini')">Google (Gemini)</button>
+    </div>
+
+    <h3>Anthropic API-key ${provider === 'anthropic' ? '<span style="color:var(--primary);font-size:0.8rem;font-weight:normal">(actief)</span>' : ''}</h3>
+    ${hasAnthropicKey
+      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskKey(state.settings.apiKey)}</p>
+         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderConsole(); }, 'anthropic')" style="margin-right:0.5rem">Wijzigen</button>
+         <button class="btn btn-outline" onclick="deleteApiKey('anthropic')">Verwijderen</button>`
+      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Je hebt nog geen Anthropic key ingesteld. Zonder key kun je geen PDF's laten analyseren met deze dienst.</p>
+         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderConsole(); }, 'anthropic')">Anthropic key instellen</button>`
+    }
+
+    <h3 style="margin-top:1.25rem">Gemini API-key ${provider === 'gemini' ? '<span style="color:var(--primary);font-size:0.8rem;font-weight:normal">(actief)</span>' : ''}</h3>
+    ${hasGeminiKey
+      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskKey(state.settings.geminiApiKey)}</p>
+         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderConsole(); }, 'gemini')" style="margin-right:0.5rem">Wijzigen</button>
+         <button class="btn btn-outline" onclick="deleteApiKey('gemini')">Verwijderen</button>`
+      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Je hebt nog geen Gemini key ingesteld. Zonder key kun je geen PDF's laten analyseren met deze dienst.</p>
+         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderConsole(); }, 'gemini')">Gemini key instellen</button>`
+    }
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">Je keys worden alleen op jouw computer opgeslagen (in je browser). Ze worden nooit naar ons of naar anderen gestuurd.</p>
+  </div>`;
+
+  return html;
+}
+
+function renderConsoleData() {
+  let html = '';
+
+  // CSV Import section
+  html += `<div class="card" style="margin-bottom:1.5rem">
+    <h2>Studenten importeren</h2>
+    <p style="color:var(--text-muted);margin-bottom:0.75rem">Importeer studenten, groepen en teams vanuit een CSV-bestand.</p>
+    <div class="form-group" style="margin-bottom:0.5rem">
+      <input type="file" id="consoleCSVInput" accept=".csv">
+      <div class="form-help">Verwacht kolommen: Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</div>
+    </div>
+    <div class="form-group" style="margin-bottom:0.75rem">
+      <label><input type="checkbox" id="consoleCSVReplace" checked> Bestaande data vervangen</label>
+    </div>
+    <button class="btn btn-primary" onclick="doImportFromConsole()">Importeren</button>
+  </div>`;
+
+  // Export & backup
+  html += `<div class="export-grid">
+    <div class="export-card">
+      <h3>CSV Overzicht</h3>
+      <p>Alle scores en cijfers in spreadsheet-formaat.</p>
+      <button class="btn btn-primary" onclick="exportCSV()">Download CSV</button>
+    </div>
+    <div class="export-card">
+      <h3>JSON Backup</h3>
+      <p>Volledige data-backup. Kan later worden hersteld.</p>
+      <button class="btn btn-primary" onclick="exportJSON()">Download JSON</button>
+    </div>
+    <div class="export-card">
+      <h3>JSON Herstellen</h3>
+      <p>Laad een eerder gedownloade JSON backup.</p>
+      <input type="file" id="jsonRestoreInput" accept=".json" onchange="restoreJSON(this)" style="margin-bottom:0.5rem">
+    </div>
+    <div class="export-card">
+      <h3>Scores wissen</h3>
+      <p>Verwijder scores, observaties en notities. Studenten blijven behouden.</p>
+      <button class="btn btn-danger" onclick="clearScores()">Scores wissen</button>
+    </div>
+    <div class="export-card">
+      <h3>Voorbeelddata</h3>
+      <p>Laad 3 demoteams (6 studenten) om uit te proberen.</p>
+      <button class="btn btn-outline" onclick="loadDemoData()">Voorbeelddata laden</button>
+    </div>
+    <div class="export-card">
+      <h3>Volledige reset</h3>
+      <p>Wis alle data: studenten, scores, notities, planning.</p>
+      <button class="btn btn-danger" onclick="fullReset()">Alles wissen</button>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+function doImportFromConsole() {
+  const fileInput = document.getElementById('consoleCSVInput');
+  const replace = document.getElementById('consoleCSVReplace').checked;
+  if (!fileInput.files[0]) { alert('Selecteer eerst een CSV-bestand.'); return; }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const result = importCSV(e.target.result);
+    if (!result || result.students.length === 0) {
+      alert('Kon geen studenten vinden in het CSV-bestand. Controleer het formaat.');
+      return;
+    }
+    const defaultConfigId = state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null);
+    for (const g of result.groups) {
+      if (!g.configId) g.configId = defaultConfigId;
+    }
+
+    if (replace) {
+      state.groups = result.groups;
+      state.teams = result.teams;
+      state.students = result.students;
+      state.scores = {}; state.tags = {}; state.notes = {};
+      state.duoMode = {}; state.slots = {};
+    } else {
+      const maxId = Math.max(0, ...state.students.map(s => s.id));
+      result.students.forEach((s, i) => { s.id = maxId + i + 1; });
+      for (const g of result.groups) { if (!state.groups.find(x => x.id === g.id)) state.groups.push(g); }
+      for (const t of result.teams) { if (!state.teams.find(x => x.id === t.id)) state.teams.push(t); }
+      state.students.push(...result.students);
+    }
+    assignDefaultSlots();
+    saveState();
+    showView('dashboard');
+    alert(`${result.students.length} studenten ge\u00efmporteerd.`);
+  };
+  reader.readAsText(fileInput.files[0]);
+}
+
 // ==================== EXPORT ====================
 function renderExport() {
   const el = document.getElementById('view-export');
-  el.innerHTML = `<h1>Databeheer</h1>
+  const provider = state.settings.aiProvider || 'anthropic';
+  const hasAnthropicKey = !!state.settings.apiKey;
+  const hasGeminiKey = !!state.settings.geminiApiKey;
+  const maskKey = (k) => k.substring(0, 8) + '\u2022\u2022\u2022\u2022' + k.slice(-4);
+
+  el.innerHTML = `<h1>Console &mdash; Data</h1>
     <div class="export-grid">
+      <div class="export-card" style="text-align:left">
+        <h3>AI-sleutelbeheer</h3>
+        <div style="display:flex;gap:0.25rem;margin-bottom:0.75rem">
+          <button class="btn ${provider === 'anthropic' ? 'btn-primary' : 'btn-outline'}" style="flex:1;padding:0.3rem 0.5rem;font-size:0.8rem" onclick="setAiProvider('anthropic')">Anthropic</button>
+          <button class="btn ${provider === 'gemini' ? 'btn-primary' : 'btn-outline'}" style="flex:1;padding:0.3rem 0.5rem;font-size:0.8rem" onclick="setAiProvider('gemini')">Gemini</button>
+        </div>
+        <div style="margin-bottom:0.5rem">
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.25rem">Anthropic ${provider === 'anthropic' ? '<span style="color:var(--primary);font-weight:normal">(actief)</span>' : ''}</div>
+          ${hasAnthropicKey
+            ? `<div style="font-family:monospace;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem">${maskKey(state.settings.apiKey)}</div>
+               <button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem;margin-right:0.25rem" onclick="showApiKeyModal(function(){ renderExport(); }, 'anthropic')">Wijzigen</button>
+               <button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="deleteApiKey('anthropic')">Verwijderen</button>`
+            : `<button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="showApiKeyModal(function(){ renderExport(); }, 'anthropic')">Instellen</button>`
+          }
+        </div>
+        <div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.25rem">Gemini ${provider === 'gemini' ? '<span style="color:var(--primary);font-weight:normal">(actief)</span>' : ''}</div>
+          ${hasGeminiKey
+            ? `<div style="font-family:monospace;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem">${maskKey(state.settings.geminiApiKey)}</div>
+               <button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem;margin-right:0.25rem" onclick="showApiKeyModal(function(){ renderExport(); }, 'gemini')">Wijzigen</button>
+               <button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="deleteApiKey('gemini')">Verwijderen</button>`
+            : `<button class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="showApiKeyModal(function(){ renderExport(); }, 'gemini')">Instellen</button>`
+          }
+        </div>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem">Je keys worden alleen op jouw computer opgeslagen (in je browser). Ze worden nooit naar ons of naar anderen gestuurd.</p>
+      </div>
       <div class="export-card">
         <h3>CSV Overzicht</h3>
         <p>Alle scores en cijfers in spreadsheet-formaat voor administratie.</p>
@@ -2047,7 +2311,7 @@ function exportCSV() {
 function exportJSON() {
   // Export state without API key
   const exportState = JSON.parse(JSON.stringify(state));
-  if (exportState.settings) delete exportState.settings.apiKey;
+  if (exportState.settings) { delete exportState.settings.apiKey; delete exportState.settings.geminiApiKey; }
   const json = JSON.stringify(exportState, null, 2);
   downloadFile(json, 'assessment-backup.json', 'application/json');
 }
@@ -2060,14 +2324,18 @@ function restoreJSON(input) {
     try {
       const data = JSON.parse(e.target.result);
       if (data.students && data.scores) {
-        // Preserve current API key
+        // Preserve current API keys and provider
         const currentApiKey = state.settings?.apiKey;
+        const currentGeminiKey = state.settings?.geminiApiKey;
+        const currentProvider = state.settings?.aiProvider;
         state = data;
         if (!state.configs) state.configs = [];
         if (!state.groups) state.groups = [];
         if (!state.teams) state.teams = [];
         if (!state.settings) state.settings = {};
         if (currentApiKey) state.settings.apiKey = currentApiKey;
+        if (currentGeminiKey) state.settings.geminiApiKey = currentGeminiKey;
+        if (currentProvider) state.settings.aiProvider = currentProvider;
         migrateState();
         saveState();
         showView('export');
@@ -2090,8 +2358,17 @@ function clearScores() {
 
 function fullReset() {
   if (!confirm('LET OP: Alle data wordt permanent gewist \u2014 studenten, scores, notities en planning.\n\nWeet je het zeker?')) return;
+  const deleteKeys = confirm('Wil je ook je API-keys verwijderen?\n\nKlik "OK" om keys te wissen, of "Annuleren" om ze te behouden.');
+  const savedApiKey = state.settings?.apiKey;
+  const savedGeminiKey = state.settings?.geminiApiKey;
+  const savedProvider = state.settings?.aiProvider;
   localStorage.removeItem('assessment_tool_state');
-  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: {} };
+  state = { configs: [], groups: [], teams: [], students: [], scores: {}, tags: {}, notes: {}, duoMode: {}, slots: {}, settings: { aiProvider: 'anthropic' } };
+  if (!deleteKeys) {
+    if (savedApiKey) state.settings.apiKey = savedApiKey;
+    if (savedGeminiKey) state.settings.geminiApiKey = savedGeminiKey;
+    if (savedProvider) state.settings.aiProvider = savedProvider;
+  }
   saveState();
   showView('config'); // Show onboarding welcome screen
   alert('Alle data gewist. De app is opnieuw gestart.');
@@ -2164,8 +2441,8 @@ function doImport() {
       alert('Kon geen studenten vinden in het CSV-bestand. Controleer het formaat.');
       return;
     }
-    // Assign configId to imported groups
-    const defaultConfigId = state.configs.length > 0 ? state.configs[0].id : null;
+    // Assign configId to imported groups (use active config, not first)
+    const defaultConfigId = state.settings.activeConfigId || (state.configs.length > 0 ? state.configs[0].id : null);
     for (const g of result.groups) {
       if (!g.configId) g.configId = defaultConfigId;
     }
@@ -2196,46 +2473,81 @@ function doImport() {
 function renderGuide() {
   document.getElementById('view-guide').innerHTML = `<div class="guide">
 <h1>Handleiding Assessment Tool</h1>
-<p>Deze tool helpt assessoren bij het scoren van assessments in het hoger onderwijs. Upload een beoordelingsformulier als PDF, en de app wordt automatisch ingericht. Je kunt ook handmatig een formulier instellen.</p>
+<p>Met deze app score je assessments op je laptop of tablet. Je uploadt je beoordelingsformulier als PDF en de app zet alles voor je klaar &mdash; net alsof je een sjabloon opent in Word. Je kunt ook handmatig een formulier invullen.</p>
 
 <h2>Snelstart: even uitproberen?</h2>
 <ol>
-  <li>Klik op <strong>Databeheer</strong> &rarr; <strong>Voorbeelddata laden</strong>.</li>
-  <li>Ga naar <strong>Overzicht</strong> en klik op een team om het scoren uit te proberen.</li>
-  <li>Klaar? Klik op <strong>Databeheer</strong> &rarr; <strong>Alles wissen</strong>.</li>
+  <li>Ga naar <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Voorbeelddata laden</strong>.</li>
+  <li>Ga naar <strong>Overzicht</strong> en klik op een team om het scoren uit te proberen. Je ziet nu een overzicht met voorbeeldstudenten.</li>
+  <li>Klaar met proberen? Ga naar <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Alles wissen</strong>.</li>
 </ol>
+<div class="guide-tip"><strong>Tip:</strong> Daarna kun je met je eigen data aan de slag.</div>
+
+<h2>API-key: wat is dat en hoe krijg je er een?</h2>
+<p>Een API-key is een soort wachtwoord waarmee de app verbinding maakt met een AI-dienst (kunstmatige intelligentie). Vergelijk het met een licentiesleutel voor software: je vult de code &eacute;&eacute;n keer in, en daarna werkt het.</p>
+<p>Een API-key is <strong>alleen nodig als je een PDF wilt laten analyseren</strong> door AI. Als je het formulier handmatig invult (zie Stap&nbsp;1, Optie&nbsp;B), heb je geen API-key nodig.</p>
+<div class="guide-tip"><strong>Welke dienst kiezen?</strong> We raden <strong>Google Gemini</strong> aan. Die is gratis en het makkelijkst in te stellen. Je hebt alleen een Google-account nodig (hetzelfde account als je Gmail of Google Drive).</div>
+
+<h3>Optie 1: Google Gemini key aanmaken (gratis, aanbevolen)</h3>
+<ol>
+  <li>Open je browser (Chrome, Edge of Safari) en ga naar: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></li>
+  <li>Log in met je Google-account (hetzelfde als voor Gmail of Google Drive).</li>
+  <li>Klik op de blauwe knop <strong>Create API Key</strong>.</li>
+  <li>Er verschijnt een lange code die begint met <code>AIza...</code>. Kopieer deze code (selecteer de tekst en druk Ctrl+C, of klik rechts en kies &ldquo;Kopi&euml;ren&rdquo;).</li>
+  <li>Ga terug naar de Assessment Tool.</li>
+  <li>Ga naar <strong>Console</strong> &rarr; <strong>AI-model</strong>.</li>
+  <li>Kies bij AI-provider de knop <strong>Google (Gemini)</strong>.</li>
+  <li>Klik op <strong>Gemini key instellen</strong> en plak de code in het veld (Ctrl+V).</li>
+  <li>Klik op <strong>Opslaan</strong>. Klaar!</li>
+</ol>
+
+<h3>Optie 2: Anthropic key aanmaken (betaald)</h3>
+<ol>
+  <li>Open je browser en ga naar: <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a></li>
+  <li>Maak een account aan (of log in als je er al een hebt). Je moet hier een betaalmethode (creditcard) koppelen.</li>
+  <li>Ga naar <strong>Settings</strong> &rarr; <strong>API Keys</strong>.</li>
+  <li>Klik op <strong>Create Key</strong>. Er verschijnt een code die begint met <code>sk-ant-...</code>. Kopieer deze code.</li>
+  <li>Ga terug naar de Assessment Tool &rarr; <strong>Console</strong> &rarr; <strong>AI-model</strong>.</li>
+  <li>Kies bij AI-provider de knop <strong>Anthropic (Claude)</strong>.</li>
+  <li>Klik op <strong>Anthropic key instellen</strong> en plak de code.</li>
+  <li>Klik op <strong>Opslaan</strong>.</li>
+</ol>
+<div class="guide-tip"><strong>Kosten:</strong> Google Gemini is gratis. Bij Anthropic betaal je per gebruik &mdash; het analyseren van &eacute;&eacute;n PDF kost een paar cent.</div>
+<div class="guide-warn"><strong>Veiligheid:</strong> Je API-key wordt <strong>alleen in je eigen browser opgeslagen</strong>, op jouw computer. De key wordt nooit naar onze server gestuurd en niet meegenomen in backups. Deel je key niet met anderen &mdash; het is jouw persoonlijke sleutel.</div>
 
 <h2>Stap 1: Beoordelingsformulier instellen</h2>
 <h3>Optie A: PDF uploaden (aanbevolen)</h3>
 <ol>
-  <li>Ga naar <strong>Configuratie</strong> in de menubalk.</li>
+  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong>.</li>
   <li>Klik op <strong>Upload PDF formulier</strong>.</li>
-  <li>De eerste keer wordt gevraagd om een <strong>Anthropic API-key</strong>. Deze is nodig voor de AI-analyse en wordt alleen lokaal opgeslagen.</li>
-  <li>Selecteer of sleep het PDF-beoordelingsformulier.</li>
-  <li>AI analyseert het formulier en maakt automatisch een configuratie aan met criteria, scoreniveaus en cesuur.</li>
-  <li>Controleer en pas de configuratie aan in de <strong>editor</strong> (criteria hernoemen, tags toevoegen/verwijderen, cesuur wijzigen).</li>
+  <li>Heb je nog geen API-key ingesteld? De app vraagt je er nu om. Zie het hoofdstuk &ldquo;API-key&rdquo; hierboven voor uitleg.</li>
+  <li>Selecteer je PDF-beoordelingsformulier (of sleep het bestand naar het upload-vak).</li>
+  <li>De AI leest je PDF en vult automatisch de criteria, scoreniveaus en zak-/slaaggrens in. Net alsof iemand het formulier voor je overtypt.</li>
+  <li>Controleer of alles klopt. Je kunt criteria aanpassen, observatie-tags toevoegen of de zak-/slaaggrens wijzigen.</li>
 </ol>
-<div class="guide-tip"><strong>Tip:</strong> Je kunt de AI ook nieuwe observatie-tags laten genereren door op <strong>Tags regenereren (AI)</strong> te klikken onderaan de editor.</div>
+<div class="guide-tip"><strong>Tip:</strong> Je kunt de AI ook nieuwe observatie-tags laten genereren. Klik onderaan de editor op <strong>Tags regenereren (AI)</strong>.</div>
 
 <h3>Optie B: Handmatig instellen</h3>
 <ol>
-  <li>Ga naar <strong>Configuratie</strong> &rarr; <strong>Handmatig instellen</strong>.</li>
-  <li>Vul zelf de criteria, scoreniveaus en cesuur in via de editor.</li>
+  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong> &rarr; <strong>Handmatig instellen</strong>.</li>
+  <li>Vul zelf de criteria en scoreniveaus in. Dit werkt vergelijkbaar met een tabel invullen in Excel.</li>
 </ol>
 
-<h3>Configuratie delen met collega's</h3>
+<h3>Configuratie delen met collega&rsquo;s</h3>
 <ol>
-  <li>Ga naar <strong>Databeheer</strong> &rarr; <strong>Configuratie exporteren</strong>.</li>
-  <li>Je collega importeert het JSON-bestand via <strong>Configuratie importeren</strong>.</li>
+  <li>Ga naar <strong>Console</strong> &rarr; <strong>Formulier</strong> en klik op het export-icoon bij de configuratie. Je downloadt dan een JSON-bestand.</li>
+  <li>Stuur dit bestand naar je collega. Die importeert het via <strong>Console</strong> &rarr; <strong>Formulier</strong> &rarr; <strong>Configuratie importeren</strong>.</li>
 </ol>
 
 <h2>Stap 2: Studenten invoeren</h2>
-<h3>Via CSV (aanbevolen)</h3>
+<h3>Via CSV-bestand (aanbevolen)</h3>
+<p>Een CSV-bestand is een eenvoudige tabel die je kunt maken in Excel.</p>
 <ol>
-  <li>Maak een CSV-bestand met kolommen: <strong>Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</strong>.</li>
-  <li>Je kunt zoveel assessor-kolommen toevoegen als nodig.</li>
-  <li>Klik op <strong>Importeer CSV</strong> rechtsboven.</li>
+  <li>Maak in Excel een tabel met de kolommen: <strong>Naam, Groep, Team, Assessor 1, Assessor 2, Datumtijd</strong>. Je kunt zoveel assessor-kolommen toevoegen als nodig.</li>
+  <li>Sla het bestand op als CSV: klik in Excel op <strong>Opslaan als</strong> en kies als bestandstype <strong>CSV (gescheiden door lijstscheidingstekens)</strong>.</li>
+  <li>Klik in de app op <strong>Importeer CSV</strong> (rechtsboven) en selecteer je bestand.</li>
 </ol>
+<div class="guide-tip"><strong>Voorbeeld:</strong> Zo ziet de tabel eruit in Excel:</div>
 <table class="guide-table">
   <thead><tr><th>Naam</th><th>Groep</th><th>Team</th><th>Assessor 1</th><th>Assessor 2</th><th>Datumtijd</th></tr></thead>
   <tbody>
@@ -2246,7 +2558,8 @@ function renderGuide() {
 
 <h3>Handmatig invoeren</h3>
 <ol>
-  <li>Ga naar <strong>Studenten</strong> &rarr; <strong>+ Groep</strong>: kies een beoordelingsformulier, vul assessoren en tijden in.</li>
+  <li>Ga naar <strong>Studenten</strong> en klik op <strong>+ Groep</strong>.</li>
+  <li>Kies een beoordelingsformulier, vul assessoren en tijden in.</li>
   <li>Voeg teams en studenten toe.</li>
 </ol>
 <div class="guide-tip"><strong>Meerdere formulieren:</strong> Je kunt meerdere beoordelingsformulieren beheren. Elke groep wordt gekoppeld aan een specifiek formulier.</div>
@@ -2254,38 +2567,42 @@ function renderGuide() {
 <h2>Stap 3: Planning controleren</h2>
 <ol>
   <li>Ga naar <strong>Overzicht</strong>. Je ziet een kalender met tijdslots.</li>
-  <li><strong>Sleep</strong> teams naar een ander tijdslot om de volgorde aan te passen.</li>
-  <li>Klik op een leeg slot om een <strong>pauze</strong> toe te voegen.</li>
+  <li><strong>Sleep</strong> teams naar een ander tijdslot om de volgorde aan te passen. (Klik op het team, houd de muisknop ingedrukt, beweeg naar het gewenste slot en laat los.)</li>
+  <li>Klik op een leeg vak om een <strong>pauze</strong> toe te voegen.</li>
 </ol>
 
 <h2>Stap 4: Assessment (tijdens de gesprekken)</h2>
 <ol>
   <li>Klik in het <strong>Overzicht</strong> op het team dat aan de beurt is.</li>
-  <li>Klik per criterium op het juiste <strong>scoreniveau</strong>. Klik nogmaals om te wissen.</li>
+  <li>Klik per criterium op het juiste <strong>scoreniveau</strong>. Het werkt als een aan/uit-knop: klik nogmaals om de score te wissen.</li>
   <li>Vink <strong>Teamscore</strong> aan als alle teamleden dezelfde score krijgen.</li>
-  <li>Gebruik <strong>observatie-tags</strong>: klik op een tag en kies de student, of sleep de tag naar het notitieveld.</li>
+  <li>Klik op een <strong>observatie-tag</strong> om een opmerking vast te leggen. Kies daarna bij welke student de observatie hoort.</li>
   <li>Klik op <strong>+ tag</strong> om ter plekke een eigen observatie-tag toe te voegen.</li>
 </ol>
-<div class="guide-tip"><strong>Alles wordt automatisch opgeslagen.</strong> Je hoeft nergens op "Opslaan" te klikken.</div>
+<div class="guide-tip"><strong>Alles wordt automatisch opgeslagen.</strong> Je hoeft nergens op &ldquo;Opslaan&rdquo; te klikken.</div>
 
 <h2>Stap 5: Resultaten en Feedback</h2>
 <ol>
-  <li><strong>Resultaten</strong>: totaaloverzicht met scores per criterium, cijfers en zak/slaag-status.</li>
-  <li><strong>Feedback</strong>: selecteer een student voor een individueel feedbackrapport. Klik op <strong>Print / PDF</strong> om het rapport op te slaan.</li>
+  <li><strong>Resultaten</strong>: een totaaloverzicht met scores per criterium en zak/slaag-status.</li>
+  <li><strong>Feedback</strong>: selecteer een student voor een individueel feedbackrapport.</li>
+  <li>Klik op <strong>Print / PDF</strong> om het rapport op te slaan. Het opent in je browser. Kies in het printvenster <strong>Opslaan als PDF</strong> (of druk Ctrl+P en kies &ldquo;Opslaan als PDF&rdquo;).</li>
 </ol>
 
 <h2>Stap 6: Data exporteren</h2>
+<p>Ga naar <strong>Console</strong> &rarr; <strong>Data</strong>. Hier vind je:</p>
 <ol>
-  <li><strong>CSV Overzicht</strong>: alle scores als spreadsheet voor administratie.</li>
-  <li><strong>JSON Backup</strong>: volledige backup van alle data (scores, notities, configuraties).</li>
-  <li><strong>JSON Herstellen</strong>: laad een eerdere backup in.</li>
+  <li><strong>CSV Overzicht</strong>: alle scores als Excel-achtig bestand (CSV) voor je administratie.</li>
+  <li><strong>JSON Backup</strong>: een reservekopie van al je gegevens (scores, notities, configuraties).</li>
+  <li><strong>JSON Herstellen</strong>: laad een eerdere reservekopie in.</li>
 </ol>
+<div class="guide-warn"><strong>Belangrijk:</strong> Maak na elke assessmentdag een backup! Als je je browsergegevens wist (of een andere computer gebruikt), zijn je gegevens anders kwijt.</div>
 
-<h2>Instellingen</h2>
-<p>Ga naar <strong>Instellingen</strong> om:</p>
+<h2>Console</h2>
+<p>Klik bovenaan op <strong>Console</strong>. Je vindt hier drie onderdelen:</p>
 <ul style="padding-left:1.5rem;margin-bottom:0.75rem">
-  <li>Je <strong>API-key</strong> te beheren (instellen, wijzigen, verwijderen).</li>
-  <li>Een overzicht van alle <strong>configuraties</strong> te zien.</li>
+  <li><strong>Formulier</strong>: beoordelingsformulieren aanmaken, bewerken of importeren.</li>
+  <li><strong>AI-model</strong>: je API-key bekijken, wijzigen of verwijderen, en wisselen tussen Google Gemini en Anthropic Claude (zie het hoofdstuk &ldquo;API-key&rdquo; hierboven).</li>
+  <li><strong>Data</strong>: studenten importeren (CSV), backups maken en herstellen, of alle gegevens wissen.</li>
 </ul>
 
 <h2>Privacy &amp; persoonsgegevens</h2>
@@ -2293,10 +2610,10 @@ function renderGuide() {
   <strong>Let op:</strong>
   <ul style="margin:0.5rem 0 0;padding-left:1.2rem">
     <li>Gebruik <strong>alleen voornamen</strong> van studenten.</li>
-    <li>Alle data blijft <strong>lokaal opgeslagen in je browser</strong>. Er wordt niets naar een server gestuurd, behalve het PDF-formulier naar de AI voor analyse.</li>
-    <li>Je <strong>API-key</strong> wordt alleen lokaal opgeslagen en nooit meegeexporteerd in backups.</li>
-    <li>Deel geen JSON-backups via e-mail. Bewaar backups <strong>alleen lokaal</strong>.</li>
-    <li>Verwijder na afloop alle data via <strong>Databeheer &rarr; Alles wissen</strong>.</li>
+    <li>Alle gegevens blijven <strong>lokaal opgeslagen in je browser</strong>, op jouw computer. Alleen als je een PDF laat analyseren wordt dat formulier naar de AI-dienst (Google of Anthropic) gestuurd. Verder wordt er niets verstuurd.</li>
+    <li>Je <strong>API-key</strong> wordt alleen lokaal opgeslagen en nooit meegenomen in backups.</li>
+    <li>Stuur backup-bestanden niet via e-mail. Bewaar ze <strong>op je eigen computer</strong> of in je persoonlijke OneDrive.</li>
+    <li>Verwijder na afloop alle gegevens via <strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>Alles wissen</strong>.</li>
   </ul>
 </div>
 
@@ -2304,10 +2621,14 @@ function renderGuide() {
 <table class="guide-table">
   <tbody>
     <tr><td>Wordt mijn data bewaard?</td><td>Ja, lokaal in je browser. Sluit je de browser, dan staat je data er nog.</td></tr>
-    <tr><td>Hoe maak ik een backup?</td><td><strong>Databeheer</strong> &rarr; <strong>JSON Backup</strong>. Doe dit regelmatig!</td></tr>
-    <tr><td>Kan ik meerdere formulieren gebruiken?</td><td>Ja. Maak via <strong>Configuratie</strong> meerdere configuraties aan en koppel elk aan een groep.</td></tr>
-    <tr><td>Hoe deel ik een formulier?</td><td>Exporteer de configuratie als JSON via <strong>Databeheer</strong>. Je collega importeert het bestand.</td></tr>
-    <tr><td>Kan ik op een tablet werken?</td><td>Ja, de app werkt op tablets. Op touchscreens gebruik je de klik-methode voor tags.</td></tr>
+    <tr><td>Hoe maak ik een backup?</td><td><strong>Console</strong> &rarr; <strong>Data</strong> &rarr; <strong>JSON Backup</strong>. Doe dit regelmatig!</td></tr>
+    <tr><td>Kan ik meerdere formulieren gebruiken?</td><td>Ja. Maak via <strong>Console</strong> &rarr; <strong>Formulier</strong> meerdere configuraties aan en koppel elk aan een groep.</td></tr>
+    <tr><td>Hoe deel ik een formulier?</td><td>Exporteer de configuratie via <strong>Console</strong> &rarr; <strong>Formulier</strong> (klik op het export-icoon). Je collega importeert het bestand.</td></tr>
+    <tr><td>Kan ik op een tablet werken?</td><td>Ja, de app werkt op tablets en telefoons.</td></tr>
+    <tr><td>Wat als ik mijn API-key kwijt ben?</td><td>Je kunt altijd een nieuwe aanmaken. Ga naar <strong>Console</strong> &rarr; <strong>AI-model</strong> en stel een nieuwe key in.</td></tr>
+    <tr><td>Kost het geld?</td><td>Google Gemini is gratis. Bij Anthropic betaal je per gebruik (een paar cent per PDF-analyse).</td></tr>
+    <tr><td>Werkt het op mijn werkcomputer?</td><td>Ja, de app draait in je browser. Je hoeft niets te installeren.</td></tr>
+    <tr><td>Ik krijg een foutmelding bij de PDF-analyse</td><td>Controleer of je API-key correct is ingevoerd via <strong>Console</strong> &rarr; <strong>AI-model</strong>. Probeer eventueel de andere AI-provider.</td></tr>
   </tbody>
 </table>
 </div>`;
@@ -2391,7 +2712,7 @@ function importConfigFromFile(input) {
       state.settings.activeConfigId = config.id;
       saveState();
       alert(`Configuratie "${config.title}" ge\u00efmporteerd.`);
-      if (currentView === 'settings') renderSettings();
+      if (currentView === 'console') renderConsole();
       else if (currentView === 'config') renderConfig();
     } catch(err) { alert('Fout bij lezen bestand: ' + err.message); }
   };
@@ -2400,29 +2721,59 @@ function importConfigFromFile(input) {
 
 // ==================== API KEY MODAL ====================
 let apiKeyCallback = null;
-function showApiKeyModal(callback) {
+let apiKeyEditProvider = 'anthropic';
+
+function showApiKeyModal(callback, provider) {
   apiKeyCallback = callback || null;
-  document.getElementById('apiKeyInput').value = state.settings.apiKey || '';
+  apiKeyEditProvider = provider || state.settings.aiProvider || 'anthropic';
+
+  const isGemini = apiKeyEditProvider === 'gemini';
+  document.getElementById('apiKeyModalTitle').textContent = (isGemini ? 'Gemini' : 'Anthropic') + ' API-key instellen';
+  document.getElementById('apiKeyModalDesc').innerHTML = isGemini
+    ? 'Vul hier je Google Gemini API-key in. Dit is een code die begint met <code>AIza...</code>. Heb je er nog geen? Ga naar <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>, log in met je Google-account en klik op &ldquo;Create API Key&rdquo;. Kopieer de code en plak hem hieronder. De key blijft alleen op jouw computer opgeslagen.'
+    : 'Vul hier je Anthropic API-key in. Dit is een code die begint met <code>sk-ant-...</code>. Heb je er nog geen? Ga naar <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>, maak een account aan en klik op &ldquo;Create Key&rdquo;. Kopieer de code en plak hem hieronder. De key blijft alleen op jouw computer opgeslagen.';
+  document.getElementById('apiKeyModalLabel').textContent = 'Plak hier je ' + (isGemini ? 'Gemini' : 'Anthropic') + ' API-key';
+  document.getElementById('apiKeyInput').placeholder = isGemini ? 'AIza...' : 'sk-ant-...';
+  document.getElementById('apiKeyInput').value = (isGemini ? state.settings.geminiApiKey : state.settings.apiKey) || '';
   document.getElementById('apiKeyModal').classList.add('open');
   document.getElementById('apiKeyInput').focus();
 }
+
 function closeApiKeyModal() {
   document.getElementById('apiKeyModal').classList.remove('open');
   apiKeyCallback = null;
 }
+
 function saveApiKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
   if (!key) { alert('Vul een API-key in.'); return; }
-  state.settings.apiKey = key;
+  if (apiKeyEditProvider === 'gemini') {
+    state.settings.geminiApiKey = key;
+  } else {
+    state.settings.apiKey = key;
+  }
   saveState();
   closeApiKeyModal();
   if (apiKeyCallback) apiKeyCallback();
 }
-function deleteApiKey() {
-  if (!confirm('API-key verwijderen?')) return;
-  delete state.settings.apiKey;
+
+function deleteApiKey(provider) {
+  provider = provider || 'anthropic';
+  const label = provider === 'gemini' ? 'Gemini' : 'Anthropic';
+  if (!confirm(`${label} API-key verwijderen?`)) return;
+  if (provider === 'gemini') {
+    delete state.settings.geminiApiKey;
+  } else {
+    delete state.settings.apiKey;
+  }
   saveState();
-  renderSettings();
+  if (currentView === 'console') renderConsole();
+}
+
+function setAiProvider(provider) {
+  state.settings.aiProvider = provider;
+  saveState();
+  if (currentView === 'console') renderConsole();
 }
 
 // ==================== CONFIG VIEW ====================
@@ -2487,8 +2838,9 @@ function renderConfig() {
 }
 
 function startPDFUpload() {
-  if (!state.settings.apiKey) {
-    showApiKeyModal(() => { showPDFUploadUI(); });
+  if (!getActiveApiKey()) {
+    const provider = state.settings.aiProvider || 'anthropic';
+    showApiKeyModal(() => { showPDFUploadUI(); }, provider);
   } else {
     showPDFUploadUI();
   }
@@ -2566,9 +2918,15 @@ function readFileAsBase64(file) {
   });
 }
 
-async function parsePDFWithAI(pdfBase64) {
+// ==================== AI PROVIDER ABSTRACTION ====================
+function getActiveApiKey() {
+  const provider = state.settings.aiProvider || 'anthropic';
+  return provider === 'gemini' ? state.settings.geminiApiKey : state.settings.apiKey;
+}
+
+async function callAnthropic({ messages, system, maxTokens = 4096 }) {
   const apiKey = state.settings.apiKey;
-  if (!apiKey) throw new Error('Geen API-key ingesteld');
+  if (!apiKey) throw new Error('Geen Anthropic API-key ingesteld. Ga naar Instellingen om een key in te stellen.');
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -2579,37 +2937,87 @@ async function parsePDFWithAI(pdfBase64) {
       'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 8192,
-      system: AI_SYSTEM_PROMPT,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'document',
-            source: {
-              type: 'base64',
-              media_type: 'application/pdf',
-              data: pdfBase64
-            }
-          },
-          {
-            type: 'text',
-            text: 'Analyseer dit beoordelingsformulier en extraheer de assessment-configuratie als JSON.'
-          }
-        ]
-      }]
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: maxTokens,
+      cache_control: { type: 'ephemeral' },
+      system,
+      messages
     })
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    if (response.status === 401) throw new Error('Ongeldige API-key. Controleer je key in Instellingen.');
+    if (response.status === 401) throw new Error('Ongeldige Anthropic API-key. Controleer je key via Console &gt; AI-model.');
     throw new Error(err.error?.message || `API-fout: ${response.status}`);
   }
 
   const result = await response.json();
-  const text = result.content?.[0]?.text || '';
+  return result.content?.[0]?.text || '';
+}
+
+async function callGemini({ messages, system, maxTokens = 4096 }) {
+  const apiKey = state.settings.geminiApiKey;
+  if (!apiKey) throw new Error('Geen Gemini API-key ingesteld. Ga naar Instellingen om een key in te stellen.');
+
+  // Convert Anthropic-format messages to Gemini format
+  const contents = messages.map(msg => {
+    const role = msg.role === 'assistant' ? 'model' : 'user';
+    const parts = [];
+
+    if (Array.isArray(msg.content)) {
+      for (const block of msg.content) {
+        if (block.type === 'text') {
+          parts.push({ text: block.text });
+        } else if (block.type === 'document' && block.source?.type === 'base64') {
+          parts.push({ inlineData: { mimeType: block.source.media_type, data: block.source.data } });
+        }
+      }
+    } else {
+      parts.push({ text: msg.content });
+    }
+
+    return { role, parts };
+  });
+
+  const body = { contents, generationConfig: { maxOutputTokens: maxTokens } };
+  if (system) {
+    body.system_instruction = { parts: [{ text: system }] };
+  }
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+  );
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400 || response.status === 403) throw new Error('Ongeldige Gemini API-key. Controleer je key via Console &gt; AI-model.');
+    throw new Error(err.error?.message || `API-fout: ${response.status}`);
+  }
+
+  const result = await response.json();
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callAI({ messages, system, maxTokens = 4096 }) {
+  const provider = state.settings.aiProvider || 'anthropic';
+  if (provider === 'gemini') return callGemini({ messages, system, maxTokens });
+  return callAnthropic({ messages, system, maxTokens });
+}
+
+// ==================== PDF ANALYSIS ====================
+async function parsePDFWithAI(pdfBase64) {
+  const text = await callAI({
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+        { type: 'text', text: 'Analyseer dit beoordelingsformulier en extraheer de assessment-configuratie als JSON.' }
+      ]
+    }],
+    system: AI_SYSTEM_PROMPT,
+    maxTokens: 8192
+  });
 
   // Extract JSON from response (may be in markdown code block)
   const jsonMatch = text.match(/```json\s*([\s\S]*?)```/) || text.match(/```\s*([\s\S]*?)```/) || [null, text];
@@ -2736,29 +3144,7 @@ async function handlePDFFile(file) {
     console.group('\ud83e\udd16 AI Chat \u2014 initial analysis');
     console.log('Sending PDF for analysis...');
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.settings.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: CHAT_SYSTEM_PROMPT,
-        messages
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(response.status === 401 ? 'Ongeldige API-key.' : (err.error?.message || 'API-fout: ' + response.status));
-    }
-
-    const result = await response.json();
-    const assistantText = result.content?.[0]?.text || 'Geen antwoord ontvangen.';
+    const assistantText = await callAI({ messages, system: CHAT_SYSTEM_PROMPT, maxTokens: 4096 }) || 'Geen antwoord ontvangen.';
     console.log('AI response:', assistantText);
     console.groupEnd();
 
@@ -2798,7 +3184,7 @@ function renderChatUI() {
     const isUser = msg.role === 'user';
     html += `<div class="chat-msg ${msg.role}">
       <div class="msg-avatar">${isUser ? '\ud83d\udc64' : '\ud83e\udd16'}</div>
-      <div class="msg-bubble">${escapeHtml(msg.content)}</div>
+      <div class="msg-bubble">${isUser ? escapeHtml(msg.content) : renderMarkdown(msg.content)}</div>
     </div>`;
   }
 
@@ -2815,11 +3201,15 @@ function renderChatUI() {
     <button class="btn btn-primary" onclick="sendChatMessage()" ${chatBusy ? 'disabled' : ''} style="padding:0.5rem 1rem">Verstuur</button>
   </div>`;
 
-  // Action buttons
+  // Action bar
   const hasAssistantMsg = chatMessages.some(m => m.role === 'assistant');
-  html += `<div class="chat-actions">
-    ${hasAssistantMsg && !chatBusy ? `<button class="btn btn-primary" onclick="confirmAndExtract()">Bevestig &amp; extraheer configuratie</button>` : ''}
-  </div>`;
+  if (hasAssistantMsg && !chatBusy) {
+    html += `<div class="chat-actions">
+      <span class="chat-actions-hint">Tevreden? Extraheer de configuratie, of stel eerst nog een vraag.</span>
+      <button class="btn btn-outline" onclick="configViewMode=null; chatMessages=[]; chatPdfBase64=null; renderConfig()">Annuleren</button>
+      <button class="btn btn-primary" onclick="confirmAndExtract()">Extraheer configuratie</button>
+    </div>`;
+  }
 
   html += `</div>`;
   el.innerHTML = html;
@@ -2836,7 +3226,88 @@ function renderChatUI() {
 }
 
 function escapeHtml(text) {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderMarkdown(text) {
+  const escaped = escapeHtml(text);
+  const lines = escaped.split('\n');
+  let html = '';
+  let inList = false;
+  let inTable = false;
+  let tableHeaderDone = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Table rows: lines starting and ending with |
+    const isTableRow = line.trim().match(/^\|(.+)\|$/);
+    const isSeparator = line.trim().match(/^\|[\s\-:|]+\|$/);
+    if (isTableRow) {
+      if (inList) { html += '</ul>'; inList = false; }
+      if (isSeparator) { tableHeaderDone = true; continue; } // skip --- separator row
+      const cells = line.trim().slice(1, -1).split('|').map(c => c.trim());
+      if (!inTable) {
+        html += '<table>';
+        inTable = true;
+        tableHeaderDone = false;
+        // First row is always header
+        html += '<thead><tr>' + cells.map(c => `<th>${applyInline(c)}</th>`).join('') + '</tr></thead><tbody>';
+        continue;
+      }
+      html += '<tr>' + cells.map(c => `<td>${applyInline(c)}</td>`).join('') + '</tr>';
+      continue;
+    }
+    if (inTable) { html += '</tbody></table>'; inTable = false; tableHeaderDone = false; }
+
+    // Headers
+    const headerMatch = line.match(/^(#{1,4})\s+(.+)$/);
+    if (headerMatch) {
+      if (inList) { html += '</ul>'; inList = false; }
+      const level = Math.min(headerMatch[1].length + 2, 6); // h3-h6 range inside bubble
+      html += `<h${level}>${applyInline(headerMatch[2])}</h${level}>`;
+      continue;
+    }
+
+    // List items: *, -, or numbered (1.)
+    const listMatch = line.match(/^(\s*)[*\-]\s+(.+)$/);
+    const numListMatch = !listMatch && line.match(/^(\s*)\d+\.\s+(.+)$/);
+    if (listMatch || numListMatch) {
+      const match = listMatch || numListMatch;
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${applyInline(match[2])}</li>`;
+      continue;
+    }
+
+    // Close list if we hit a non-list line
+    if (inList && line.trim() === '') { continue; } // skip blank lines inside lists
+    if (inList && !listMatch && !numListMatch) { html += '</ul>'; inList = false; }
+
+    // Empty line = paragraph break
+    if (line.trim() === '') {
+      html += '<br>';
+      continue;
+    }
+
+    // Regular line
+    html += applyInline(line) + '<br>';
+  }
+
+  if (inList) html += '</ul>';
+  if (inTable) html += '</tbody></table>';
+  // Clean up trailing <br>
+  html = html.replace(/(<br>)+$/, '');
+  return html;
+}
+
+function applyInline(text) {
+  // Bold: **text**
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic: *text* (but not mid-word asterisks)
+  text = text.replace(/(?<!\w)\*(?!\s)(.+?)(?<!\s)\*(?!\w)/g, '<em>$1</em>');
+  // Inline code: `text`
+  text = text.replace(/`(.+?)`/g, '<code>$1</code>');
+  return text;
 }
 
 async function sendChatMessage() {
@@ -2866,25 +3337,7 @@ async function sendChatMessage() {
     console.group('\ud83e\udd16 AI Chat \u2014 sendChatMessage');
     console.log('Messages:', apiMessages.map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : '[PDF + text]' })));
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.settings.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: CHAT_SYSTEM_PROMPT,
-        messages: apiMessages
-      })
-    });
-
-    if (!response.ok) throw new Error('API-fout: ' + response.status);
-    const result = await response.json();
-    const assistantText = result.content?.[0]?.text || 'Geen antwoord ontvangen.';
+    const assistantText = await callAI({ messages: apiMessages, system: CHAT_SYSTEM_PROMPT, maxTokens: 4096 }) || 'Geen antwoord ontvangen.';
 
     console.log('AI response:', assistantText);
     console.groupEnd();
@@ -2961,25 +3414,7 @@ Regels:
 - Genereer PRECIES 4 observatie-tags per criterium per scoreniveau (kort, max 4 woorden)
 - Antwoord UITSLUITEND met JSON, geen andere tekst`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.settings.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        system: extractionSystemPrompt,
-        messages: apiMessages
-      })
-    });
-
-    if (!response.ok) throw new Error('API-fout: ' + response.status);
-    const result = await response.json();
-    const text = result.content?.[0]?.text || '';
+    const text = await callAI({ messages: apiMessages, system: extractionSystemPrompt, maxTokens: 8192 });
 
     console.log('Raw AI response:', text);
 
@@ -3020,8 +3455,9 @@ Regels:
 async function regenerateTags(configId) {
   const config = state.configs.find(c => c.id === configId);
   if (!config) return;
-  if (!state.settings.apiKey) {
-    showApiKeyModal(() => regenerateTags(configId));
+  if (!getActiveApiKey()) {
+    const provider = state.settings.aiProvider || 'anthropic';
+    showApiKeyModal(() => regenerateTags(configId), provider);
     return;
   }
 
@@ -3029,20 +3465,10 @@ async function regenerateTags(configId) {
   const levelLabels = Object.values(config.levels.labels).join(', ');
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': state.settings.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages: [{
-          role: 'user',
-          content: `Genereer per criterium PRECIES 4 korte observatie-tags (max 4 woorden) per scoreniveau.
+    const text = await callAI({
+      messages: [{
+        role: 'user',
+        content: `Genereer per criterium PRECIES 4 korte observatie-tags (max 4 woorden) per scoreniveau.
 
 Assessment: ${config.title}
 Niveaus (${config.levels.count}): ${levelLabels}
@@ -3052,13 +3478,9 @@ ${criteriaText}
 
 Antwoord als JSON array van objecten met id en tags:
 [{ "id": 1, "tags": [{ "text": "...", "level": 1 }, ...] }, ...]`
-        }]
-      })
+      }],
+      maxTokens: 4096
     });
-
-    if (!response.ok) throw new Error('API-fout: ' + response.status);
-    const result = await response.json();
-    const text = result.content?.[0]?.text || '';
     const jsonMatch = text.match(/```json\s*([\s\S]*?)```/) || text.match(/```\s*([\s\S]*?)```/) || [null, text];
     const newTags = JSON.parse(jsonMatch[1].trim());
 
@@ -3186,7 +3608,7 @@ function renderConfigEditor(configId) {
 
   // Regenerate tags button
   html += `<div style="margin-top:1.5rem;padding-top:1rem;border-top:2px solid var(--border)">
-    <button class="btn btn-outline" onclick="regenerateTags('${configId}')" ${!state.settings.apiKey ? 'title="Vereist API-key"' : ''}>Tags regenereren (AI)</button>
+    <button class="btn btn-outline" onclick="regenerateTags('${configId}')" ${!getActiveApiKey() ? 'title="Vereist API-key"' : ''}>Tags regenereren (AI)</button>
     <span style="font-size:0.8rem;color:var(--text-muted);margin-left:0.5rem">Genereert nieuwe observatie-tags op basis van de criteria. Custom tags blijven behouden.</span>
   </div>`;
 
@@ -3309,28 +3731,45 @@ function editorUpdatePassThreshold(configId, value) {
 // ==================== SETTINGS VIEW ====================
 function renderSettings() {
   const el = document.getElementById('view-settings');
-  const hasKey = !!state.settings.apiKey;
-  const maskedKey = hasKey ? state.settings.apiKey.substring(0, 10) + '\u2022'.repeat(20) + state.settings.apiKey.slice(-4) : '';
+  const provider = state.settings.aiProvider || 'anthropic';
+  const hasAnthropicKey = !!state.settings.apiKey;
+  const hasGeminiKey = !!state.settings.geminiApiKey;
+  const maskKey = (k) => k.substring(0, 10) + '\u2022'.repeat(20) + k.slice(-4);
 
-  let html = `<h1>Instellingen</h1>
+  let html = `<h1>Console &mdash; AI-model</h1>
 
   <div class="settings-section card">
-    <h2>API-key (Anthropic)</h2>
-    ${hasKey
-      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskedKey}</p>
-         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderSettings(); })" style="margin-right:0.5rem">Wijzigen</button>
-         <button class="btn btn-outline" onclick="deleteApiKey()">Verwijderen</button>`
-      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Geen API-key ingesteld. Een key is nodig om PDF-formulieren te laten analyseren door AI.</p>
-         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderSettings(); })">API-key instellen</button>`
+    <h2>AI-provider</h2>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+      <button class="btn ${provider === 'anthropic' ? 'btn-primary' : 'btn-outline'}" onclick="setAiProvider('anthropic')">Anthropic (Claude)</button>
+      <button class="btn ${provider === 'gemini' ? 'btn-primary' : 'btn-outline'}" onclick="setAiProvider('gemini')">Google (Gemini)</button>
+    </div>
+
+    <h3>Anthropic API-key ${provider === 'anthropic' ? '<span style="color:var(--primary);font-size:0.8rem;font-weight:normal">(actief)</span>' : ''}</h3>
+    ${hasAnthropicKey
+      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskKey(state.settings.apiKey)}</p>
+         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderSettings(); }, 'anthropic')" style="margin-right:0.5rem">Wijzigen</button>
+         <button class="btn btn-outline" onclick="deleteApiKey('anthropic')">Verwijderen</button>`
+      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Je hebt nog geen Anthropic key ingesteld. Zonder key kun je geen PDF's laten analyseren met deze dienst.</p>
+         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderSettings(); }, 'anthropic')">Anthropic key instellen</button>`
     }
-    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">De key wordt alleen lokaal in je browser opgeslagen.</p>
+
+    <h3 style="margin-top:1.25rem">Gemini API-key ${provider === 'gemini' ? '<span style="color:var(--primary);font-size:0.8rem;font-weight:normal">(actief)</span>' : ''}</h3>
+    ${hasGeminiKey
+      ? `<p style="font-family:monospace;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">${maskKey(state.settings.geminiApiKey)}</p>
+         <button class="btn btn-outline" onclick="showApiKeyModal(function(){ renderSettings(); }, 'gemini')" style="margin-right:0.5rem">Wijzigen</button>
+         <button class="btn btn-outline" onclick="deleteApiKey('gemini')">Verwijderen</button>`
+      : `<p style="color:var(--text-muted);margin-bottom:0.75rem">Je hebt nog geen Gemini key ingesteld. Zonder key kun je geen PDF's laten analyseren met deze dienst.</p>
+         <button class="btn btn-primary" onclick="showApiKeyModal(function(){ renderSettings(); }, 'gemini')">Gemini key instellen</button>`
+    }
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.75rem">Je keys worden alleen op jouw computer opgeslagen (in je browser). Ze worden nooit naar ons of naar anderen gestuurd.</p>
   </div>
 
   <div class="settings-section card">
     <h2>Configuraties (${state.configs.length})</h2>`;
 
   if (state.configs.length === 0) {
-    html += `<p style="color:var(--text-muted)">Geen configuraties. Ga naar <a href="#" onclick="event.preventDefault(); showView('config')">Configuratie</a> om er een aan te maken.</p>`;
+    html += `<p style="color:var(--text-muted)">Geen configuraties. Ga naar <a href="#" onclick="event.preventDefault(); consoleSubTab='formulier'; showView('console')">Console &rarr; Formulier</a> om er een aan te maken.</p>`;
   } else {
     for (const c of state.configs) {
       const linkedGroups = state.groups.filter(g => g.configId === c.id);
