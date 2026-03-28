@@ -3458,6 +3458,9 @@ async function regenerateTags(configId) {
     return;
   }
 
+  const btn = document.querySelector(`button[onclick="regenerateTags('${configId}')"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Tags genereren…'; }
+
   const criteriaText = config.criteria.map(c => `${c.id}. ${c.name}: ${c.desc}`).join('\n');
   const levelLabels = Object.values(config.levels.labels).join(', ');
 
@@ -3494,6 +3497,7 @@ Antwoord als JSON array van objecten met id en tags:
     renderConfigEditor(configId);
     alert('Tags opnieuw gegenereerd!');
   } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Tags regenereren (AI)'; }
     alert('Fout bij genereren tags: ' + err.message);
   }
 }
